@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b2a45">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Eagle Eye – Uusi Era</title>
+<style>
+/* ===== Eagle Eye design system =====
+   Neutral slate surfaces, one navy brand colour, one blue action colour,
+   muted semantic status colours, Inter typography, 8px spacing grid. */
+:root{
+ --brand:#0b2a45;--brand-2:#123a5c;--gold:#d9a23a;
+ --accent:#1d5fa8;--accent-h:#174e8c;--accent-soft:#eaf1fa;
+ --bg:#f5f7fa;--surface:#fff;--subtle:#f8fafc;
+ --line:#e3e8ef;--line-2:#eef2f6;
+ --text:#0f1b2a;--text-2:#344256;--muted:#64748b;
+ --ok:#15803d;--ok-bg:#ecf8f0;--good:#0e7490;--good-bg:#e8f5f8;--fair:#b45309;--fair-bg:#fdf4e7;--poor:#b91c1c;--poor-bg:#fdeeee;
+ --r:10px;--r-sm:6px;--shadow:0 1px 2px rgba(16,24,40,.05);--shadow-lg:0 12px 32px rgba(16,24,40,.14);
+ --side:248px;
+ font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-feature-settings:"cv11","ss01";color:var(--text);background:var(--bg)
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);font-size:14px;line-height:1.5;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+[hidden]{display:none!important}
+.ic{width:18px;height:18px;flex:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---- app frame ---- */
+.app{min-height:100vh}
+.side{position:fixed;inset:0 auto 0 0;width:var(--side);background:var(--brand);color:#c9d6e3;display:flex;flex-direction:column;z-index:30}
+.side .brand{padding:20px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand{display:flex;align-items:center;gap:11px;color:#fff;text-decoration:none;min-width:0}
+.brand svg{width:32px;height:32px;flex:none}
+.brand b{display:block;font-size:16px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+.brand small{display:block;color:#8fa6bd;font-size:12px;font-weight:500}
+.snav{flex:1;overflow-y:auto;padding:14px 12px}
+.snav .grp{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#7f97ae;padding:14px 10px 6px}
+.snav a{display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:var(--r-sm);color:#c9d6e3;text-decoration:none;font-weight:500;margin-bottom:2px}
+.snav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.snav a.on{background:rgba(255,255,255,.1);color:#fff;box-shadow:inset 3px 0 0 var(--gold)}
+.snav a .ic{opacity:.85}
+.side-foot{padding:14px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--gold);color:var(--brand);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.side-foot .who{flex:1;min-width:0}
+.side-foot .who b{display:block;color:#fff;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-foot .who small{display:block;color:#8fa6bd;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{background:none;border:0;color:inherit;width:34px;height:34px;border-radius:var(--r-sm);display:grid;place-items:center;cursor:pointer;flex:none;text-decoration:none}
+.side .icon-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+.content{margin-left:var(--side);min-width:0}
+.topbar{position:sticky;top:0;z-index:20;height:60px;background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 28px}
+.topbar .ctx{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .ctx b{color:var(--text);font-weight:600}
+.topbar .brand{display:none;color:var(--brand)}
+.topbar .brand small{color:var(--muted)}
+.top-r{display:flex;gap:6px;align-items:center}
+.chip{background:var(--surface);border:1px solid var(--line);color:var(--text-2);border-radius:var(--r-sm);padding:0 10px;height:34px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;text-decoration:none;letter-spacing:.02em}
+.chip:hover{background:var(--subtle)}
+.m-only{display:none!important}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 28px 40px}
+.foot{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 28px;max-width:720px;margin:0 auto}
+.tabs{display:none}
+
+@media(max-width:899px){
+ .side{display:none}
+ .content{margin-left:0}
+ .topbar{padding:0 16px;padding-top:env(safe-area-inset-top);height:calc(56px + env(safe-area-inset-top))}
+ .topbar .ctx{display:none}
+ .topbar .brand{display:flex}
+ .m-only{display:inline-flex!important}
+ .wrap{padding:18px 16px 24px}
+ .foot{padding-bottom:96px}
+ .tabs{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom));z-index:25;box-shadow:0 -4px 16px rgba(16,24,40,.06)}
+ .tabs a{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;border-radius:var(--r-sm);color:var(--muted);text-decoration:none;font-size:10.5px;font-weight:600}
+ .tabs a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .tabs a.on{color:var(--accent)}
+ .tabs a.on .ic{stroke-width:2.4}
+ .tabs a.nav-settings{display:none}
+}
+
+/* ---- page structure ---- */
+.pg-h{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.pg-h h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
+.pg-h p{margin:4px 0 0}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;flex:1;justify-content:flex-end;min-width:min(100%,300px)}
+.filters .sel{width:auto;flex:0 1 auto}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card h2{font-size:14px;font-weight:600;margin:0 0 14px;color:var(--text);letter-spacing:-.005em}
+.card h3{font-size:13px;font-weight:600;margin:20px 0 8px;color:var(--text-2)}
+.center{text-align:center}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr))}
+.kpis{display:grid;gap:16px;grid-template-columns:repeat(2,1fr);margin-bottom:16px}
+@media(min-width:1000px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;min-width:0;box-shadow:var(--shadow)}
+.kpi .l{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.kpi .v{font-size:28px;font-weight:700;margin:6px 0 4px;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.15}
+.kpi .s{font-size:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-height:22px}
+.two{display:grid;gap:0 16px}
+.two>*{min-width:0}
+@media(min-width:1000px){.two{grid-template-columns:1fr 1fr}.two.wide{grid-template-columns:3fr 2fr}}
+.muted{color:var(--muted)}.small{font-size:12.5px}
+
+/* ---- controls ---- */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:var(--r-sm);padding:0 14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;height:38px;text-decoration:none;color:var(--text-2);font-weight:600;font-size:13.5px;box-shadow:var(--shadow);white-space:nowrap}
+.btn:hover{background:var(--subtle);border-color:#d3dbe5}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-h)}
+.btn.danger{color:var(--poor);border-color:#f2d0d0}
+.btn.danger:hover{background:var(--poor-bg)}
+.btn.sm{height:32px;padding:0 10px;font-size:12.5px}
+.btn .ic{width:16px;height:16px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.center .btns{justify-content:center}
+.link{background:none;border:0;color:var(--accent);cursor:pointer;padding:4px 0;font-weight:600;text-decoration:none;display:inline-block;font-size:13px}
+.link:hover{text-decoration:underline}
+.input,select,textarea{width:100%;border:1px solid #d3dbe5;border-radius:var(--r-sm);padding:0 12px;background:var(--surface);height:38px;font-size:14px;box-shadow:var(--shadow)}
+textarea{resize:vertical;padding:9px 12px;height:auto;min-height:38px}
+.input:focus,select:focus,textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,95,168,.15)}
+label.f{display:block;font-size:12.5px;font-weight:600;margin:0 0 6px;color:var(--text-2)}
+.fields{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:var(--r-sm);padding:2px 8px;font-size:12px;font-weight:600;background:var(--line-2);color:var(--text-2);white-space:nowrap;line-height:1.5}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+.g-excellent,.st-fixed{background:var(--ok-bg);color:var(--ok)}
+.g-good{background:var(--good-bg);color:var(--good)}
+.g-fair,.st-progress{background:var(--fair-bg);color:var(--fair)}
+.g-poor,.st-open{background:var(--poor-bg);color:var(--poor)}
+.g-none::before{display:none}
+.delta{font-size:12px;font-weight:600;color:var(--muted)}.delta.up{color:var(--ok)}.delta.down{color:var(--poor)}
+
+/* ---- site search ---- */
+.combo{position:relative;flex:1 1 260px;min-width:0;max-width:420px}
+.card .combo{max-width:none}
+.combo .input{padding-left:36px}
+.combo>.ic{position:absolute;left:11px;top:10px;color:var(--muted);pointer-events:none;width:17px;height:17px}
+.combo-list{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-lg);list-style:none;margin:0;padding:6px;max-height:min(360px,55vh);overflow:auto;z-index:40}
+.combo-list li{padding:8px 10px;border-radius:var(--r-sm);cursor:pointer}
+.combo-list li strong{font-weight:600}
+.combo-list li small{display:block;color:var(--muted);font-size:12px}
+.combo-list li.act,.combo-list li:hover{background:var(--accent-soft)}
+.combo-list li.cur strong::after{content:" ✓";color:var(--accent)}
+.combo-list li.none{color:var(--muted);cursor:default}
+mark{background:#fdecc8;color:inherit;border-radius:2px;padding:0 1px}
+
+/* ---- lists, bars, charts ---- */
+.list-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border:0;border-bottom:1px solid var(--line-2);text-decoration:none;color:inherit;width:100%;background:none;text-align:left;cursor:pointer;font-size:14px}
+.list-row:last-child{border-bottom:0}
+.list-row strong{font-weight:600}
+.list-row:hover strong{color:var(--accent)}
+.bar-row{display:grid;grid-template-columns:minmax(90px,40%) 1fr 58px;gap:12px;align-items:center;margin:10px 0;font-size:13px}
+.bar-l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)}
+.bar-l a{color:inherit;text-decoration:none}.bar-l a:hover{color:var(--accent)}
+.bar-t{position:relative;height:8px;background:var(--line-2);border-radius:4px}
+.bar-f{height:100%;border-radius:4px}
+.bar-tg{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--text);border-radius:1px;opacity:.55}
+.bar-v{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+@media(max-width:520px){.bar-row{grid-template-columns:1fr 58px;gap:4px 12px;margin:12px 0}.bar-l{grid-column:1/-1}}
+.chart{width:100%;height:auto;display:block}
+.chart text{font-size:12px;fill:#7a8799;font-family:inherit}
+.chart text.tg{fill:#8a5a0f;font-weight:600}
+.spark{width:110px;height:30px}
+
+/* ---- inspection ---- */
+.item{padding:16px}
+.item.flag{border-color:#f1c8c8;background:#fffbfb}
+.item.pulse{animation:pulse 1.4s}
+@keyframes pulse{0%,100%{box-shadow:var(--shadow)}30%{box-shadow:0 0 0 4px rgba(185,28,28,.25)}}
+.item-h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:12px}
+.item-h strong{font-weight:600}
+.wchip{font-size:11.5px;color:var(--muted);white-space:nowrap;background:var(--line-2);border-radius:var(--r-sm);padding:2px 8px;font-weight:600}
+.scale{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;max-width:560px}
+.sc{border:1px solid #d3dbe5;background:var(--surface);border-radius:var(--r-sm);height:44px;font-weight:600;cursor:pointer;font-size:15px;padding:0;color:var(--text-2);font-variant-numeric:tabular-nums}
+.sc:hover{border-color:var(--accent);color:var(--accent)}
+.sc.na{font-size:12px}
+.sc.on{color:#fff;border-color:transparent}
+.sc.s0.on,.sc.s1.on{background:var(--poor)}.sc.s2.on{background:#c2410c}.sc.s3.on{background:var(--fair)}.sc.s4.on{background:var(--good)}.sc.s5.on{background:var(--ok)}.sc.na.on{background:#64748b}
+.item-x{margin-top:12px;display:grid;gap:8px}
+.photo-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.scorebar{position:sticky;bottom:16px;background:var(--brand);color:#fff;border-radius:var(--r);padding:10px 12px 10px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:var(--shadow-lg);z-index:15;margin-top:16px}
+.scorebar b{font-size:22px;font-variant-numeric:tabular-nums;font-weight:700}
+.scorebar small{display:block;color:#9fb4c8;font-size:12px}
+.scorebar .pill{background:rgba(255,255,255,.12);color:#fff}
+@media(max-width:899px){.scorebar{bottom:76px}}
+.area-h{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:28px 0 10px;display:flex;justify-content:space-between}
+.thumb{width:80px;height:80px;object-fit:cover;border-radius:var(--r-sm);cursor:zoom-in;border:1px solid var(--line);display:block}
+.overlay{position:fixed;inset:0;background:rgba(8,18,30,.88);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px;cursor:zoom-out}
+.overlay img{max-width:100%;max-height:100%;border-radius:var(--r)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--text);color:#fff;padding:11px 16px;border-radius:var(--r);z-index:120;box-shadow:var(--shadow-lg);max-width:calc(100% - 32px);font-weight:500;font-size:13.5px}
+.toast.err{background:var(--poor)}
+@media(max-width:899px){.toast{bottom:150px}}
+
+/* ---- leaderboard ---- */
+.lb{display:grid;gap:8px}
+.lb-row{display:grid;grid-template-columns:34px 1fr auto;gap:14px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);text-decoration:none;color:inherit;box-shadow:var(--shadow)}
+.card .lb-row{box-shadow:none}
+.lb-row:hover{border-color:#c5d3e3;background:var(--subtle)}
+.lb-row strong{font-weight:600}
+.rank{width:32px;height:32px;border-radius:50%;background:var(--line-2);display:grid;place-items:center;font-weight:700;font-size:13px;color:var(--text-2)}
+.rank.r1{background:#f6e7c4;color:#7c5410;box-shadow:inset 0 0 0 1.5px var(--gold)}.rank.r2{background:#e7ecf2}.rank.r3{background:#f2e3d6;color:#7a4a1e}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
+.badge{font-size:11px;font-weight:600;border-radius:var(--r-sm);padding:2px 7px;background:#fbf1dc;color:#7c5410;display:inline-flex;gap:4px;align-items:center}
+.badge .ic{width:12px;height:12px}
+.badge.ok{background:var(--ok-bg);color:var(--ok)}.badge.imp{background:var(--accent-soft);color:var(--accent)}.badge.mute{background:var(--line-2);color:var(--muted)}
+.lb-score{text-align:right}.lb-score b{font-size:18px;display:block;font-variant-numeric:tabular-nums;font-weight:700}
+
+/* ---- tables ---- */
+.t{width:100%;border-collapse:collapse;font-size:13.5px}
+.t th,.t td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line-2);vertical-align:top}
+.t th{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;background:var(--subtle);border-bottom-color:var(--line)}
+.t tbody tr:hover td{background:#fafbfd}
+.t .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.t .input{height:34px;box-shadow:none}
+.tbl{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:var(--r-sm)}
+.tbl .t tr:last-child td{border-bottom:0}
+
+/* ---- login ---- */
+.login{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);background:var(--surface)}
+.login-hero{background:var(--brand);color:#c9d6e3;padding:48px 56px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.login-hero::after{content:"";position:absolute;right:-160px;bottom:-160px;width:460px;height:460px;border-radius:50%;border:70px solid rgba(217,162,58,.08)}
+.login-hero h2{color:#fff;font-size:34px;line-height:1.15;letter-spacing:-.025em;margin:0 0 14px;max-width:460px;font-weight:700}
+.login-hero p{font-size:15px;max-width:440px;margin:0 0 28px;color:#a9bccf}
+.vp{list-style:none;padding:0;margin:0;display:grid;gap:14px;max-width:440px}
+.vp li{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:#dbe5ee}
+.vp li .ic{color:var(--gold);margin-top:2px}
+.login-hero small{color:#7f97ae;font-size:12px}
+.login-main{display:grid;place-items:center;padding:40px 24px}
+.login-card{width:100%;max-width:400px}
+.login-card h1{font-size:24px;letter-spacing:-.02em;margin:0 0 6px}
+.login-card>p{color:var(--muted);margin:0 0 24px}
+.role-card{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:0 0 12px;background:var(--surface);color:inherit;box-shadow:var(--shadow)}
+button.role-card{cursor:pointer}
+button.role-card:hover{border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,95,168,.1)}
+.role-ic{width:38px;height:38px;border-radius:var(--r-sm);background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.role-card strong{font-size:15px;font-weight:600;display:block}
+.role-card p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.role-card .grow{flex:1;min-width:0}
+.login-foot{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:20px}
+@media(max-width:899px){.login{grid-template-columns:1fr}.login-hero{padding:28px 20px}.login-hero h2{font-size:24px}.login-hero p,.vp{display:none}.login-hero small{display:none}.login-hero::after{display:none}}
+
+/* ---- misc ---- */
+.chk-row{display:grid;grid-template-columns:22px 1fr 76px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line-2)}
+.chk-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+.chk-row .input{height:32px;padding:0 8px;box-shadow:none}
+.det-row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-2);align-items:flex-start}
+.det-row:last-child{border-bottom:0}
+.det-row .small{margin-top:4px}
+.det-row .thumb{margin-top:8px}
+.dots5{display:inline-flex;gap:3px;vertical-align:middle;margin-right:8px}
+.dots5 i{width:9px;height:9px;border-radius:2px;background:var(--line)}
+.dots5 i.on{background:var(--ok)}
+.dots5.lo i.on{background:var(--poor)}.dots5.mid i.on{background:var(--fair)}
+.insp-head{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.insp-head h1{margin:0 0 4px;font-size:21px;letter-spacing:-.02em}
+.insp-head p{margin:0 0 10px}
+.issue{padding:16px 18px}
+.issue strong{font-weight:600}
+.issue.od{box-shadow:inset 3px 0 0 var(--poor),var(--shadow)}
+.row-b{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.seg{display:inline-flex;background:var(--line-2);border:1px solid var(--line);border-radius:8px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;border-radius:var(--r-sm);padding:6px 12px;cursor:pointer;font-weight:600;font-size:12.5px;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 2px rgba(16,24,40,.1)}
+.site-card{display:block;text-decoration:none;color:inherit;margin:0;transition:border-color .15s,box-shadow .15s}
+.site-card:hover{border-color:#c5d3e3;box-shadow:0 4px 14px rgba(16,24,40,.07)}
+.site-card .row-b strong{font-size:14.5px;font-weight:600}
+.meta{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line-2)}
+.report h1{font-size:20px;margin:0 0 4px;letter-spacing:-.02em}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+@media print{
+ .side,.topbar,.tabs,.no-print,.foot,.toast{display:none!important}
+ .content{margin:0}
+ body,.wrap{background:#fff;padding:0;max-width:none}
+ .card,.kpi{break-inside:avoid;box-shadow:none;border-color:#ccc}
+ .bar-f,.pill,.rank,.t th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+/* ================= storage ================= */
+const KEY='ee_db_v2',SKEY='ee_session',DKEY='ee_draft';
+const store={
+ get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+ set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){toast(t('storageFull'),'err');return false}},
+ del(k){try{localStorage.removeItem(k)}catch(e){}}
+};
+
+/* ================= i18n ================= */
+const T={fi:{
+appSub:'Siivouksen laadunseuranta',forCo:'Uusi Era Palvelut Oy',loginAdmin:'Uusi Era – henkilöstö',loginAdminDesc:'Tarkastukset, kohteet, siivoojat, raportit ja asetukset.',loginCustomer:'Asiakas',loginCustomerDesc:'Omien kohteiden siisteystaso, raportit ja puutteista ilmoittaminen.',enter:'Jatka',
+demoNote:'Demo: tiedot tallentuvat vain tähän selaimeen. Tietoja voi siirtää laitteelta toiselle kohdasta Asetukset → Vie / Tuo.',logout:'Kirjaudu ulos',admin:'Ylläpitäjä',
+nav_dashboard:'Kojelauta',nav_inspect:'Tarkastus',nav_issues:'Poikkeamat',nav_sites:'Kohteet',nav_cleaners:'Siivoojat',nav_reports:'Raportit',nav_settings:'Asetukset',nav_feedback:'Ilmoita',
+searchSite:'Hae kohdetta nimellä…',noMatch:'Ei osumia',allSites:'Kaikki kohteet',last30:'Viimeiset 30 päivää',
+avgScore:'Siisteystaso',inspections:'Tarkastukset',openIssues:'Avoimet poikkeamat',overdueN:'{0} myöhässä',belowTarget:'Alle tavoitteen',sitesOf:'{0} / {1} kohteesta',pts:'%-yks.',prevN:'edellinen jakso: {0}',
+trend:'Siisteystason kehitys (12 kk)',target:'Tavoite',bySite:'Siisteystaso kohteittain',weakItems:'Heikoimmat tarkastuskohdat',byArea:'Siisteystaso alueittain',topCleaners:'Parhaat siivoojat',recentInsp:'Viimeisimmät tarkastukset',noData:'Ei tietoja valitulla jaksolla.',viewAll:'Näytä kaikki',
+grade_excellent:'Erinomainen',grade_good:'Hyvä',grade_fair:'Tyydyttävä',grade_poor:'Heikko',grade_none:'Ei arviota',gradeLegend:'≥ 90 % erinomainen · 80–89 % hyvä · 70–79 % tyydyttävä · < 70 % heikko',
+newInspection:'Uusi tarkastus',site:'Kohde',cleaner:'Siivooja',inspector:'Tarkastaja',date:'Päivämäärä',customerRep:'Asiakkaan edustaja (valinnainen)',rep:'Asiakkaan edustaja',
+pickSiteFirst:'Aloita kirjoittamalla kohteen nimi yllä olevaan hakukenttään ja valitse kohde listasta.',awaiting:'Pisimpään ilman tarkastusta',lastInsp:'Edellinen {0} ({1} pv sitten)',noInspYet:'Ei tarkastuksia vielä',
+scaleHelp:'Arvioi jokainen kohta: 0 = erittäin likainen … 5 = erinomainen. E/K = kohdetta ei ole tai sitä ei voitu tarkastaa – se ei vaikuta prosenttiin. Arvio {0} tai alle luo poikkeaman.',
+na:'E/K',weight:'paino {0}',commentPh:'Kommentti: mitä pitää korjata?',addComment:'+ Kommentti / kuva',photo:'Kuva',removePhoto:'Poista kuva',rated:'{0}/{1} arvioitu',notes:'Yleiset huomiot',
+saveInspection:'Tallenna',rateAll:'Arvioi kaikki kohdat (tai merkitse E/K) ennen tallennusta.',needInspector:'Kirjoita tarkastajan nimi.',discardDraft:'Hylkää luonnos',confirmDiscard:'Hylätäänkö keskeneräinen tarkastus?',draftNote:'Luonnos tallentuu automaattisesti.',
+saved:'Tarkastus tallennettu',issuesCreated:'{0} poikkeamaa kirjattu korjattavaksi.',again:'Uusi tarkastus',open:'Avaa',noItems:'Kohteelle ei ole valittu tarkastuskohtia. Lisää ne kohteen asetuksista.',liveScore:'Siisteystaso nyt',
+status_open:'Avoin',status_progress:'Työn alla',status_fixed:'Korjattu',all:'Kaikki',due:'Korjattava {0} mennessä',fixedOn:'Korjattu {0}',isOverdue:'Myöhässä',created:'Kirjattu {0}',
+markProgress:'Työn alle',markFixed:'Merkitse korjatuksi',reopen:'Avaa uudelleen',fromCustomer:'Asiakkaan ilmoitus',noIssues:'Ei poikkeamia valituilla suodattimilla.',newIssue:'Uusi ilmoitus',score:'arvio {0}/5',
+addSite:'Lisää kohde',edit:'Muokkaa',address:'Osoite',targetPct:'Sopimuksen tavoitetaso %',latest:'Viimeisin',customer:'Asiakas',checklist:'Tarkastuskohdat',
+checklistHelp:'Valitse tilat ja pinnat, jotka tässä kohteessa on. Pois jätetyt eivät näy tarkastuksessa eivätkä vaikuta prosenttiin. Paino kertoo kohdan tärkeyden (esim. WC 10, peilit 4).',
+save:'Tallenna',cancel:'Peruuta',delete:'Poista',confirmDelete:'Poistetaanko? Toimintoa ei voi perua.',confirmDeleteSite:'Poistetaanko kohde ja kaikki sen tarkastukset ja poikkeamat?',name:'Nimi',active:'Aktiivinen',required:'Täytä pakolliset kentät.',savedOk:'Tallennettu',
+startInsp:'Aloita tarkastus',itemAvg90:'Tarkastuskohdat (90 pv keskiarvo)',last30Avg:'Siisteystaso 30 pv',insp30:'Tarkastuksia 30 pv',notFound:'Kohdetta ei löytynyt.',back:'← Takaisin',
+cleanersTitle:'Siivoojien kuukausisuoriutuminen',month:'Kuukausi',cleanerOfMonth:'Kuukauden siivooja',rewardEligible:'Palkkioon oikeutettu',mostImproved:'Eniten parantanut',notEnough:'Liian vähän tarkastuksia',
+rewardRule:'Palkkioon oikeuttaa vähintään {0} tarkastusta kuukaudessa ja keskiarvo vähintään {1} %. Kuukauden siivooja on paras palkkioon oikeutettu.',
+addCleaner:'Lisää siivooja',phone:'Puhelin',inspN:'{0} tark.',sitesN:'{0} kohdetta',devN:'{0} poikkeamaa',onTimeN:'ajallaan {0}',monthly:'Kuukausikehitys',assignedSites:'Vastuukohteet',noSites:'Ei vastuukohteita.',inactiveHidden:'Ei-aktiiviset siivoojat eivät näy listassa.',
+avgCol:'Keskiarvo',countCol:'Tarkastukset',eligibleCol:'Palkkio',change:'Muutos',inactive:'Ei aktiivinen',
+reportTitle:'Kuukausiraportti',print:'Tulosta / PDF',csv:'Lataa CSV',summary:'Yhteenveto',itemAverages:'Tarkastuskohtien keskiarvot',inspList:'Tarkastukset',issuesList:'Poikkeamat kuukauden aikana',prevMonth:'Edellinen kk',generated:'Laadittu {0}',count:'kpl',item:'Tarkastuskohta',status:'Tila',siteSummary:'Kohteet',belowTargetShort:'Alle tavoitteen',onTarget:'Tavoitteessa',fixedCount:'Korjattu',
+feedbackTitle:'Ilmoita siivouksen puutteesta',feedbackHelp:'Ilmoitus menee suoraan Uusi Eran esihenkilölle ja kohteen siivoojalle korjattavaksi.',feedbackDesc:'Mitä havaitsit ja missä?',send:'Lähetä',feedbackSent:'Kiitos! Ilmoitus on kirjattu korjattavaksi.',pickSite:'Valitse kohde.',needDesc:'Kirjoita kuvaus.',
+settingsTitle:'Asetukset',rules:'Säännöt',reward:'Palkkioraja, keskiarvo %',minInsp:'Tarkastuksia vähintään / kk palkkioon',fixDays:'Korjausaika poikkeamille (päivää)',issueAt:'Poikkeama syntyy, kun arvio on enintään',
+itemsLib:'Tarkastuskohteiden kirjasto',itemsLibHelp:'Oletuspaino käytetään, kun kohta lisätään kohteeseen. Kohdekohtaiset painot muutetaan kohteen asetuksista.',area:'Alue',defWeight:'Oletuspaino',nameFi:'Nimi (suomi)',nameEn:'Nimi (englanti)',addItem:'Lisää tarkastuskohta',
+customers:'Asiakkaat',addCustomer:'Lisää asiakas',dataTitle:'Tiedot',exportData:'Vie tiedot (JSON)',importData:'Tuo tiedot',resetDemo:'Palauta esimerkkidata',confirmReset:'Korvataanko kaikki tiedot esimerkkidatalla?',importOk:'Tiedot tuotu.',importBad:'Tiedosto ei kelpaa.',
+storageFull:'Selaimen tallennustila on täynnä. Poista kuvia tai vie tiedot talteen ja tyhjennä vanhoja.',photoFail:'Kuvan lukeminen epäonnistui.',
+customerWelcome:'Tervetuloa, {0}',menu:'Päävalikko',roleAdmin:'Uusi Era · Ylläpito',grp_ops:'Toiminta',grp_mgmt:'Hallinta',grp_admin:'Ylläpito',grp_help:'Palaute',loginTitle:'Kirjaudu sisään',loginLead:'Valitse käyttäjärooli jatkaaksesi.',heroTitle:'Siivouksen laatu, mitattuna ja näkyvänä.',heroLead:'Eagle Eye on Uusi Eran laadunseurantajärjestelmä tarkastuksiin, poikkeamien hallintaan ja asiakasraportointiin.',vp1:'Mobiilitarkastukset painotetulla 0–5-pisteytyksellä',vp2:'Poikkeamat määräaikoineen ja kuvineen',vp3:'Asiakkaalle oma reaaliaikainen laatunäkymä',vp4:'Siivoojien kuukausittainen suoriutuminen ja palkitseminen',scoreExplain:'Siisteystaso = Σ(arvio ÷ 5 × paino) ÷ Σ paino. E/K-kohdat jätetään laskusta pois.',newItem:'Uusi kohta',newCustomer:'Uusi asiakas',newCleaner:'Uusi siivooja',selectCustomer:'Valitse asiakas',noCleaner:'—',storageNote:'Tallennustilaa käytössä noin {0} kt.'
+},en:{
+appSub:'Cleaning quality monitoring',forCo:'Uusi Era Palvelut Oy',loginAdmin:'Uusi Era staff',loginAdminDesc:'Inspections, sites, cleaners, reports and settings.',loginCustomer:'Customer',loginCustomerDesc:'Cleanliness of your own sites, reports and reporting problems.',enter:'Continue',
+demoNote:'Demo: data is stored in this browser only. Move data between devices via Settings → Export / Import.',logout:'Sign out',admin:'Admin',
+nav_dashboard:'Dashboard',nav_inspect:'Inspect',nav_issues:'Deviations',nav_sites:'Sites',nav_cleaners:'Cleaners',nav_reports:'Reports',nav_settings:'Settings',nav_feedback:'Report',
+searchSite:'Search site by name…',noMatch:'No matches',allSites:'All sites',last30:'Last 30 days',
+avgScore:'Cleanliness',inspections:'Inspections',openIssues:'Open deviations',overdueN:'{0} overdue',belowTarget:'Below target',sitesOf:'{0} of {1} sites',pts:'pts',prevN:'previous period: {0}',
+trend:'Cleanliness trend (12 months)',target:'Target',bySite:'Cleanliness by site',weakItems:'Weakest checklist items',byArea:'Cleanliness by area',topCleaners:'Top cleaners',recentInsp:'Latest inspections',noData:'No data for the selected period.',viewAll:'View all',
+grade_excellent:'Excellent',grade_good:'Good',grade_fair:'Fair',grade_poor:'Poor',grade_none:'Not rated',gradeLegend:'≥ 90% excellent · 80–89% good · 70–79% fair · < 70% poor',
+newInspection:'New inspection',site:'Site',cleaner:'Cleaner',inspector:'Inspector',date:'Date',customerRep:'Customer representative (optional)',rep:'Customer representative',
+pickSiteFirst:'Start by typing the site name in the search box above and pick it from the list.',awaiting:'Longest without inspection',lastInsp:'Last {0} ({1} days ago)',noInspYet:'No inspections yet',
+scaleHelp:'Rate every item: 0 = very dirty … 5 = excellent. N/A = not present or could not be checked – it does not affect the percentage. A rating of {0} or lower creates a deviation.',
+na:'N/A',weight:'weight {0}',commentPh:'Comment: what needs fixing?',addComment:'+ Comment / photo',photo:'Photo',removePhoto:'Remove photo',rated:'{0}/{1} rated',notes:'General notes',
+saveInspection:'Save',rateAll:'Rate every item (or mark N/A) before saving.',needInspector:'Enter the inspector’s name.',discardDraft:'Discard draft',confirmDiscard:'Discard the unfinished inspection?',draftNote:'The draft is saved automatically.',
+saved:'Inspection saved',issuesCreated:'{0} deviations logged for correction.',again:'New inspection',open:'Open',noItems:'No checklist items are selected for this site. Add them in the site settings.',liveScore:'Score so far',
+status_open:'Open',status_progress:'In progress',status_fixed:'Fixed',all:'All',due:'Fix by {0}',fixedOn:'Fixed {0}',isOverdue:'Overdue',created:'Logged {0}',
+markProgress:'Start work',markFixed:'Mark fixed',reopen:'Reopen',fromCustomer:'Customer report',noIssues:'No deviations match the filters.',newIssue:'New report',score:'rating {0}/5',
+addSite:'Add site',edit:'Edit',address:'Address',targetPct:'Contract target %',latest:'Latest',customer:'Customer',checklist:'Checklist items',
+checklistHelp:'Tick the rooms and surfaces this site actually has. Unticked items are hidden in inspections and don’t affect the percentage. Weight = importance of the item (e.g. toilets 10, mirrors 4).',
+save:'Save',cancel:'Cancel',delete:'Delete',confirmDelete:'Delete? This cannot be undone.',confirmDeleteSite:'Delete the site and all its inspections and deviations?',name:'Name',active:'Active',required:'Fill in the required fields.',savedOk:'Saved',
+startInsp:'Start inspection',itemAvg90:'Checklist items (90-day average)',last30Avg:'Cleanliness, 30 days',insp30:'Inspections, 30 days',notFound:'Not found.',back:'← Back',
+cleanersTitle:'Cleaner monthly performance',month:'Month',cleanerOfMonth:'Cleaner of the month',rewardEligible:'Reward eligible',mostImproved:'Most improved',notEnough:'Too few inspections',
+rewardRule:'A reward requires at least {0} inspections in the month and an average of at least {1}%. Cleaner of the month is the best reward-eligible cleaner.',
+addCleaner:'Add cleaner',phone:'Phone',inspN:'{0} insp.',sitesN:'{0} sites',devN:'{0} deviations',onTimeN:'on time {0}',monthly:'Monthly trend',assignedSites:'Assigned sites',noSites:'No assigned sites.',inactiveHidden:'Inactive cleaners are hidden from the list.',
+avgCol:'Average',countCol:'Inspections',eligibleCol:'Reward',change:'Change',inactive:'Inactive',
+reportTitle:'Monthly report',print:'Print / PDF',csv:'Download CSV',summary:'Summary',itemAverages:'Checklist item averages',inspList:'Inspections',issuesList:'Deviations during the month',prevMonth:'Previous month',generated:'Generated {0}',count:'pcs',item:'Checklist item',status:'Status',siteSummary:'Sites',belowTargetShort:'Below target',onTarget:'On target',fixedCount:'Fixed',
+feedbackTitle:'Report a cleaning problem',feedbackHelp:'Your report goes straight to the Uusi Era supervisor and the site’s cleaner to be fixed.',feedbackDesc:'What did you notice, and where?',send:'Send',feedbackSent:'Thank you! The report has been logged for correction.',pickSite:'Choose a site.',needDesc:'Write a description.',
+settingsTitle:'Settings',rules:'Rules',reward:'Reward threshold, average %',minInsp:'Minimum inspections / month for reward',fixDays:'Time to fix deviations (days)',issueAt:'A deviation is created when the rating is at most',
+itemsLib:'Checklist item library',itemsLibHelp:'The default weight is used when an item is added to a site. Site-specific weights are changed in the site settings.',area:'Area',defWeight:'Default weight',nameFi:'Name (Finnish)',nameEn:'Name (English)',addItem:'Add checklist item',
+customers:'Customers',addCustomer:'Add customer',dataTitle:'Data',exportData:'Export data (JSON)',importData:'Import data',resetDemo:'Restore demo data',confirmReset:'Replace all data with the demo data?',importOk:'Data imported.',importBad:'The file is not valid.',
+storageFull:'Browser storage is full. Remove photos, or export your data and clear old records.',photoFail:'Could not read the photo.',
+customerWelcome:'Welcome, {0}',menu:'Main menu',roleAdmin:'Uusi Era · Admin',grp_ops:'Operations',grp_mgmt:'Management',grp_admin:'Administration',grp_help:'Feedback',loginTitle:'Sign in',loginLead:'Choose a role to continue.',heroTitle:'Cleaning quality, measured and visible.',heroLead:'Eagle Eye is Uusi Era’s quality platform for inspections, deviation management and client reporting.',vp1:'Mobile inspections with weighted 0–5 scoring',vp2:'Deviations with due dates and photo evidence',vp3:'A live quality view for every client',vp4:'Monthly cleaner performance and rewards',scoreExplain:'Cleanliness = Σ(rating ÷ 5 × weight) ÷ Σ weight. N/A items are left out.',newItem:'New item',newCustomer:'New customer',newCleaner:'New cleaner',selectCustomer:'Choose customer',noCleaner:'—',storageNote:'About {0} kB of storage in use.'
+}};
+let lang=store.get('ee_lang','fi');if(!T[lang])lang='fi';
+function t(k,...a){let s=T[lang][k]??T.fi[k]??k;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
+const loc=()=>lang==='fi'?'fi-FI':'en-GB';
+const MS={fi:['tam','hel','maa','huh','tou','kes','hei','elo','syy','lok','mar','jou'],en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']};
+
+/* ================= helpers ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const mk=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+const parseIso=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d||1)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const todayIso=()=>iso(new Date());
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const avg=a=>{const v=a.filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:null};
+const norm=s=>String(s).toLocaleLowerCase('fi').normalize('NFD').replace(/[̀-ͯ]/g,'');
+const fmtNum=(v,d=1)=>Number(v).toLocaleString(loc(),{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtPct=v=>v==null?'–':fmtNum(v)+' %';
+const fmtDate=s=>s?parseIso(s).toLocaleDateString(loc(),{day:'numeric',month:'numeric',year:'numeric'}):'';
+const monthLong=k=>{const s=parseIso(k+'-01').toLocaleDateString(loc(),{month:'long',year:'numeric'});return s.charAt(0).toUpperCase()+s.slice(1)};
+const monthShort=k=>MS[lang][+k.slice(5,7)-1];
+const daysSince=s=>Math.round((parseIso(todayIso())-parseIso(s))/864e5);
+function last12(){const n=new Date();return Array.from({length:12},(_,i)=>mk(new Date(n.getFullYear(),n.getMonth()-11+i,1)))}
+function periodRange(p){if(p==='last30'){const e=new Date();return [iso(addDays(e,-29)),iso(e)]}const [y,m]=p.split('-').map(Number);return [iso(new Date(y,m-1,1)),iso(new Date(y,m,0))]}
+function prevRange(p){if(p==='last30'){const e=new Date();return [iso(addDays(e,-59)),iso(addDays(e,-30))]}const [y,m]=p.split('-').map(Number);return periodRange(mk(new Date(y,m-2,1)))}
+const grade=v=>v==null?'none':v>=90?'excellent':v>=80?'good':v>=70?'fair':'poor';
+const gradeColor=v=>({excellent:"#15803d",good:"#0e7490",fair:"#b45309",poor:"#b91c1c",none:"#a3b1c2"})[grade(v)];
+const scorePill=v=>`<span class="pill g-${grade(v)}">${fmtPct(v)}</span>`;
+const gradePill=v=>`<span class="pill g-${grade(v)}">${t('grade_'+grade(v))}</span>`;
+function delta(a,b){if(a==null||b==null)return '';const d=a-b;if(Math.abs(d)<0.05)return `<span class="delta">± 0 ${t('pts')}</span>`;return `<span class="delta ${d>0?'up':'down'}">${d>0?'▲':'▼'} ${fmtNum(Math.abs(d))} ${t('pts')}</span>`}
+
+/* ================= icons ================= */
+const P={grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>',
+check:'<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="m9 14 2 2 4-4"/>',
+alert:'<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>',
+building:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/>',
+users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>',
+sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+trophy:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
+logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+camera:'<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>',
+search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>',
+star:'<path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>',
+up:'<path d="m23 6-9.5 9.5-5-5L1 18M17 6h6v6"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',
+print:'<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+ok:'<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>',
+arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>'};
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
+const logo=()=>`<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#d9a23a"/><path d="M6 20s5.5-9 14-9 14 9 14 9-5.5 9-14 9S6 20 6 20z" fill="#0b2a45"/><circle cx="20" cy="20" r="5.5" fill="#d9a23a"/><circle cx="20" cy="20" r="2.3" fill="#0b2a45"/><circle cx="22" cy="18" r="1.1" fill="#fff"/></svg>`;
+
+/* ================= demo data ================= */
+const AREAS=[{id:'sanitary',fi:'Saniteettitilat',en:'Restrooms'},{id:'general',fi:'Yleiset tilat ja pinnat',en:'Common areas & surfaces'},{id:'rooms',fi:'Huonetilat',en:'Rooms & facilities'}];
+function seed(){
+ let a=20261102;const r=()=>{a|=0;a=a+0x6D2B79F5|0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296};
+ const items=[
+ ['wc_toilets','sanitary',10,'WC-istuimet ja pisuaarit','Toilets and urinals'],['wc_sinks','sanitary',8,'Käsienpesualtaat ja hanat','Sinks and taps'],['wc_mirrors','sanitary',4,'Peilit','Mirrors'],
+ ['supplies','sanitary',6,'Paperit ja saippuat (täydennys)','Paper and soap refills'],['wc_floor','sanitary',8,'WC-tilojen lattiat','Restroom floors'],
+ ['floors','general',8,'Lattiat','Floors'],['stairs','general',6,'Portaikot','Staircases'],['lifts','general',4,'Hissit','Lifts'],['touch','general',7,'Ovet ja kosketuspinnat','Doors and touch points'],
+ ['dust','general',5,'Vaakapintojen pölyt','Dust on horizontal surfaces'],['glass','general',3,'Lasipinnat ja ikkunat (sisä)','Glass and windows (inside)'],['waste','general',6,'Roska-astiat ja jätteet','Bins and waste'],
+ ['entrance','rooms',6,'Aula ja sisääntulo','Lobby and entrance'],['offices','rooms',5,'Toimistot ja työpisteet','Offices and workstations'],['meeting','rooms',4,'Neuvotteluhuoneet','Meeting rooms'],
+ ['kitchen','rooms',6,'Taukotila ja keittiö','Break room and kitchen'],['gym','rooms',6,'Kuntosali','Gym'],['changing','rooms',8,'Pukuhuoneet ja suihkut','Changing rooms and showers'],
+ ['patient','rooms',9,'Potilashuoneet','Patient rooms'],['waiting','rooms',5,'Odotustilat','Waiting areas'],['classrooms','rooms',6,'Luokkahuoneet','Classrooms']
+ ].map(([id,area,w,fi,en])=>({id,area,w,fi,en}));
+ const W=Object.fromEntries(items.map(i=>[i.id,i.w]));
+ const customers=[{id:'c1',name:'Pirkanmaan hyvinvointialue'},{id:'c2',name:'Tampereen kaupunki'},{id:'c3',name:'Kiinteistö Oy Hermia'}];
+ const Q={k1:4.62,k2:4.2,k3:4.45,k4:3.85,k5:4.35,k6:3.35,k7:4.05,k8:4.0};
+ const cleaners=[['k1','Aino Virtanen'],['k2','Mikko Korhonen'],['k3','Fatima Ali'],['k4','Jari Mäkinen'],['k5','Liisa Nieminen'],['k6','Ahmed Hassan'],['k7','Olga Smirnova'],['k8','Pekka Laine (sijainen)']].map(([id,name])=>({id,name,phone:'',active:true}));
+ const base=['wc_toilets','wc_sinks','wc_mirrors','supplies','wc_floor','floors','touch','dust','waste','entrance'];
+ const S=(id,name,address,customerId,cleanerId,target,extra,drop=[])=>({id,name,address,customerId,cleanerId,target,items:Object.fromEntries(base.concat(extra).filter(x=>!drop.includes(x)).map(x=>[x,W[x]]))});
+ const sites=[
+ S('s1','Hatanpään sairaala','Hatanpään puistokuja 2, Tampere','c1','k1',92,['stairs','lifts','glass','patient','waiting']),
+ S('s2','Hervannan terveysasema','Lindforsinkatu 2, Tampere','c1','k2',90,['stairs','waiting']),
+ S('s3','Kaukajärven terveysasema','Käsityökatu 41, Tampere','c1','k3',90,['waiting']),
+ S('s4','Hervannan kirjasto','Insinöörinkatu 38, Tampere','c2','k4',85,['stairs','glass','offices']),
+ S('s5','Metso – Tampereen pääkirjasto','Pirkankatu 2, Tampere','c2','k5',88,['stairs','lifts','glass','offices','meeting','kitchen']),
+ S('s6','Kalevan uimahalli','Kalevan puistotie 3, Tampere','c2','k6',85,['stairs','gym','changing']),
+ S('s7','Hervannan vapaa-aikakeskus','Lindforsinkatu 8, Tampere','c2','k6',85,['gym','changing','meeting']),
+ S('s8','Ahvenisjärven koulu','Ahvenisjärventie 10, Tampere','c2','k7',85,['stairs','kitchen','gym','classrooms']),
+ S('s9','Tammelan päiväkoti','Tammelan puistokatu 5, Tampere','c2','k7',88,['kitchen','classrooms'],['wc_mirrors']),
+ S('s10','Hermia 1','Hermiankatu 1, Tampere','c3','k5',88,['stairs','lifts','glass','offices','meeting','kitchen']),
+ S('s11','Hermia 6','Hermiankatu 6–8, Tampere','c3','k3',88,['lifts','offices','meeting','kitchen']),
+ S('s12','Tesoman jäähalli','Tesomankatu 30, Tampere','c2','k4',82,['stairs','gym','changing'],['entrance'])];
+ const inspections=[],issues=[];const today=new Date();const start=new Date(today.getFullYear(),today.getMonth()-11,1);
+ const inspectors=['Sanna Lehto','Timo Salo'];const notes=['','','','Hyvä yleistaso.','Pölyä ikkunalaudoilla.','Roska-astiat tyhjennetty ajallaan.','Lattiat hyvässä kunnossa.'];
+ const coms={wc_toilets:'Kalkkia pisuaarissa',supplies:'Käsipyyhkeet loppu',floors:'Tahroja käytävällä',dust:'Pölyä hyllyillä',waste:'Roska-astia täynnä',changing:'Hiuksia suihkun kaivossa',gym:'Laitteiden kahvat likaiset',wc_floor:'Lattia tahmea',touch:'Ovenkahvat tahraiset',kitchen:'Kahvinkeitin likainen'};
+ let n=0;
+ sites.forEach((s,si)=>{let d=addDays(start,Math.floor(r()*9));
+  while(d<=today){const mi=(d.getFullYear()-start.getFullYear())*12+d.getMonth()-start.getMonth();
+   let ck=s.cleanerId;if(r()<0.08)ck='k8';
+   let q=ck==='k6'?3.35+1.25*mi/11:Q[ck];q+=0.18*Math.sin(mi*1.3+si);
+   const its={};Object.entries(s.items).forEach(([id,w])=>{if(r()<0.04){its[id]={s:null,w};return}let v=q+(r()-0.42)*1.7-(items.find(i=>i.id===id).area==='sanitary'?0.15:0);v+=0.12;if(r()<0.03*(5.2-q))v-=1.6+r()*1.6;its[id]={s:Math.max(0,Math.min(5,Math.round(v))),w}});
+   const date=iso(d);const ins={id:'ins'+(++n),siteId:s.id,cleanerId:ck,inspector:inspectors[Math.floor(r()*2)],date,rep:'',notes:notes[Math.floor(r()*notes.length)],items:its,score:0};
+   ins.score=calcScore(its);inspections.push(ins);
+   Object.entries(its).forEach(([id,x])=>{if(x.s!=null&&x.s<=2){if(coms[id])x.c=coms[id];const due=iso(addDays(d,3));const fx=addDays(d,1+Math.floor(r()*(ck==='k4'?7:4)));const done=fx<=today&&(daysSince(date)>14||r()<0.35);
+    issues.push({id:'d'+(++n),siteId:s.id,inspectionId:ins.id,itemId:id,score:x.s,cleanerId:ck,comment:x.c||'',status:done?'fixed':(daysSince(date)>2&&r()<0.5?'progress':'open'),created:date,due,fixedAt:done?iso(fx):'',source:'inspection'})}});
+   d=addDays(d,6+Math.floor(r()*8))}});
+ [['s2','Naisten WC:stä loppuivat käsipyyhkeet iltapäivällä.',4],['s5','Lastenosaston lattialla tahmeita kohtia.',9],['s10','Neuvotteluhuoneen 2 roskakori tyhjentämättä.',20],['s6','Miesten pukuhuoneen suihkukaivossa hiuksia.',1]].forEach(([sid,c,ago])=>{const s=sites.find(x=>x.id===sid);const dt=addDays(today,-ago);const fixed=ago>5;
+  issues.push({id:'d'+(++n),siteId:sid,inspectionId:'',itemId:'',score:null,cleanerId:s.cleanerId,comment:c,status:fixed?'fixed':'open',created:iso(dt),due:iso(addDays(dt,3)),fixedAt:fixed?iso(addDays(dt,2)):'',source:'customer'})});
+ return {v:2,items,customers,cleaners,sites,inspections,issues,settings:{reward:90,minInsp:2,fixDays:3,issueAt:2}};
+}
+function calcScore(items){let e=0,p=0;Object.values(items).forEach(x=>{if(x.s==null)return;e+=x.s/5*x.w;p+=x.w});return p?Math.round(e/p*1000)/10:null}
+
+/* ================= state ================= */
+let db=store.get(KEY,null);
+if(!db||db.v!==2||!Array.isArray(db.sites)){db=seed();store.set(KEY,db)}
+const saveDb=()=>store.set(KEY,db);
+let session=store.get(SKEY,null);
+let draft=store.get(DKEY,null);if(draft&&!db.sites.some(s=>s.id===draft.siteId))draft=null;
+const prevMonthKey=()=>{const n=new Date();return mk(new Date(n.getFullYear(),n.getMonth()-1,1))};
+let ui={period:'last30',dashSite:'',issueStatus:'open',issueSite:'',cmonth:prevMonthKey(),rmonth:prevMonthKey(),repSite:'',fbSite:'',fbPhoto:'',addCleaner:false,saved:null};
+const isAdmin=()=>session&&session.role==='admin';
+
+const site=id=>db.sites.find(s=>s.id===id);
+const siteName=id=>site(id)?.name||'?';
+const custName=id=>db.customers.find(c=>c.id===id)?.name||'';
+const cleanerName=id=>db.cleaners.find(c=>c.id===id)?.name||t('noCleaner');
+const item=id=>db.items.find(i=>i.id===id);
+const itemName=id=>{const x=item(id);return x?(x[lang]||x.fi):id};
+const areaName=id=>{const x=AREAS.find(a=>a.id===id);return x?x[lang]:id};
+const byName=(a,b)=>a.name.localeCompare(b.name,'fi',{sensitivity:'base'});
+function mySites(){return db.sites.filter(s=>isAdmin()||s.customerId===session.customerId).sort(byName)}
+const canSee=sid=>{const s=site(sid);return !!s&&(isAdmin()||s.customerId===session.customerId)};
+function inspIn(R,scope){return db.inspections.filter(i=>i.date>=R[0]&&i.date<=R[1]&&(!scope||scope.has(i.siteId)))}
+const overdue=x=>x.status!=='fixed'&&x.due<todayIso();
+const lastInsp=sid=>db.inspections.filter(i=>i.siteId===sid).reduce((m,i)=>!m||i.date>m.date?i:m,null);
+function areaGroups(ids){return AREAS.map(a=>[a.id,ids.filter(id=>(item(id)?.area||'general')===a.id)]).filter(g=>g[1].length)}
+function itemAvgs(list){const m={};list.forEach(i=>Object.entries(i.items).forEach(([id,x])=>{if(x.s==null)return;(m[id]||(m[id]={s:0,n:0})).s+=x.s*20;m[id].n++}));return Object.entries(m).map(([id,x])=>({id,v:x.s/x.n,n:x.n}))}
+function areaAvgs(list){const e={},p={};list.forEach(i=>Object.entries(i.items).forEach(([id,x])=>{if(x.s==null)return;const a=item(id)?.area||'general';e[a]=(e[a]||0)+x.s/5*x.w;p[a]=(p[a]||0)+x.w}));return AREAS.filter(a=>p[a.id]).map(a=>({id:a.id,v:e[a.id]/p[a.id]*100}))}
+
+/* ================= charts ================= */
+function lineChart(labels,series,o={}){
+ const W=520,H=230,pl=38,pr=14,pt=18,pb=30;const vals=series.flatMap(s=>s.values).filter(v=>v!=null);
+ if(!vals.length)return `<p class="muted">${t('noData')}</p>`;
+ let lo=Math.min(...vals,o.target??100);lo=Math.max(0,Math.floor((lo-4)/10)*10);const hi=100,n=labels.length;
+ const X=i=>pl+(n<2?(W-pl-pr)/2:i*(W-pl-pr)/(n-1)),Y=v=>pt+(hi-v)/(hi-lo)*(H-pt-pb);
+ let g='';const step=hi-lo>40?20:10;
+ for(let v=lo;v<=hi;v+=step)g+=`<line x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eef2f6"/><text x="${pl-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`;
+ labels.forEach((l,i)=>{g+=`<text x="${X(i)}" y="${H-8}" text-anchor="middle">${esc(l)}</text>`});
+ if(o.target!=null)g+=`<line x1="${pl}" x2="${W-pr}" y1="${Y(o.target)}" y2="${Y(o.target)}" stroke="#d9a23a" stroke-width="1.5" stroke-dasharray="5 4"/><text class="tg" x="${pl+6}" y="${Y(o.target)-6}" text-anchor="start">${esc(o.targetLabel||t('target'))} ${fmtNum(o.target,0)} %</text>`;
+ series.forEach(s=>{let d='',pen=false;s.values.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1);pen=true});
+  const pts=s.values.map((v,i)=>v==null?null:[X(i),Y(v)]).filter(Boolean);const gid='g'+Math.random().toString(36).slice(2,8);if(pts.length>1)g+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.color}" stop-opacity=".16"/><stop offset="1" stop-color="${s.color}" stop-opacity="0"/></linearGradient></defs><path d="M${pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L')}L${pts[pts.length-1][0].toFixed(1)} ${H-pb}L${pts[0][0].toFixed(1)} ${H-pb}Z" fill="url(#${gid})"/>`;g+=`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/>`;
+  s.values.forEach((v,i)=>{if(v!=null)g+=`<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3.5" fill="#fff" stroke="${s.color}" stroke-width="2"><title>${esc(s.name)} · ${esc(labels[i])}: ${fmtPct(v)}</title></circle>`});
+  const li=s.values.map((v,i)=>v==null?-1:i).filter(i=>i>=0).pop();if(li!=null)g+=`<text x="${Math.min(X(li),W-pr-4)}" y="${Y(s.values[li])-10}" text-anchor="end" style="fill:${s.color};font-weight:600">${fmtNum(s.values[li])}</text>`});
+ return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label||series.map(s=>s.name).join(', '))}">${g}</svg>`}
+function hbars(rows){if(!rows.length)return `<p class="muted">${t('noData')}</p>`;
+ return `<div class="bars">${rows.map(r=>`<div class="bar-row"><div class="bar-l" title="${esc(r.label)}">${r.href?`<a href="${r.href}">${esc(r.label)}</a>`:esc(r.label)}</div><div class="bar-t"><div class="bar-f" style="width:${Math.max(0,Math.min(100,r.v||0)).toFixed(1)}%;background:${gradeColor(r.v)}"></div>${r.target!=null?`<i class="bar-tg" style="left:${r.target}%" title="${t('target')} ${r.target} %"></i>`:''}</div><div class="bar-v">${fmtPct(r.v)}</div></div>`).join('')}</div>`}
+function spark(vals){const v=vals.filter(x=>x!=null);if(v.length<2)return '';const W=110,H=30,lo=Math.min(...v)-2,hi=Math.max(...v)+2;let d='',pen=false;
+ vals.forEach((x,i)=>{if(x==null){pen=false;return}d+=(pen?'L':'M')+(i*(W-4)/(vals.length-1)+2).toFixed(1)+' '+(H-2-(x-lo)/(hi-lo||1)*(H-4)).toFixed(1);pen=true});
+ return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}" fill="none" stroke="#1d5fa8" stroke-width="2" stroke-linejoin="round"/></svg>`}
+function ring(v,size=120){const r=52,c=2*Math.PI*r,f=v==null?0:Math.max(0,Math.min(100,v))/100;
+ return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 120 120" role="img" aria-label="${fmtPct(v)}"><circle cx="60" cy="60" r="${r}" fill="none" stroke="#eef2f6" stroke-width="12"/><circle cx="60" cy="60" r="${r}" fill="none" stroke="${gradeColor(v)}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${(c*f).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 60 60)"/><text x="60" y="68" text-anchor="middle" font-size="25" font-weight="700" fill="#0f1b2a">${v==null?'–':fmtNum(v,0)+'%'}</text></svg>`}
+const kpi=(l,v,s='')=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+
+/* ================= site search (combobox) ================= */
+let combos={};
+function combo(key,o){combos[key]=o;const s=site(o.value);
+ return `<div class="combo" data-combo="${key}">${ic('search')}<input class="input" type="text" inputmode="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="${key}-list" aria-label="${t('searchSite')}" placeholder="${o.allowAll?t('allSites'):t('searchSite')}" value="${s?esc(s.name):''}"><ul class="combo-list" id="${key}-list" role="listbox" hidden></ul></div>`}
+function hl(name,q){if(!q)return esc(name);const i=norm(name).indexOf(q);if(i<0)return esc(name);return esc(name.slice(0,i))+'<mark>'+esc(name.slice(i,i+q.length))+'</mark>'+esc(name.slice(i+q.length))}
+function mountCombos(){document.querySelectorAll('[data-combo]').forEach(el=>{
+ const key=el.dataset.combo,cfg=combos[key];if(!cfg)return;
+ const inp=el.querySelector('input'),list=el.querySelector('ul');let act=-1,shown=[],typed=false;
+ const selName=()=>site(cfg.value)?.name||'';
+ const draw=()=>{const q=typed?norm(inp.value.trim()):'';let opts=mySites();
+  if(q)opts=opts.filter(s=>norm(s.name).includes(q)||norm(s.address+' '+custName(s.customerId)).includes(q));
+  shown=(cfg.allowAll&&!q?[{id:'',name:t('allSites'),all:1}]:[]).concat(opts);
+  if(act>=shown.length)act=shown.length-1;
+  list.innerHTML=shown.length?shown.map((s,i)=>`<li role="option" id="${key}-o${i}" data-i="${i}" aria-selected="${i===act}" class="${i===act?'act':''}${(s.id||'')===(cfg.value||'')?' cur':''}">${s.all?`<strong>${esc(s.name)}</strong>`:`<strong>${hl(s.name,q)}</strong><small>${esc(s.address)} · ${esc(custName(s.customerId))}</small>`}</li>`).join(''):`<li class="none">${t('noMatch')}</li>`;
+  list.hidden=false;inp.setAttribute('aria-expanded','true');
+  if(act>=0){inp.setAttribute('aria-activedescendant',key+'-o'+act);list.querySelector('.act')?.scrollIntoView({block:'nearest'})}else inp.removeAttribute('aria-activedescendant')};
+ const close=()=>{list.hidden=true;inp.setAttribute('aria-expanded','false');act=-1;typed=false};
+ const pick=i=>{const s=shown[i];if(!s)return;cfg.value=s.id;inp.value=s.id?s.name:'';close();inp.blur();cfg.onPick(s.id)};
+ inp.addEventListener('focus',()=>{typed=false;act=-1;draw();setTimeout(()=>{try{inp.select()}catch(e){}},0)});
+ inp.addEventListener('input',()=>{typed=true;act=0;draw()});
+ inp.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'){e.preventDefault();act=Math.min(act+1,shown.length-1);draw()}
+  else if(e.key==='ArrowUp'){e.preventDefault();act=Math.max(act-1,0);draw()}
+  else if(e.key==='Enter'){e.preventDefault();if(shown.length&&!list.hidden)pick(act>=0?act:0)}
+  else if(e.key==='Escape'){inp.value=selName();close();inp.blur()}});
+ inp.addEventListener('blur',()=>setTimeout(()=>{if(!list.hidden){close();inp.value=selName()}},150));
+ list.addEventListener('mousedown',e=>e.preventDefault());
+ list.addEventListener('click',e=>{const li=e.target.closest('li[data-i]');if(li)pick(+li.dataset.i)});
+})}
+
+/* ================= shell & router ================= */
+function route(){const h=location.hash.replace(/^#\/?/,'');const [r,a]=h.split('/');return [r||'dashboard',a?decodeURIComponent(a):undefined]}
+function navGroups(){return isAdmin()?[['',[['dashboard','grid']]],['grp_ops',[['inspect','check'],['issues','alert']]],['grp_mgmt',[['sites','building'],['cleaners','users'],['reports','file']]],['grp_admin',[['settings','sliders']]]]:[['',[['dashboard','grid'],['sites','building'],['issues','alert'],['reports','file']]],['grp_help',[['feedback','msg']]]]}
+function shell(r,body){const cur={site:'sites',siteEdit:'sites',cleaner:'cleaners',insp:'dashboard'}[r]||r;
+ const who=isAdmin()?t('admin'):custName(session.customerId);const ini=who.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+ const lnk=([k,i])=>`<a href="#/${k}" class="nav-${k}${cur===k?' on':''}"${cur===k?' aria-current="page"':''}>${ic(i)}<span>${t('nav_'+k)}</span></a>`;
+ const today=new Date().toLocaleDateString(loc(),{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ return `<div class="app"><aside class="side"><a class="brand" href="#/dashboard">${logo()}<div><b>Eagle Eye</b><small>${t('forCo')}</small></div></a>
+ <nav class="snav" aria-label="${t('menu')}">${navGroups().map(([g,ls])=>(g?`<div class="grp">${t(g)}</div>`:'')+ls.map(lnk).join('')).join('')}</nav>
+ <div class="side-foot"><span class="avatar">${esc(ini)}</span><div class="who"><b>${esc(who)}</b><small>${isAdmin()?t('roleAdmin'):t('loginCustomer')}</small></div><button class="icon-btn" data-act="logout" title="${t('logout')}" aria-label="${t('logout')}">${ic('logout')}</button></div></aside>
+ <div class="content"><header class="topbar"><a class="brand" href="#/dashboard">${logo()}<div><b>Eagle Eye</b><small>${t('forCo')}</small></div></a><div class="ctx"><b>${esc(who)}</b> · ${esc(today)}</div>
+ <div class="top-r"><button class="chip" data-act="lang" aria-label="Language / Kieli">${lang==='fi'?'EN':'FI'}</button>${isAdmin()?`<a class="chip m-only" href="#/settings" aria-label="${t('nav_settings')}">${ic('sliders')}</a>`:''}<button class="chip m-only" data-act="logout" aria-label="${t('logout')}">${ic('logout')}</button></div></header>
+ <main class="wrap">${body}</main><p class="foot">${t('demoNote')}</p></div>
+ <nav class="tabs" aria-label="${t('menu')}">${navGroups().flatMap(g=>g[1]).map(lnk).join('')}</nav></div>`}
+function render(){combos={};document.documentElement.lang=lang;const app=$('#app');
+ if(!session){app.innerHTML=V.login();return}
+ let [r,a]=route();
+ const allowed=isAdmin()?['dashboard','inspect','issues','sites','site','siteEdit','cleaners','cleaner','reports','settings','insp','feedback']:['dashboard','sites','site','issues','reports','feedback','insp'];
+ if(!allowed.includes(r))r='dashboard';
+ let body;try{body=V[r](a)}catch(err){console.error(err);body=`<div class="card">Error: ${esc(err.message)}</div>`}
+ app.innerHTML=shell(r,body);mountCombos();if(r==='inspect'&&draft)updateLive()}
+const notFound=()=>`<div class="card empty">${t('notFound')}<br><a class="link" href="#/dashboard">${t('back')}</a></div>`;
+function monthSelect(ch,val,withLast30){return `<select class="input sel" data-ch="${ch}" aria-label="${t('month')}">${withLast30?`<option value="last30"${val==='last30'?' selected':''}>${t('last30')}</option>`:''}${last12().reverse().map(m=>`<option value="${m}"${val===m?' selected':''}>${monthLong(m)}</option>`).join('')}</select>`}
+const inspRow=i=>`<a class="list-row" href="#/insp/${i.id}"><div><strong>${esc(siteName(i.siteId))}</strong><div class="muted small">${fmtDate(i.date)} · ${esc(cleanerName(i.cleanerId))}</div></div>${scorePill(i.score)}</a>`;
+
+/* ================= views ================= */
+const V={};
+V.login=()=>`<div class="login"><section class="login-hero"><a class="brand" href="#/">${logo()}<div><b>Eagle Eye</b><small>${t('forCo')}</small></div></a>
+ <div><h2>${t('heroTitle')}</h2><p>${t('heroLead')}</p><ul class="vp">${['vp1','vp2','vp3','vp4'].map(k=>`<li>${ic('ok')}<span>${t(k)}</span></li>`).join('')}</ul></div><small>© ${new Date().getFullYear()} Uusi Era Palvelut Oy</small></section>
+ <section class="login-main"><div class="login-card"><h1>${t('loginTitle')}</h1><p>${t('loginLead')}</p>
+ <button class="role-card" data-act="loginAdmin"><span class="role-ic">${ic('check')}</span><span class="grow"><strong>${t('loginAdmin')}</strong><p>${t('loginAdminDesc')}</p></span>${ic('arrow')}</button>
+ <div class="role-card"><span class="role-ic">${ic('building')}</span><div class="grow"><strong>${t('loginCustomer')}</strong><p>${t('loginCustomerDesc')}</p><label class="f" for="custSel" style="margin-top:12px">${t('selectCustomer')}</label><select id="custSel" class="input">${db.customers.slice().sort(byName).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select><button class="btn primary" style="width:100%;margin-top:10px" data-act="loginCustomer">${t('enter')}</button></div></div>
+ <div class="login-foot"><p class="muted small" style="margin:0">${t('demoNote')}</p><button class="btn sm" data-act="lang">${lang==='fi'?'English':'Suomi'}</button></div></div></section></div>`;
+
+V.dashboard=()=>{
+ const sites=mySites();const ids=ui.dashSite&&canSee(ui.dashSite)?[ui.dashSite]:sites.map(s=>s.id);const scope=new Set(ids);
+ const R=periodRange(ui.period),PR=prevRange(ui.period);const cur=inspIn(R,scope),prev=inspIn(PR,scope);
+ const a=avg(cur.map(i=>i.score)),pa=avg(prev.map(i=>i.score));
+ const open=db.issues.filter(x=>scope.has(x.siteId)&&x.status!=='fixed');const od=open.filter(overdue).length;
+ const siteRows=ids.map(id=>({s:site(id),v:avg(cur.filter(i=>i.siteId===id).map(i=>i.score))}));
+ const below=siteRows.filter(x=>x.v!=null&&x.v<x.s.target).length;const tgt=avg(ids.map(id=>site(id).target));
+ const months=last12();const trend=months.map(m=>avg(inspIn(periodRange(m),scope).map(i=>i.score)));
+ const weak=itemAvgs(cur).sort((x,y)=>x.v-y.v).slice(0,6).map(x=>({label:itemName(x.id),v:x.v}));
+ const areas=areaAvgs(cur).map(x=>({label:areaName(x.id),v:x.v}));
+ let cl='';if(isAdmin()){const st=cleanerStats(R,PR).filter(x=>x.n).slice(0,3);cl=`<div class="card"><div class="row-b"><h2>${t('topCleaners')} · ${ui.period==='last30'?t('last30'):monthLong(ui.period)}</h2><a class="link small" href="#/cleaners">${t('viewAll')}</a></div>${st.length?`<div class="lb">${st.map((x,i)=>lbRow(x,i,false)).join('')}</div>`:`<p class="muted">${t('noData')}</p>`}</div>`}
+ return `<div class="pg-h"><div><h1>${isAdmin()?t('nav_dashboard'):t('customerWelcome',esc(custName(session.customerId)))}</h1><p class="muted small">${t('gradeLegend')}</p></div>
+ <div class="filters">${combo('dashSite',{value:ui.dashSite,allowAll:true,onPick:id=>{ui.dashSite=id;render()}})}${monthSelect('period',ui.period,true)}</div></div>
+ <div class="kpis">${kpi(t('avgScore'),fmtPct(a),gradePill(a)+delta(a,pa))}${kpi(t('inspections'),cur.length,`<span class="muted">${t('prevN',prev.length)}</span>`)}
+ ${kpi(t('openIssues'),open.length,od?`<span class="delta down">${t('overdueN',od)}</span>`:'')}${kpi(t('belowTarget'),below,`<span class="muted">${t('sitesOf',below,ids.length)}</span>`)}</div>
+ <div class="two wide"><div class="card"><h2>${t('trend')}</h2>${lineChart(months.map(monthShort),[{name:t('avgScore'),values:trend,color:'#1d5fa8'}],{target:tgt})}<p class="muted small">${t('scoreExplain')}</p></div>
+ <div class="card"><h2>${t('byArea')}</h2>${hbars(areas)}<h3>${t('weakItems')}</h3>${hbars(weak)}</div></div>
+ ${ids.length>1?`<div class="card"><h2>${t('bySite')}</h2>${hbars(siteRows.filter(x=>x.v!=null).sort((x,y)=>y.v-x.v).map(x=>({label:x.s.name,v:x.v,target:x.s.target,href:'#/site/'+x.s.id})))}</div>`:''}
+ <div class="two">${cl}<div class="card"><h2>${t('recentInsp')}</h2>${cur.length?cur.slice().sort((x,y)=>y.date.localeCompare(x.date)).slice(0,6).map(inspRow).join(''):`<p class="muted">${t('noData')}</p>`}</div></div>`};
+
+/* ---- inspection ---- */
+function newDraft(sid){const s=site(sid);return {siteId:sid,cleanerId:s.cleanerId,inspector:store.get('ee_inspector',''),date:todayIso(),rep:'',notes:'',items:{}}}
+const saveDraft=()=>store.set(DKEY,draft);
+const dItem=id=>draft.items[id]||(draft.items[id]={});
+function pickInspSite(id){if(draft&&draft.siteId===id)return;if(draft&&Object.keys(draft.items).length&&!confirm(t('confirmDiscard'))){render();return}draft=newDraft(id);saveDraft();render()}
+function itemCard(id,w){const r=draft.items[id]||{};const v=r.v;const flag=typeof v==='number'&&v<=db.settings.issueAt;const open=flag||r.c||r.p||r.x;const nm=esc(itemName(id));
+ return `<div class="card item${flag?' flag':''}" id="it-${id}"><div class="item-h"><strong>${nm}</strong><span class="wchip">${t('weight',w)}</span></div>
+ <div class="scale" role="group" aria-label="${nm}">${[0,1,2,3,4,5].map(n=>`<button type="button" class="sc s${n}${v===n?' on':''}" data-act="rate" data-arg="${id}:${n}" aria-pressed="${v===n}">${n}</button>`).join('')}<button type="button" class="sc na${v==='na'?' on':''}" data-act="rate" data-arg="${id}:na" aria-pressed="${v==='na'}">${t('na')}</button></div>
+ ${open?`<div class="item-x"><textarea class="input" rows="2" data-in="itemComment" data-id="${id}" placeholder="${t('commentPh')}" aria-label="${t('commentPh')}">${esc(r.c||'')}</textarea><div class="photo-row"><label class="btn sm">${ic('camera')} ${t('photo')}<input type="file" accept="image/*" capture="environment" data-ch="itemPhoto" data-id="${id}" hidden></label>${r.p?`<img class="thumb" src="${r.p}" data-act="zoom" alt=""><button type="button" class="link" data-act="rmPhoto" data-arg="${id}">${t('removePhoto')}</button>`:''}</div></div>`:`<button type="button" class="link small" data-act="openX" data-arg="${id}">${t('addComment')}</button>`}</div>`}
+function refreshCard(id){const el=document.getElementById('it-'+id);if(el)el.outerHTML=itemCard(id,site(draft.siteId).items[id])}
+function liveScore(){const s=site(draft.siteId);let e=0,p=0,n=0;Object.entries(s.items).forEach(([id,w])=>{const v=draft.items[id]?.v;if(v===undefined)return;n++;if(v==='na')return;e+=v/5*w;p+=w});return {v:p?e/p*100:null,n,total:Object.keys(s.items).length}}
+function updateLive(){const el=$('#liveScore');if(!el||!draft)return;const L=liveScore();el.textContent=fmtPct(L.v);$('#liveCount').textContent=t('rated',L.n,L.total);$('#liveGrade').outerHTML=`<span id="liveGrade">${L.v==null?'':gradePill(L.v)}</span>`}
+V.inspect=()=>{
+ if(ui.saved){const sv=ui.saved;ui.saved=null;const ins=db.inspections.find(i=>i.id===sv.id);
+  if(ins)return `<div class="card center">${ring(ins.score,140)}<h1>${t('saved')}</h1><p><strong>${esc(siteName(ins.siteId))}</strong> · ${fmtDate(ins.date)} · ${esc(cleanerName(ins.cleanerId))}</p><p>${gradePill(ins.score)}</p><p class="muted">${t('issuesCreated',sv.n)}</p><div class="btns"><a class="btn" href="#/insp/${ins.id}">${t('open')}</a><button class="btn primary" data-act="newInsp">${ic('plus')} ${t('again')}</button></div></div>`}
+ const head=`<div class="pg-h"><h1>${t('newInspection')}</h1>${draft?`<button class="btn sm danger" data-act="discard">${t('discardDraft')}</button>`:''}</div><div class="card"><label class="f">${t('site')}</label>${combo('inspSite',{value:draft?.siteId,onPick:pickInspSite})}</div>`;
+ if(!draft){const rows=mySites().map(s=>({s,l:lastInsp(s.id)})).sort((x,y)=>(x.l?.date||'').localeCompare(y.l?.date||'')).slice(0,6);
+  return head+`<p class="muted">${t('pickSiteFirst')}</p><div class="card"><h2>${t('awaiting')}</h2>${rows.map(({s,l})=>`<button class="list-row" data-act="startInsp" data-arg="${s.id}"><div><strong>${esc(s.name)}</strong><div class="muted small">${l?t('lastInsp',fmtDate(l.date),daysSince(l.date)):t('noInspYet')}</div></div>${l?scorePill(l.score):''}</button>`).join('')}</div>`}
+ const s=site(draft.siteId);const ids=Object.keys(s.items);
+ if(!ids.length)return head+`<div class="card">${t('noItems')} <a class="link" href="#/siteEdit/${s.id}">${t('edit')}</a></div>`;
+ const cls=db.cleaners.filter(c=>c.active||c.id===draft.cleanerId);
+ return head+`<div class="card"><p class="muted small" style="margin-top:0">${esc(s.address)} · ${esc(custName(s.customerId))} · ${t('target')} ${s.target} %</p><div class="fields">
+  <div><label class="f" for="dCl">${t('cleaner')}</label><select id="dCl" class="input" data-in="draftField" data-f="cleanerId">${cls.map(c=>`<option value="${c.id}"${c.id===draft.cleanerId?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+  <div><label class="f" for="dIn">${t('inspector')} *</label><input id="dIn" class="input" data-in="draftField" data-f="inspector" value="${esc(draft.inspector)}" autocomplete="name"></div>
+  <div><label class="f" for="dDa">${t('date')}</label><input id="dDa" type="date" class="input" data-in="draftField" data-f="date" value="${esc(draft.date)}" max="${todayIso()}"></div>
+  <div><label class="f" for="dRe">${t('customerRep')}</label><input id="dRe" class="input" data-in="draftField" data-f="rep" value="${esc(draft.rep)}"></div></div>
+  <p class="muted small" style="margin-bottom:0">${t('scaleHelp',db.settings.issueAt)} ${t('draftNote')}</p></div>
+ ${areaGroups(ids).map(([a,list])=>`<div class="area-h"><span>${areaName(a)}</span><span>${list.length}</span></div>${list.map(id=>itemCard(id,s.items[id])).join('')}`).join('')}
+ <div class="card"><label class="f" for="dNo">${t('notes')}</label><textarea id="dNo" class="input" rows="3" data-in="draftField" data-f="notes">${esc(draft.notes)}</textarea></div>
+ <div class="scorebar"><div><small>${t('liveScore')}</small><b id="liveScore">–</b> <span id="liveGrade"></span><small id="liveCount"></small></div><button class="btn primary" data-act="saveInsp">${t('saveInspection')}</button></div>`};
+
+V.insp=id=>{const ins=db.inspections.find(i=>i.id===id);if(!ins||!canSee(ins.siteId))return notFound();const s=site(ins.siteId);
+ const rel=db.issues.filter(x=>x.inspectionId===id);
+ return `<a class="link" href="#/site/${s.id}">← ${esc(s.name)}</a><div class="card insp-head">${ring(ins.score,110)}<div><h1>${esc(s.name)}</h1><p class="muted">${fmtDate(ins.date)} · ${t('cleaner')}: ${esc(cleanerName(ins.cleanerId))} · ${t('inspector')}: ${esc(ins.inspector)}${ins.rep?` · ${t('rep')}: ${esc(ins.rep)}`:''}</p>${gradePill(ins.score)} <span class="muted small">${t('target')} ${s.target} %</span></div></div>
+ ${areaGroups(Object.keys(ins.items)).map(([a,list])=>{const sub={};list.forEach(k=>sub[k]=ins.items[k]);return `<div class="card"><div class="row-b"><h2>${areaName(a)}</h2>${scorePill(calcScore(sub))}</div>${list.map(k=>{const x=ins.items[k];return `<div class="det-row"><div><div>${esc(itemName(k))} <span class="muted small">· ${t('weight',x.w)}</span></div>${x.c?`<div class="small">${esc(x.c)}</div>`:''}${x.p?`<img class="thumb" src="${x.p}" data-act="zoom" alt="">`:''}</div><div style="white-space:nowrap">${x.s==null?`<span class="pill">${t('na')}</span>`:`<span class="dots5 ${x.s<=2?'lo':x.s===3?'mid':''}">${[1,2,3,4,5].map(i=>`<i class="${i<=x.s?'on':''}"></i>`).join('')}</span><b>${x.s}</b>/5`}</div></div>`}).join('')}</div>`}).join('')}
+ ${ins.notes?`<div class="card"><h2>${t('notes')}</h2><p style="margin:0">${esc(ins.notes)}</p></div>`:''}
+ ${rel.length?`<div class="card"><h2>${t('nav_issues')}</h2>${rel.map(issueRow).join('')}</div>`:''}
+ ${isAdmin()?`<button class="btn danger no-print" data-act="delInsp" data-arg="${id}">${t('delete')}</button>`:''}`};
+
+/* ---- deviations ---- */
+function issuePhoto(x){if(x.photo)return x.photo;const ins=x.inspectionId?db.inspections.find(i=>i.id===x.inspectionId):null;return (ins&&ins.items[x.itemId]?.p)||''}
+function issueRow(x){const od=overdue(x),ph=issuePhoto(x);
+ return `<div class="card issue${od?' od':''}"><div class="row-b"><div><strong>${x.itemId?esc(itemName(x.itemId)):t('fromCustomer')}</strong>${x.score!=null?` <span class="muted small">· ${t('score',x.score)}</span>`:''}<div class="muted small"><a class="link" style="padding:0" href="#/site/${x.siteId}">${esc(siteName(x.siteId))}</a> · ${t('created',fmtDate(x.created))} · ${t('cleaner')}: ${esc(cleanerName(x.cleanerId))}</div></div><span class="pill st-${x.status}">${t('status_'+x.status)}</span></div>
+ ${x.comment?`<p style="margin:8px 0">${esc(x.comment)}</p>`:''}${ph?`<img class="thumb" src="${ph}" data-act="zoom" alt="" style="margin:8px 0">`:''}
+ <div class="row-b" style="align-items:center;flex-wrap:wrap;margin-top:6px"><span class="small">${x.status==='fixed'?t('fixedOn',fmtDate(x.fixedAt))+(x.fixedAt>x.due?` · <span class="delta down">${t('isOverdue')}</span>`:''):(od?`<b class="delta down">${t('isOverdue')}</b> · `:'')+t('due',fmtDate(x.due))}</span>
+ ${isAdmin()?`<span class="btns">${x.status==='open'?`<button class="btn sm" data-act="issueSet" data-arg="${x.id}:progress">${t('markProgress')}</button>`:''}${x.status!=='fixed'?`<button class="btn sm primary" data-act="issueSet" data-arg="${x.id}:fixed">${t('markFixed')}</button>`:`<button class="btn sm" data-act="issueSet" data-arg="${x.id}:open">${t('reopen')}</button>`}</span>`:''}</div></div>`}
+V.issues=()=>{const scope=new Set(mySites().map(s=>s.id));let list=db.issues.filter(x=>scope.has(x.siteId));
+ if(ui.issueSite&&scope.has(ui.issueSite))list=list.filter(x=>x.siteId===ui.issueSite);
+ const cnt=k=>k==='all'?list.length:k==='overdue'?list.filter(overdue).length:list.filter(x=>x.status===k).length;
+ const st=ui.issueStatus;list=st==='all'?list:st==='overdue'?list.filter(overdue):list.filter(x=>x.status===st);
+ list.sort((a,b)=>st==='fixed'||st==='all'?(b.created.localeCompare(a.created)):(overdue(b)-overdue(a)||a.due.localeCompare(b.due)));
+ return `<div class="pg-h"><h1>${t('nav_issues')}</h1><a class="btn primary sm" href="#/feedback">${ic('plus')} ${t('newIssue')}</a></div>
+ <div class="filters" style="justify-content:flex-start;margin-bottom:14px"><div class="seg" role="group">${['open','progress','overdue','fixed','all'].map(k=>`<button class="${st===k?'on':''}" data-act="issueStatus" data-arg="${k}" aria-pressed="${st===k}">${k==='overdue'?t('isOverdue'):k==='all'?t('all'):t('status_'+k)} (${cnt(k)})</button>`).join('')}</div>${combo('issueSite',{value:ui.issueSite,allowAll:true,onPick:id=>{ui.issueSite=id;render()}})}</div>
+ ${list.length?list.slice(0,150).map(issueRow).join(''):`<div class="card empty">${t('noIssues')}</div>`}`};
+V.feedback=()=>`<div class="pg-h"><h1>${t('feedbackTitle')}</h1></div><div class="card"><p class="muted" style="margin-top:0">${t('feedbackHelp')}</p>
+ <label class="f">${t('site')} *</label>${combo('fbSite',{value:ui.fbSite,onPick:id=>{ui.fbSite=id}})}
+ <label class="f" for="fbDesc" style="margin-top:14px">${t('feedbackDesc')} *</label><textarea id="fbDesc" class="input" rows="4"></textarea>
+ <div class="photo-row" style="margin:12px 0"><label class="btn sm">${ic('camera')} ${t('photo')}<input type="file" accept="image/*" capture="environment" data-ch="fbPhoto" hidden></label><span id="fbPrev">${ui.fbPhoto?`<img class="thumb" src="${ui.fbPhoto}" alt="">`:''}</span></div>
+ <button class="btn primary" data-act="sendFeedback">${t('send')}</button></div>`;
+
+/* ---- sites ---- */
+V.sites=()=>{const months=last12().slice(-6);
+ return `<div class="pg-h"><h1>${t('nav_sites')}</h1><div class="filters">${combo('siteJump',{value:'',onPick:id=>{location.hash='#/site/'+id}})}${isAdmin()?`<a class="btn primary" href="#/siteEdit/new">${ic('plus')} ${t('addSite')}</a>`:''}</div></div>
+ <div class="grid">${mySites().map(s=>{const l=lastInsp(s.id);const tr=months.map(m=>avg(inspIn(periodRange(m),new Set([s.id])).map(i=>i.score)));const op=db.issues.filter(x=>x.siteId===s.id&&x.status!=='fixed').length;
+  return `<a class="card site-card" href="#/site/${s.id}"><div class="row-b"><div><strong>${esc(s.name)}</strong><div class="muted small">${esc(s.address)}</div></div>${l?scorePill(l.score):''}</div>
+  <div class="muted small" style="margin-top:6px">${esc(custName(s.customerId))} · ${t('cleaner')}: ${esc(cleanerName(s.cleanerId))}</div>
+  <div class="meta"><div class="small">${t('target')} ${s.target} %${op?` · <span class="delta down">${op} ${t('status_open').toLowerCase()}</span>`:''}<div class="muted small">${l?t('latest')+' '+fmtDate(l.date):t('noInspYet')}</div></div>${spark(tr)}</div></a>`}).join('')}</div>`};
+V.site=id=>{const s=site(id);if(!s||!canSee(id))return notFound();const sc=new Set([id]);
+ const R=periodRange('last30'),PR=prevRange('last30');const cur=inspIn(R,sc),prev=inspIn(PR,sc);const a=avg(cur.map(i=>i.score)),pa=avg(prev.map(i=>i.score));
+ const months=last12();const trend=months.map(m=>avg(inspIn(periodRange(m),sc).map(i=>i.score)));
+ const i90=itemAvgs(inspIn([iso(addDays(new Date(),-89)),todayIso()],sc));const all=db.inspections.filter(i=>i.siteId===id).sort((x,y)=>y.date.localeCompare(x.date));
+ const open=db.issues.filter(x=>x.siteId===id&&x.status!=='fixed');
+ return `<a class="link" href="#/sites">${t('back')}</a><div class="pg-h"><div><h1>${esc(s.name)}</h1><p class="muted small">${esc(s.address)} · ${esc(custName(s.customerId))} · ${t('cleaner')}: ${esc(cleanerName(s.cleanerId))}</p></div>
+ <div class="btns">${isAdmin()?`<a class="btn" href="#/siteEdit/${id}">${t('edit')}</a><button class="btn primary" data-act="startInsp" data-arg="${id}">${ic('check')} ${t('startInsp')}</button>`:`<button class="btn primary" data-act="reportFor" data-arg="${id}">${ic('msg')} ${t('nav_feedback')}</button>`}</div></div>
+ <div class="kpis">${kpi(t('last30Avg'),fmtPct(a),gradePill(a)+delta(a,pa))}${kpi(t('target'),s.target+' %',a!=null?(a>=s.target?`<span class="delta up">${t('onTarget')}</span>`:`<span class="delta down">${t('belowTargetShort')}</span>`):'')}${kpi(t('insp30'),cur.length)}${kpi(t('openIssues'),open.length,open.filter(overdue).length?`<span class="delta down">${t('overdueN',open.filter(overdue).length)}</span>`:'')}</div>
+ <div class="two wide"><div class="card"><h2>${t('trend')}</h2>${lineChart(months.map(monthShort),[{name:s.name,values:trend,color:'#1d5fa8'}],{target:s.target})}</div>
+ <div class="card"><h2>${t('itemAvg90')}</h2>${hbars(Object.keys(s.items).map(k=>({label:itemName(k),v:i90.find(x=>x.id===k)?.v??null})).sort((x,y)=>(x.v??101)-(y.v??101)))}</div></div>
+ <div class="two"><div class="card"><h2>${t('inspList')}</h2>${all.length?all.slice(0,10).map(inspRow).join(''):`<p class="muted">${t('noInspYet')}</p>`}</div>
+ <div>${open.length?`<h2 style="font-size:16px">${t('openIssues')}</h2>`+open.map(issueRow).join(''):''}</div></div>`};
+V.siteEdit=id=>{const isNew=id==='new';const s=isNew?{id:'',name:'',address:'',customerId:db.customers[0]?.id,cleanerId:'',target:85,items:{}}:site(id);if(!s)return notFound();
+ return `<a class="link" href="${isNew?'#/sites':'#/site/'+id}">${t('back')}</a><div class="pg-h"><h1>${isNew?t('addSite'):esc(s.name)}</h1></div><form id="siteForm" onsubmit="return false">
+ <div class="card"><div class="fields"><div><label class="f" for="sfN">${t('name')} *</label><input id="sfN" class="input" name="name" value="${esc(s.name)}" required></div>
+ <div><label class="f" for="sfA">${t('address')}</label><input id="sfA" class="input" name="address" value="${esc(s.address)}"></div>
+ <div><label class="f" for="sfC">${t('customer')}</label><select id="sfC" class="input" name="customerId">${db.customers.slice().sort(byName).map(c=>`<option value="${c.id}"${c.id===s.customerId?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+ <div><label class="f" for="sfK">${t('cleaner')}</label><select id="sfK" class="input" name="cleanerId"><option value="">${t('noCleaner')}</option>${db.cleaners.filter(c=>c.active||c.id===s.cleanerId).sort(byName).map(c=>`<option value="${c.id}"${c.id===s.cleanerId?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+ <div><label class="f" for="sfT">${t('targetPct')}</label><input id="sfT" class="input" type="number" min="0" max="100" name="target" value="${s.target}"></div></div></div>
+ <div class="card"><h2>${t('checklist')}</h2><p class="muted small">${t('checklistHelp')}</p>${AREAS.map(a=>{const its=db.items.filter(i=>i.area===a.id);return its.length?`<h3>${a[lang]}</h3>${its.map(i=>`<label class="chk-row"><input type="checkbox" name="it" value="${i.id}"${s.items[i.id]!=null?' checked':''}><span>${esc(i[lang]||i.fi)}</span><input class="input" type="number" min="1" max="20" name="w_${i.id}" value="${s.items[i.id]??i.w}" aria-label="${t('weight','')}"></label>`).join('')}`:''}).join('')}</div>
+ <div class="btns"><button class="btn primary" data-act="saveSite" data-arg="${isNew?'new':id}">${t('save')}</button><a class="btn" href="${isNew?'#/sites':'#/site/'+id}">${t('cancel')}</a>${isNew?'':`<button class="btn danger" data-act="delSite" data-arg="${id}">${t('delete')}</button>`}</div></form>`};
+
+/* ---- cleaners ---- */
+function cleanerStats(R,PR){const cur=inspIn(R),prev=inspIn(PR);const min=db.settings.minInsp;
+ const rows=db.cleaners.map(c=>{const mine=cur.filter(i=>i.cleanerId===c.id),pm=prev.filter(i=>i.cleanerId===c.id);
+  const iss=db.issues.filter(x=>x.cleanerId===c.id&&x.created>=R[0]&&x.created<=R[1]);const judged=iss.filter(x=>x.status==='fixed'||overdue(x));const ok=judged.filter(x=>x.status==='fixed'&&x.fixedAt<=x.due).length;
+  const a=avg(mine.map(i=>i.score)),pa=avg(pm.map(i=>i.score));
+  return {c,n:mine.length,a,pa,d:a!=null&&pa!=null?a-pa:null,issues:iss.length,onTime:judged.length?ok/judged.length*100:null,sites:new Set(mine.map(i=>i.siteId)).size,enough:mine.length>=min,eligible:mine.length>=min&&a!=null&&a>=db.settings.reward}})
+  .filter(x=>x.c.active||x.n).sort((x,y)=>(y.enough-x.enough)||((y.a??-1)-(x.a??-1))||(y.n-x.n));
+ const top=rows.find(x=>x.eligible);if(top)top.best=true;
+ const imp=rows.filter(x=>x.enough&&x.d!=null&&x.d>=3).sort((x,y)=>y.d-x.d)[0];if(imp)imp.improved=true;return rows}
+function lbRow(x,i,full=true){return `<a class="lb-row" href="#/cleaner/${x.c.id}"><span class="rank${x.enough&&i<3?' r'+(i+1):''}">${i+1}</span><div><strong>${esc(x.c.name)}</strong>
+ <div class="badges">${x.best?`<span class="badge">${ic('trophy')} ${t('cleanerOfMonth')}</span>`:''}${x.eligible&&!x.best?`<span class="badge ok">${ic('star')} ${t('rewardEligible')}</span>`:''}${x.improved?`<span class="badge imp">${ic('up')} ${t('mostImproved')}</span>`:''}${!x.enough?`<span class="badge mute">${t('notEnough')}</span>`:''}</div>
+ ${full?`<div class="muted small" style="margin-top:4px">${t('inspN',x.n)} · ${t('sitesN',x.sites)} · ${t('devN',x.issues)}${x.onTime!=null?' · '+t('onTimeN',fmtNum(x.onTime,0)+' %'):''}</div>`:''}</div>
+ <div class="lb-score"><b style="color:${gradeColor(x.a)}">${fmtPct(x.a)}</b>${delta(x.a,x.pa)}</div></a>`}
+V.cleaners=()=>{const R=periodRange(ui.cmonth),PR=prevRange(ui.cmonth);const rows=cleanerStats(R,PR);
+ return `<div class="pg-h"><div><h1>${t('cleanersTitle')}</h1><p class="muted small">${t('rewardRule',db.settings.minInsp,db.settings.reward)}</p></div><div class="filters">${monthSelect('cmonth',ui.cmonth)}<button class="btn" data-act="toggleAddCleaner">${ic('plus')} ${t('addCleaner')}</button></div></div>
+ ${ui.addCleaner?`<div class="card"><div class="fields"><div><label class="f" for="ncN">${t('name')} *</label><input id="ncN" class="input"></div><div><label class="f" for="ncP">${t('phone')}</label><input id="ncP" class="input" type="tel"></div></div><div class="btns" style="margin-top:12px"><button class="btn primary" data-act="addCleaner">${t('save')}</button><button class="btn" data-act="toggleAddCleaner">${t('cancel')}</button></div></div>`:''}
+ <div class="two wide"><div class="lb" style="margin-bottom:14px">${rows.map((x,i)=>lbRow(x,i)).join('')||`<div class="card empty">${t('noData')}</div>`}</div>
+ <div class="card"><h2>${t('avgScore')} · ${monthLong(ui.cmonth)}</h2>${hbars(rows.filter(x=>x.a!=null).map(x=>({label:x.c.name,v:x.a,target:db.settings.reward,href:'#/cleaner/'+x.c.id})))}<p class="muted small">${t('inactiveHidden')}</p></div></div>`};
+V.cleaner=id=>{const c=db.cleaners.find(x=>x.id===id);if(!c)return notFound();const months=last12();const min=db.settings.minInsp;
+ const ms=months.map(m=>{const l=inspIn(periodRange(m)).filter(i=>i.cleanerId===id);const a=avg(l.map(i=>i.score));return {m,n:l.length,a,el:l.length>=min&&a!=null&&a>=db.settings.reward}});
+ const mine=db.inspections.filter(i=>i.cleanerId===id).sort((x,y)=>y.date.localeCompare(x.date));const sites=db.sites.filter(s=>s.cleanerId===id).sort(byName);
+ return `<a class="link" href="#/cleaners">${t('back')}</a><div class="pg-h"><h1>${esc(c.name)}${c.active?'':` <span class="pill">${t('inactive')}</span>`}</h1></div>
+ <div class="two wide"><div class="card"><h2>${t('monthly')}</h2>${lineChart(months.map(monthShort),[{name:c.name,values:ms.map(x=>x.a),color:'#1d5fa8'}],{target:db.settings.reward,targetLabel:t('rewardEligible')})}
+ <div class="tbl"><table class="t"><thead><tr><th>${t('month')}</th><th class="n">${t('countCol')}</th><th class="n">${t('avgCol')}</th><th class="n">${t('eligibleCol')}</th></tr></thead><tbody>${ms.slice().reverse().map(x=>`<tr><td>${monthLong(x.m)}</td><td class="n">${x.n}</td><td class="n">${fmtPct(x.a)}</td><td class="n">${x.el?'✓':''}</td></tr>`).join('')}</tbody></table></div></div>
+ <div><div class="card"><h2>${t('edit')}</h2><div class="fields"><div><label class="f" for="ceN">${t('name')}</label><input id="ceN" class="input" value="${esc(c.name)}"></div><div><label class="f" for="ceP">${t('phone')}</label><input id="ceP" class="input" type="tel" value="${esc(c.phone)}"></div></div>
+ <label class="chk-row" style="grid-template-columns:24px 1fr;border:0"><input type="checkbox" id="ceA"${c.active?' checked':''}><span>${t('active')}</span></label><button class="btn primary" data-act="saveCleaner" data-arg="${id}">${t('save')}</button></div>
+ <div class="card"><h2>${t('assignedSites')}</h2>${sites.length?sites.map(s=>`<a class="list-row" href="#/site/${s.id}"><strong>${esc(s.name)}</strong>${scorePill(lastInsp(s.id)?.score)}</a>`).join(''):`<p class="muted">${t('noSites')}</p>`}</div>
+ <div class="card"><h2>${t('recentInsp')}</h2>${mine.slice(0,8).map(inspRow).join('')||`<p class="muted">${t('noData')}</p>`}</div></div></div>`};
+
+/* ---- reports ---- */
+function reportData(){const ids=ui.repSite&&canSee(ui.repSite)?[ui.repSite]:mySites().map(s=>s.id);const scope=new Set(ids);const R=periodRange(ui.rmonth),PR=prevRange(ui.rmonth);
+ const cur=inspIn(R,scope).sort((a,b)=>a.date.localeCompare(b.date)),prev=inspIn(PR,scope);const iss=db.issues.filter(x=>scope.has(x.siteId)&&x.created>=R[0]&&x.created<=R[1]).sort((a,b)=>a.created.localeCompare(b.created));return {ids,scope,cur,prev,iss}}
+V.reports=()=>{const {ids,cur,prev,iss}=reportData();const a=avg(cur.map(i=>i.score)),pa=avg(prev.map(i=>i.score));const fixed=iss.filter(x=>x.status==='fixed').length;
+ const tgt=avg(ids.map(id=>site(id).target));const one=ids.length===1?site(ids[0]):null;
+ const siteRows=ids.map(id=>{const l=cur.filter(i=>i.siteId===id);return {s:site(id),n:l.length,a:avg(l.map(i=>i.score))}});
+ return `<div class="pg-h no-print"><h1>${t('nav_reports')}</h1><div class="filters">${combo('repSite',{value:ui.repSite,allowAll:true,onPick:id=>{ui.repSite=id;render()}})}${monthSelect('rmonth',ui.rmonth)}</div></div>
+ <div class="btns no-print" style="margin-bottom:14px"><button class="btn" data-act="print">${ic('print')} ${t('print')}</button><button class="btn" data-act="csv">${ic('download')} ${t('csv')}</button></div>
+ <div class="report"><div class="card"><div class="row-b"><div><h1>${t('reportTitle')} – ${monthLong(ui.rmonth)}</h1><p class="muted" style="margin:0">${one?esc(one.name)+' · '+esc(one.address)+' · '+esc(custName(one.customerId)):(isAdmin()?t('allSites'):esc(custName(session.customerId))+' · '+t('allSites'))}</p><p class="muted small">Uusi Era Palvelut Oy · ${t('generated',fmtDate(todayIso()))}</p></div>${logo().replace('<svg','<svg width="44" height="44"')}</div></div>
+ <div class="kpis">${kpi(t('avgScore'),fmtPct(a),gradePill(a)+delta(a,pa))}${kpi(t('target'),fmtPct(tgt),a!=null&&tgt!=null?(a>=tgt?`<span class="delta up">${t('onTarget')}</span>`:`<span class="delta down">${t('belowTargetShort')}</span>`):'')}${kpi(t('inspections'),cur.length,`<span class="muted">${t('prevMonth')}: ${prev.length}</span>`)}${kpi(t('nav_issues'),iss.length,`<span class="muted">${t('fixedCount')}: ${fixed}</span>`)}</div>
+ ${ids.length>1?`<div class="card"><h2>${t('siteSummary')}</h2><div class="tbl"><table class="t"><thead><tr><th>${t('site')}</th><th class="n">${t('inspections')}</th><th class="n">${t('avgCol')}</th><th class="n">${t('target')}</th></tr></thead><tbody>${siteRows.map(x=>`<tr><td>${esc(x.s.name)}</td><td class="n">${x.n}</td><td class="n">${x.a==null?'–':scorePill(x.a)}</td><td class="n">${x.s.target} %</td></tr>`).join('')}</tbody></table></div></div>`:''}
+ <div class="two"><div class="card"><h2>${t('byArea')}</h2>${hbars(areaAvgs(cur).map(x=>({label:areaName(x.id),v:x.v})))}</div>
+ <div class="card"><h2>${t('itemAverages')}</h2>${hbars(itemAvgs(cur).sort((x,y)=>x.v-y.v).map(x=>({label:itemName(x.id),v:x.v})))}</div></div>
+ <div class="card"><h2>${t('inspList')}</h2>${cur.length?`<div class="tbl"><table class="t"><thead><tr><th>${t('date')}</th>${ids.length>1?`<th>${t('site')}</th>`:''}<th>${t('cleaner')}</th><th>${t('inspector')}</th><th class="n">${t('avgScore')}</th></tr></thead><tbody>${cur.map(i=>`<tr><td><a href="#/insp/${i.id}">${fmtDate(i.date)}</a></td>${ids.length>1?`<td>${esc(siteName(i.siteId))}</td>`:''}<td>${esc(cleanerName(i.cleanerId))}</td><td>${esc(i.inspector)}</td><td class="n">${scorePill(i.score)}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${t('noData')}</p>`}</div>
+ <div class="card"><h2>${t('issuesList')}</h2>${iss.length?`<div class="tbl"><table class="t"><thead><tr><th>${t('date')}</th>${ids.length>1?`<th>${t('site')}</th>`:''}<th>${t('item')}</th><th>${t('status')}</th></tr></thead><tbody>${iss.map(x=>`<tr><td>${fmtDate(x.created)}</td>${ids.length>1?`<td>${esc(siteName(x.siteId))}</td>`:''}<td>${x.itemId?esc(itemName(x.itemId)):t('fromCustomer')}${x.comment?`<div class="muted small">${esc(x.comment)}</div>`:''}</td><td><span class="pill st-${x.status}">${t('status_'+x.status)}</span>${x.fixedAt?`<div class="muted small">${fmtDate(x.fixedAt)}</div>`:''}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${t('noData')}</p>`}</div></div>`};
+
+/* ---- settings ---- */
+V.settings=()=>{const S=db.settings;let kb=0;try{kb=Math.round((localStorage.getItem(KEY)||'').length*2/1024)}catch(e){}
+ const num=(k,min,max)=>`<div><label class="f" for="st_${k}">${t(k)}</label><input id="st_${k}" class="input" type="number" min="${min}" max="${max}" value="${S[k]}" data-ch="rule" data-k="${k}"></div>`;
+ return `<div class="pg-h"><h1>${t('settingsTitle')}</h1></div>
+ <div class="card"><h2>${t('rules')}</h2><div class="fields">${num('reward',0,100)}${num('minInsp',1,20)}${num('fixDays',1,30)}${num('issueAt',0,4)}</div><p class="muted small">${t('scoreExplain')} ${t('gradeLegend')}</p></div>
+ <div class="card"><h2>${t('itemsLib')}</h2><p class="muted small">${t('itemsLibHelp')}</p><div class="tbl"><table class="t"><thead><tr><th>${t('nameFi')}</th><th>${t('nameEn')}</th><th>${t('area')}</th><th class="n">${t('defWeight')}</th></tr></thead><tbody>
+ ${db.items.map(i=>`<tr><td><input class="input" value="${esc(i.fi)}" data-ch="lib" data-id="${i.id}" data-f="fi" aria-label="${t('nameFi')}"></td><td><input class="input" value="${esc(i.en)}" data-ch="lib" data-id="${i.id}" data-f="en" aria-label="${t('nameEn')}"></td><td><select class="input" data-ch="lib" data-id="${i.id}" data-f="area" aria-label="${t('area')}">${AREAS.map(a=>`<option value="${a.id}"${a.id===i.area?' selected':''}>${a[lang]}</option>`).join('')}</select></td><td><input class="input" style="width:76px" type="number" min="1" max="20" value="${i.w}" data-ch="lib" data-id="${i.id}" data-f="w" aria-label="${t('defWeight')}"></td></tr>`).join('')}</tbody></table></div>
+ <button class="btn" style="margin-top:12px" data-act="addItem">${ic('plus')} ${t('addItem')}</button></div>
+ <div class="card"><h2>${t('customers')}</h2>${db.customers.map(c=>`<div style="margin-bottom:8px"><input class="input" value="${esc(c.name)}" data-ch="cust" data-id="${c.id}" aria-label="${t('customer')}"></div>`).join('')}<button class="btn" data-act="addCustomer">${ic('plus')} ${t('addCustomer')}</button></div>
+ <div class="card"><h2>${t('dataTitle')}</h2><p class="muted small">${t('demoNote')} ${t('storageNote',kb)}</p><div class="btns"><button class="btn" data-act="exportData">${ic('download')} ${t('exportData')}</button><label class="btn">${t('importData')}<input type="file" accept=".json,application/json" data-ch="importFile" hidden></label><button class="btn danger" data-act="resetDemo">${t('resetDemo')}</button></div></div>`};
+
+/* ================= actions ================= */
+let tt;function toast(m,k){let el=$('#toast');if(!el){el=document.createElement('div');el.id='toast';el.setAttribute('role','status');document.body.appendChild(el)}el.className='toast '+(k||'');el.textContent=m;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>{el.hidden=true},3400)}
+function download(name,text,type){const b=new Blob([text],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function resizeImage(file,max=900,q=.62){return new Promise((res,rej)=>{const fr=new FileReader();fr.onerror=rej;fr.onload=()=>{const img=new Image();img.onerror=rej;img.onload=()=>{const k=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',q))};img.src=fr.result};fr.readAsDataURL(file)})}
+const A={
+ lang(){lang=lang==='fi'?'en':'fi';store.set('ee_lang',lang);render()},
+ loginAdmin(){session={role:'admin'};store.set(SKEY,session);location.hash='#/dashboard';render()},
+ loginCustomer(){const id=$('#custSel')?.value;if(!id)return;session={role:'customer',customerId:id};ui.dashSite=ui.issueSite=ui.repSite=ui.fbSite='';store.set(SKEY,session);location.hash='#/dashboard';render()},
+ logout(){session=null;store.del(SKEY);ui.dashSite=ui.issueSite=ui.repSite=ui.fbSite='';location.hash='';render()},
+ startInsp(id){if(draft&&draft.siteId!==id&&Object.keys(draft.items).length&&!confirm(t('confirmDiscard')))return;if(!draft||draft.siteId!==id){draft=newDraft(id);saveDraft()}if(location.hash==='#/inspect')render();else location.hash='#/inspect';window.scrollTo(0,0)},
+ newInsp(){location.hash='#/inspect';render()},
+ discard(){if(!confirm(t('confirmDiscard')))return;draft=null;store.del(DKEY);render()},
+ rate(arg){const [id,v]=arg.split(':');const r=dItem(id);r.v=v==='na'?'na':+v;saveDraft();refreshCard(id);updateLive()},
+ openX(id){dItem(id).x=1;refreshCard(id);document.querySelector(`#it-${id} textarea`)?.focus()},
+ rmPhoto(id){delete dItem(id).p;saveDraft();refreshCard(id)},
+ saveInsp(){const s=site(draft.siteId);const ids=Object.keys(s.items);const miss=ids.find(id=>draft.items[id]?.v===undefined);
+  if(miss){toast(t('rateAll'),'err');const el=document.getElementById('it-'+miss);el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('pulse');setTimeout(()=>el.classList.remove('pulse'),1500);return}
+  if(!draft.inspector.trim()){toast(t('needInspector'),'err');const f=$('#dIn');f.scrollIntoView({block:'center'});f.focus();return}
+  const items={};ids.forEach(id=>{const r=draft.items[id];items[id]={s:r.v==='na'?null:r.v,w:s.items[id]};if(r.c&&r.c.trim())items[id].c=r.c.trim();if(r.p)items[id].p=r.p});
+  const ins={id:uid('ins'),siteId:s.id,cleanerId:draft.cleanerId,inspector:draft.inspector.trim(),date:draft.date||todayIso(),rep:draft.rep.trim(),notes:draft.notes.trim(),items,score:calcScore(items)};
+  const due=iso(addDays(parseIso(ins.date),db.settings.fixDays));const newIss=[];
+  ids.forEach(id=>{const x=items[id];if(x.s!=null&&x.s<=db.settings.issueAt)newIss.push({id:uid('d'),siteId:s.id,inspectionId:ins.id,itemId:id,score:x.s,cleanerId:ins.cleanerId,comment:x.c||'',status:'open',created:ins.date,due,fixedAt:'',source:'inspection'})});
+  db.inspections.push(ins);db.issues.push(...newIss);
+  if(!saveDb()){db.inspections.pop();db.issues.splice(db.issues.length-newIss.length,newIss.length);return}
+  store.set('ee_inspector',ins.inspector);draft=null;store.del(DKEY);ui.saved={id:ins.id,n:newIss.length};render();window.scrollTo(0,0)},
+ delInsp(id){if(!confirm(t('confirmDelete')))return;const sid=db.inspections.find(i=>i.id===id)?.siteId;db.inspections=db.inspections.filter(i=>i.id!==id);db.issues=db.issues.filter(x=>x.inspectionId!==id);saveDb();location.hash=sid?'#/site/'+sid:'#/dashboard'},
+ issueStatus(k){ui.issueStatus=k;render()},
+ issueSet(arg){const [id,st]=arg.split(':');const x=db.issues.find(i=>i.id===id);if(!x)return;x.status=st;x.fixedAt=st==='fixed'?todayIso():'';saveDb();render()},
+ reportFor(id){ui.fbSite=id;location.hash='#/feedback'},
+ sendFeedback(){const sid=ui.fbSite;const desc=$('#fbDesc').value.trim();if(!sid||!canSee(sid)){toast(t('pickSite'),'err');return}if(!desc){toast(t('needDesc'),'err');$('#fbDesc').focus();return}
+  const s=site(sid);const d=todayIso();db.issues.push({id:uid('d'),siteId:sid,inspectionId:'',itemId:'',score:null,cleanerId:s.cleanerId,comment:desc,photo:ui.fbPhoto||'',status:'open',created:d,due:iso(addDays(new Date(),db.settings.fixDays)),fixedAt:'',source:'customer'});
+  if(!saveDb()){db.issues.pop();return}ui.fbPhoto='';ui.issueStatus='open';ui.issueSite=sid;toast(t('feedbackSent'));location.hash='#/issues'},
+ saveSite(id){const f=$('#siteForm');const fd=new FormData(f);const name=String(fd.get('name')||'').trim();if(!name){toast(t('required'),'err');f.name.focus();return}
+  const items={};fd.getAll('it').forEach(k=>{items[k]=Math.max(1,Math.min(20,+fd.get('w_'+k)||1))});
+  const data={name,address:String(fd.get('address')||'').trim(),customerId:fd.get('customerId'),cleanerId:fd.get('cleanerId'),target:Math.max(0,Math.min(100,+fd.get('target')||0)),items};
+  let s;if(id==='new'){s={id:uid('s'),...data};db.sites.push(s)}else{s=site(id);Object.assign(s,data)}
+  if(draft&&draft.siteId===s.id){Object.keys(draft.items).forEach(k=>{if(!items[k])delete draft.items[k]});saveDraft()}
+  saveDb();toast(t('savedOk'));location.hash='#/site/'+s.id},
+ delSite(id){if(!confirm(t('confirmDeleteSite')))return;db.sites=db.sites.filter(s=>s.id!==id);db.inspections=db.inspections.filter(i=>i.siteId!==id);db.issues=db.issues.filter(x=>x.siteId!==id);if(draft?.siteId===id){draft=null;store.del(DKEY)}saveDb();location.hash='#/sites'},
+ toggleAddCleaner(){ui.addCleaner=!ui.addCleaner;render();if(ui.addCleaner)$('#ncN')?.focus()},
+ addCleaner(){const n=$('#ncN').value.trim();if(!n){toast(t('required'),'err');return}db.cleaners.push({id:uid('k'),name:n,phone:$('#ncP').value.trim(),active:true});saveDb();ui.addCleaner=false;toast(t('savedOk'));render()},
+ saveCleaner(id){const c=db.cleaners.find(x=>x.id===id);const n=$('#ceN').value.trim();if(!n){toast(t('required'),'err');return}c.name=n;c.phone=$('#ceP').value.trim();c.active=$('#ceA').checked;saveDb();toast(t('savedOk'));render()},
+ print(){window.print()},
+ csv(){const {cur}=reportData();const q=v=>{const s=String(v??'');return /[";\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+  const rows=[[t('date'),t('site'),t('customer'),t('cleaner'),t('inspector'),t('avgScore')+' %',t('area'),t('item'),'0-5',t('weight','').trim(),t('commentPh').split(':')[0]]];
+  cur.forEach(i=>{const s=site(i.siteId);Object.entries(i.items).forEach(([k,x])=>rows.push([i.date,s.name,custName(s.customerId),cleanerName(i.cleanerId),i.inspector,fmtNum(i.score),areaName(item(k)?.area),itemName(k),x.s==null?t('na'):x.s,x.w,x.c||'']))});
+  download(`eagle-eye-${ui.rmonth}${ui.repSite?'-'+norm(siteName(ui.repSite)).replace(/[^a-z0-9]+/g,'-'):''}.csv`,'﻿'+rows.map(r=>r.map(q).join(';')).join('\r\n'),'text/csv;charset=utf-8')},
+ addItem(){db.items.push({id:uid('i'),area:'general',w:5,fi:T.fi.newItem,en:T.en.newItem});saveDb();render()},
+ addCustomer(){db.customers.push({id:uid('c'),name:t('newCustomer')});saveDb();render()},
+ exportData(){download(`eagle-eye-data-${todayIso()}.json`,JSON.stringify(db),'application/json')},
+ resetDemo(){if(!confirm(t('confirmReset')))return;db=seed();draft=null;store.del(DKEY);saveDb();toast(t('savedOk'));render()},
+ zoom(_,el){const o=document.createElement('div');o.className='overlay';const im=new Image();im.src=el.src;im.alt='';o.appendChild(im);o.onclick=()=>o.remove();document.body.appendChild(o)}
+};
+const C={
+ period(el){ui.period=el.value;render()},cmonth(el){ui.cmonth=el.value;render()},rmonth(el){ui.rmonth=el.value;render()},
+ async itemPhoto(el){const f=el.files[0];if(!f)return;const id=el.dataset.id;try{const p=await resizeImage(f);const r=dItem(id);r.p=p;if(!saveDraft())delete r.p;refreshCard(id)}catch(e){toast(t('photoFail'),'err')}},
+ async fbPhoto(el){const f=el.files[0];if(!f)return;try{ui.fbPhoto=await resizeImage(f);$('#fbPrev').innerHTML=`<img class="thumb" src="${ui.fbPhoto}" alt="">`}catch(e){toast(t('photoFail'),'err')}},
+ rule(el){const v=+el.value;if(el.value===''||!isFinite(v))return;db.settings[el.dataset.k]=v;saveDb();toast(t('savedOk'))},
+ lib(el){const x=item(el.dataset.id);if(!x)return;const f=el.dataset.f;x[f]=f==='w'?Math.max(1,Math.min(20,+el.value||1)):el.value.trim()||x[f];saveDb()},
+ cust(el){const c=db.customers.find(x=>x.id===el.dataset.id);if(c&&el.value.trim()){c.name=el.value.trim();saveDb()}},
+ importFile(el){const f=el.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{try{const o=JSON.parse(fr.result);if(!o||o.v!==2||!['sites','inspections','issues','items','cleaners','customers'].every(k=>Array.isArray(o[k]))||!o.settings)throw 0;db=o;draft=null;store.del(DKEY);saveDb();toast(t('importOk'));render()}catch(e){toast(t('importBad'),'err')}};fr.readAsText(f)}
+};
+const I={
+ draftField(el){if(!draft)return;draft[el.dataset.f]=el.value;saveDraft()},
+ itemComment(el){if(!draft)return;dItem(el.dataset.id).c=el.value;saveDraft()}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const fn=A[el.dataset.act];if(fn){e.preventDefault();fn(el.dataset.arg,el,e)}});
+document.addEventListener('change',e=>{const el=e.target.closest('[data-ch]');if(el&&C[el.dataset.ch])C[el.dataset.ch](el)});
+document.addEventListener('input',e=>{const el=e.target.closest('[data-in]');if(el&&I[el.dataset.in])I[el.dataset.in](el)});
+window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
+render();
+</script>
+</body>
+</html>
