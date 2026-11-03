@@ -190,6 +190,7 @@ mark{background:#fdecc8;color:inherit;border-radius:2px;padding:0 1px}
 .overlay img{max-width:100%;max-height:100%;border-radius:var(--r)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--text);color:#fff;padding:11px 16px;border-radius:var(--r);z-index:120;box-shadow:var(--shadow-lg);max-width:calc(100% - 32px);font-weight:500;font-size:13.5px}
 .toast.err{background:var(--poor)}
+@media(min-width:900px){.toast{bottom:auto;top:72px}}
 @media(max-width:899px){.toast{bottom:150px}}
 
 /* ---- leaderboard ---- */
@@ -268,6 +269,42 @@ button.role-card:hover{border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,9
 .meta{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line-2)}
 .report h1{font-size:20px;margin:0 0 4px;letter-spacing:-.02em}
 .empty{padding:28px;text-align:center;color:var(--muted)}
+
+/* ---- phase 1 additions ---- */
+.kpis.k3{grid-template-columns:repeat(2,1fr)}
+@media(min-width:1000px){.kpis.k3{grid-template-columns:repeat(3,1fr)}}
+.quick{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;padding:12px 14px;background:var(--accent-soft);border-radius:var(--r-sm)}
+.area-h{align-items:center}
+.area-h .btn{text-transform:none;letter-spacing:0}
+.cause{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tag{display:inline-block;font-size:11px;font-weight:600;border-radius:var(--r-sm);padding:1px 7px;background:#eef1f6;color:var(--text-2);border:1px solid var(--line);vertical-align:1px}
+.count{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:var(--line-2);color:var(--text-2);font-size:12px;font-weight:700}
+.att-row{display:flex;align-items:center;gap:12px;width:100%;padding:11px 8px;margin:0 -8px;width:calc(100% + 16px);border:0;border-bottom:1px solid var(--line-2);background:none;text-align:left;cursor:pointer;color:inherit;text-decoration:none;border-radius:var(--r-sm)}
+.att-row:last-of-type{border-bottom:0}
+.att-row:hover{background:var(--subtle)}
+.att-row .grow{flex:1;min-width:0;display:flex;flex-direction:column}
+.att-row strong{font-weight:600;font-size:13.5px}
+.att-row>.ic:last-child{color:var(--muted);width:16px;height:16px}
+.att-ic{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;flex:none}
+.att-ic .ic{width:17px;height:17px}
+.att-ic.poor{background:var(--poor-bg);color:var(--poor)}.att-ic.fair{background:var(--fair-bg);color:var(--fair)}.att-ic.mute{background:var(--line-2);color:var(--muted)}
+.all-good{display:flex;gap:12px;align-items:center;padding:14px;background:var(--ok-bg);border-radius:var(--r-sm);color:var(--ok)}
+.all-good span{display:flex;flex-direction:column}.all-good strong{color:var(--ok)}
+.sec-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text-2);margin:0 0 10px}
+.sec-h .ic{width:16px;height:16px;color:var(--gold)}
+details.adv>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+details.adv>summary::-webkit-details-marker{display:none}
+details.adv>summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;margin-right:2px}
+details.adv[open]>summary::before{transform:rotate(45deg)}
+details.adv[open]>summary{margin-bottom:12px}
+.modal{position:fixed;inset:0;background:rgba(8,18,30,.45);display:grid;place-items:center;z-index:110;padding:16px}
+.modal-card{background:var(--surface);border-radius:12px;box-shadow:var(--shadow-lg);max-width:560px;width:100%;max-height:90vh;overflow:auto;padding:22px 24px}
+.modal-card h2{margin:0;font-size:17px}
+.modal-card h3{font-size:13px;margin:18px 0 6px;color:var(--text)}
+.modal-card p{margin:0 0 8px;color:var(--text-2)}
+.grades{display:flex;gap:6px;flex-wrap:wrap}
+.icon-btn{color:var(--muted)}
+.side .icon-btn{color:inherit}
 @media print{
  .side,.topbar,.tabs,.no-print,.foot,.toast{display:none!important}
  .content{margin:0}
@@ -320,7 +357,7 @@ settingsTitle:'Asetukset',rules:'Säännöt',reward:'Palkkioraja, keskiarvo %',m
 itemsLib:'Tarkastuskohteiden kirjasto',itemsLibHelp:'Oletuspaino käytetään, kun kohta lisätään kohteeseen. Kohdekohtaiset painot muutetaan kohteen asetuksista.',area:'Alue',defWeight:'Oletuspaino',nameFi:'Nimi (suomi)',nameEn:'Nimi (englanti)',addItem:'Lisää tarkastuskohta',
 customers:'Asiakkaat',addCustomer:'Lisää asiakas',dataTitle:'Tiedot',exportData:'Vie tiedot (JSON)',importData:'Tuo tiedot',resetDemo:'Palauta esimerkkidata',confirmReset:'Korvataanko kaikki tiedot esimerkkidatalla?',importOk:'Tiedot tuotu.',importBad:'Tiedosto ei kelpaa.',
 storageFull:'Selaimen tallennustila on täynnä. Poista kuvia tai vie tiedot talteen ja tyhjennä vanhoja.',photoFail:'Kuvan lukeminen epäonnistui.',
-customerWelcome:'Tervetuloa, {0}',menu:'Päävalikko',roleAdmin:'Uusi Era · Ylläpito',grp_ops:'Toiminta',grp_mgmt:'Hallinta',grp_admin:'Ylläpito',grp_help:'Palaute',loginTitle:'Kirjaudu sisään',loginLead:'Valitse käyttäjärooli jatkaaksesi.',heroTitle:'Siivouksen laatu, mitattuna ja näkyvänä.',heroLead:'Eagle Eye on Uusi Eran laadunseurantajärjestelmä tarkastuksiin, poikkeamien hallintaan ja asiakasraportointiin.',vp1:'Mobiilitarkastukset painotetulla 0–5-pisteytyksellä',vp2:'Poikkeamat määräaikoineen ja kuvineen',vp3:'Asiakkaalle oma reaaliaikainen laatunäkymä',vp4:'Siivoojien kuukausittainen suoriutuminen ja palkitseminen',scoreExplain:'Siisteystaso = Σ(arvio ÷ 5 × paino) ÷ Σ paino. E/K-kohdat jätetään laskusta pois.',newItem:'Uusi kohta',newCustomer:'Uusi asiakas',newCleaner:'Uusi siivooja',selectCustomer:'Valitse asiakas',noCleaner:'—',storageNote:'Tallennustilaa käytössä noin {0} kt.'
+customerWelcome:'Tervetuloa, {0}',needsAttention:'Vaatii huomiota',attOverdue:'{0} myöhässä olevaa poikkeamaa',attCustomer:'{0} uutta asiakkaan ilmoitusta',attBelow:'{0} alle tavoitteen',attBelowSub:'30 pv: {0} · tavoite {1} %',attStale:'{0}: tarkastus puuttuu',andMore:'+ {0} muuta',allGood:'Kaikki kunnossa',allGoodSub:'Ei myöhässä olevia poikkeamia eikä kohteita alle tavoitteen.',noneEligible:'Kukaan ei vielä täytä palkkioehtoja tällä jaksolla.',custLead:'Kohteidenne siisteystaso, avoimet asiat ja raportit yhdellä sivulla.',noneOverdue:'ei myöhässä',quickHelp:'Useimmat kohdat ovat yleensä kunnossa: merkitse ne yhdellä napautuksella ja muuta vain poikkeavat.',allOk:'Merkitse loput kunnossa',areaOk:'Kaikki kunnossa',markedOk:'{0} kohtaa merkitty kuntoon (5).',causeQ:'Syy:',causeCleaning:'Siivous',causeMaint:'Huolto / tarvikkeet',toMaint:'→ Huolto',toCleaning:'→ Siivous',siteType:'Kohdetyyppi',siteTypes:'Kohdetyypit (mallipohjat)',addType:'Lisää kohdetyyppi',typeHelp:'Kohdetyyppi määrää uuden kohteen tarkastuskohdat ja painot. Yksittäistä kohdetta voi muokata erikseen.',typeUsed:'Käytössä {0} kohteessa – muutokset koskevat vain uusia kohteita.',typeItems:'{0} tarkastuskohtaa',typeDiff:'{0} poikkeamaa kohdetyypistä',typeSame:'sama kuin kohdetyyppi',resetToType:'Palauta kohdetyypin oletukset',applyTypeQ:'Korvataanko tarkastuskohdat kohdetyypin oletuksilla?',otherCleaners:'Muut siivoojat',howScored:'Miten pisteet lasketaan?',fairNote:'Huolto- ja tarvikeviat (esim. rikkinäinen annostelija) eivät vaikuta siivoojan pisteisiin.',helpTitle:'Ohje',close:'Sulje',advanced:'Lisäasetukset',advancedSub:'tarkastuskohteiden kirjasto ja asiakkaat',h_score:'Siisteystason laskenta',h_scale:'Jokainen kohta arvioidaan 0–5. E/K jätetään laskusta pois. Arvio {0} tai alle luo poikkeaman.',h_grades:'Arvosanat',h_dev:'Poikkeamat',h_devText:'Arvio {0} tai alle luo poikkeaman, joka on korjattava {1} päivässä. Merkitse syy: siivous vai huolto/tarvikkeet.',h_reward:'Palkitseminen',menu:'Päävalikko',roleAdmin:'Uusi Era · Ylläpito',grp_ops:'Toiminta',grp_mgmt:'Hallinta',grp_admin:'Ylläpito',grp_help:'Palaute',loginTitle:'Kirjaudu sisään',loginLead:'Valitse käyttäjärooli jatkaaksesi.',heroTitle:'Siivouksen laatu, mitattuna ja näkyvänä.',heroLead:'Eagle Eye on Uusi Eran laadunseurantajärjestelmä tarkastuksiin, poikkeamien hallintaan ja asiakasraportointiin.',vp1:'Mobiilitarkastukset painotetulla 0–5-pisteytyksellä',vp2:'Poikkeamat määräaikoineen ja kuvineen',vp3:'Asiakkaalle oma reaaliaikainen laatunäkymä',vp4:'Siivoojien kuukausittainen suoriutuminen ja palkitseminen',scoreExplain:'Siisteystaso = Σ(arvio ÷ 5 × paino) ÷ Σ paino. E/K-kohdat jätetään laskusta pois.',newItem:'Uusi kohta',newCustomer:'Uusi asiakas',newCleaner:'Uusi siivooja',selectCustomer:'Valitse asiakas',noCleaner:'—',storageNote:'Tallennustilaa käytössä noin {0} kt.'
 },en:{
 appSub:'Cleaning quality monitoring',forCo:'Uusi Era Palvelut Oy',loginAdmin:'Uusi Era staff',loginAdminDesc:'Inspections, sites, cleaners, reports and settings.',loginCustomer:'Customer',loginCustomerDesc:'Cleanliness of your own sites, reports and reporting problems.',enter:'Continue',
 demoNote:'Demo: data is stored in this browser only. Move data between devices via Settings → Export / Import.',logout:'Sign out',admin:'Admin',
@@ -351,7 +388,7 @@ settingsTitle:'Settings',rules:'Rules',reward:'Reward threshold, average %',minI
 itemsLib:'Checklist item library',itemsLibHelp:'The default weight is used when an item is added to a site. Site-specific weights are changed in the site settings.',area:'Area',defWeight:'Default weight',nameFi:'Name (Finnish)',nameEn:'Name (English)',addItem:'Add checklist item',
 customers:'Customers',addCustomer:'Add customer',dataTitle:'Data',exportData:'Export data (JSON)',importData:'Import data',resetDemo:'Restore demo data',confirmReset:'Replace all data with the demo data?',importOk:'Data imported.',importBad:'The file is not valid.',
 storageFull:'Browser storage is full. Remove photos, or export your data and clear old records.',photoFail:'Could not read the photo.',
-customerWelcome:'Welcome, {0}',menu:'Main menu',roleAdmin:'Uusi Era · Admin',grp_ops:'Operations',grp_mgmt:'Management',grp_admin:'Administration',grp_help:'Feedback',loginTitle:'Sign in',loginLead:'Choose a role to continue.',heroTitle:'Cleaning quality, measured and visible.',heroLead:'Eagle Eye is Uusi Era’s quality platform for inspections, deviation management and client reporting.',vp1:'Mobile inspections with weighted 0–5 scoring',vp2:'Deviations with due dates and photo evidence',vp3:'A live quality view for every client',vp4:'Monthly cleaner performance and rewards',scoreExplain:'Cleanliness = Σ(rating ÷ 5 × weight) ÷ Σ weight. N/A items are left out.',newItem:'New item',newCustomer:'New customer',newCleaner:'New cleaner',selectCustomer:'Choose customer',noCleaner:'—',storageNote:'About {0} kB of storage in use.'
+customerWelcome:'Welcome, {0}',needsAttention:'Needs attention',attOverdue:'{0} overdue deviations',attCustomer:'{0} new customer reports',attBelow:'{0} below target',attBelowSub:'30 days: {0} · target {1} %',attStale:'{0}: inspection overdue',andMore:'+ {0} more',allGood:'All good',allGoodSub:'No overdue deviations and no sites below target.',noneEligible:'Nobody meets the reward criteria for this period yet.',custLead:'Your sites’ cleanliness, open issues and reports on one page.',noneOverdue:'none overdue',quickHelp:'Most items are usually fine: mark them in one tap and only change the exceptions.',allOk:'Mark the rest OK',areaOk:'All OK',markedOk:'{0} items marked OK (5).',causeQ:'Cause:',causeCleaning:'Cleaning',causeMaint:'Maintenance / supplies',toMaint:'→ Maintenance',toCleaning:'→ Cleaning',siteType:'Site type',siteTypes:'Site types (templates)',addType:'Add site type',typeHelp:'The site type sets the checklist and weights for new sites. Individual sites can still be adjusted.',typeUsed:'Used by {0} sites – changes apply to new sites only.',typeItems:'{0} checklist items',typeDiff:'{0} differences from site type',typeSame:'same as site type',resetToType:'Reset to site-type defaults',applyTypeQ:'Replace the checklist with the site type defaults?',otherCleaners:'Other cleaners',howScored:'How is this scored?',fairNote:'Maintenance and supply faults (e.g. a broken dispenser) do not count against the cleaner.',helpTitle:'Help',close:'Close',advanced:'Advanced',advancedSub:'checklist item library and customers',h_score:'How cleanliness is calculated',h_scale:'Each item is rated 0–5. N/A is left out. A rating of {0} or lower creates a deviation.',h_grades:'Grades',h_dev:'Deviations',h_devText:'A rating of {0} or lower creates a deviation to be fixed within {1} days. Mark the cause: cleaning or maintenance/supplies.',h_reward:'Rewards',menu:'Main menu',roleAdmin:'Uusi Era · Admin',grp_ops:'Operations',grp_mgmt:'Management',grp_admin:'Administration',grp_help:'Feedback',loginTitle:'Sign in',loginLead:'Choose a role to continue.',heroTitle:'Cleaning quality, measured and visible.',heroLead:'Eagle Eye is Uusi Era’s quality platform for inspections, deviation management and client reporting.',vp1:'Mobile inspections with weighted 0–5 scoring',vp2:'Deviations with due dates and photo evidence',vp3:'A live quality view for every client',vp4:'Monthly cleaner performance and rewards',scoreExplain:'Cleanliness = Σ(rating ÷ 5 × weight) ÷ Σ weight. N/A items are left out.',newItem:'New item',newCustomer:'New customer',newCleaner:'New cleaner',selectCustomer:'Choose customer',noCleaner:'—',storageNote:'About {0} kB of storage in use.'
 }};
 let lang=store.get('ee_lang','fi');if(!T[lang])lang='fi';
 function t(k,...a){let s=T[lang][k]??T.fi[k]??k;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -403,6 +440,7 @@ up:'<path d="m23 6-9.5 9.5-5-5L1 18M17 6h6v6"/>',
 plus:'<path d="M12 5v14M5 12h14"/>',
 print:'<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
 ok:'<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>',
+help:'<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>',
 arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
 download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>'};
 const ic=n=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
@@ -425,8 +463,7 @@ function seed(){
  const customers=[{id:'c1',name:'Pirkanmaan hyvinvointialue'},{id:'c2',name:'Tampereen kaupunki'},{id:'c3',name:'Kiinteistö Oy Hermia'}];
  const Q={k1:4.62,k2:4.2,k3:4.45,k4:3.85,k5:4.35,k6:3.35,k7:4.05,k8:4.0};
  const cleaners=[['k1','Aino Virtanen'],['k2','Mikko Korhonen'],['k3','Fatima Ali'],['k4','Jari Mäkinen'],['k5','Liisa Nieminen'],['k6','Ahmed Hassan'],['k7','Olga Smirnova'],['k8','Pekka Laine (sijainen)']].map(([id,name])=>({id,name,phone:'',active:true}));
- const base=['wc_toilets','wc_sinks','wc_mirrors','supplies','wc_floor','floors','touch','dust','waste','entrance'];
- const S=(id,name,address,customerId,cleanerId,target,extra,drop=[])=>({id,name,address,customerId,cleanerId,target,items:Object.fromEntries(base.concat(extra).filter(x=>!drop.includes(x)).map(x=>[x,W[x]]))});
+ const S=(id,name,address,customerId,cleanerId,target,extra,drop=[])=>({id,name,address,customerId,cleanerId,target,items:Object.fromEntries(BASE.concat(extra).filter(x=>!drop.includes(x)).map(x=>[x,W[x]]))});
  const sites=[
  S('s1','Hatanpään sairaala','Hatanpään puistokuja 2, Tampere','c1','k1',92,['stairs','lifts','glass','patient','waiting']),
  S('s2','Hervannan terveysasema','Lindforsinkatu 2, Tampere','c1','k2',90,['stairs','waiting']),
@@ -440,6 +477,7 @@ function seed(){
  S('s10','Hermia 1','Hermiankatu 1, Tampere','c3','k5',88,['stairs','lifts','glass','offices','meeting','kitchen']),
  S('s11','Hermia 6','Hermiankatu 6–8, Tampere','c3','k3',88,['lifts','offices','meeting','kitchen']),
  S('s12','Tesoman jäähalli','Tesomankatu 30, Tampere','c2','k4',82,['stairs','gym','changing'],['entrance'])];
+ const TY={s1:'hospital',s2:'health',s3:'health',s4:'library',s5:'library',s6:'sports',s7:'sports',s8:'school',s9:'daycare',s10:'office',s11:'office',s12:'sports'};sites.forEach(s=>{s.type=TY[s.id]});
  const inspections=[],issues=[];const today=new Date();const start=new Date(today.getFullYear(),today.getMonth()-11,1);
  const inspectors=['Sanna Lehto','Timo Salo'];const notes=['','','','Hyvä yleistaso.','Pölyä ikkunalaudoilla.','Roska-astiat tyhjennetty ajallaan.','Lattiat hyvässä kunnossa.'];
  const coms={wc_toilets:'Kalkkia pisuaarissa',supplies:'Käsipyyhkeet loppu',floors:'Tahroja käytävällä',dust:'Pölyä hyllyillä',waste:'Roska-astia täynnä',changing:'Hiuksia suihkun kaivossa',gym:'Laitteiden kahvat likaiset',wc_floor:'Lattia tahmea',touch:'Ovenkahvat tahraiset',kitchen:'Kahvinkeitin likainen'};
@@ -448,21 +486,32 @@ function seed(){
   while(d<=today){const mi=(d.getFullYear()-start.getFullYear())*12+d.getMonth()-start.getMonth();
    let ck=s.cleanerId;if(r()<0.08)ck='k8';
    let q=ck==='k6'?3.35+1.25*mi/11:Q[ck];q+=0.18*Math.sin(mi*1.3+si);
-   const its={};Object.entries(s.items).forEach(([id,w])=>{if(r()<0.04){its[id]={s:null,w};return}let v=q+(r()-0.42)*1.7-(items.find(i=>i.id===id).area==='sanitary'?0.15:0);v+=0.12;if(r()<0.03*(5.2-q))v-=1.6+r()*1.6;its[id]={s:Math.max(0,Math.min(5,Math.round(v))),w}});
+   const its={};Object.entries(s.items).forEach(([id,w])=>{if(r()<0.04){its[id]={s:null,w};return}let v=q+(r()-0.42)*1.7-(items.find(i=>i.id===id).area==='sanitary'?0.15:0);v+=0.12;if(r()<0.03*(5.2-q))v-=1.6+r()*1.6;its[id]={s:Math.max(0,Math.min(5,Math.round(v))),w};if(its[id].s<=2&&MAINT.includes(id)&&r()<0.6)its[id].m=true});
    const date=iso(d);const ins={id:'ins'+(++n),siteId:s.id,cleanerId:ck,inspector:inspectors[Math.floor(r()*2)],date,rep:'',notes:notes[Math.floor(r()*notes.length)],items:its,score:0};
-   ins.score=calcScore(its);inspections.push(ins);
+   ins.score=calcScore(its);ins.cscore=calcScore(its,true);inspections.push(ins);
    Object.entries(its).forEach(([id,x])=>{if(x.s!=null&&x.s<=2){if(coms[id])x.c=coms[id];const due=iso(addDays(d,3));const fx=addDays(d,1+Math.floor(r()*(ck==='k4'?7:4)));const done=fx<=today&&(daysSince(date)>14||r()<0.35);
-    issues.push({id:'d'+(++n),siteId:s.id,inspectionId:ins.id,itemId:id,score:x.s,cleanerId:ck,comment:x.c||'',status:done?'fixed':(daysSince(date)>2&&r()<0.5?'progress':'open'),created:date,due,fixedAt:done?iso(fx):'',source:'inspection'})}});
+    issues.push({id:'d'+(++n),siteId:s.id,inspectionId:ins.id,itemId:id,score:x.s,cleanerId:ck,comment:x.c||'',status:done?'fixed':(daysSince(date)>2&&r()<0.5?'progress':'open'),created:date,due,fixedAt:done?iso(fx):'',source:'inspection',cat:x.m?'maintenance':'cleaning'})}});
    d=addDays(d,6+Math.floor(r()*8))}});
  [['s2','Naisten WC:stä loppuivat käsipyyhkeet iltapäivällä.',4],['s5','Lastenosaston lattialla tahmeita kohtia.',9],['s10','Neuvotteluhuoneen 2 roskakori tyhjentämättä.',20],['s6','Miesten pukuhuoneen suihkukaivossa hiuksia.',1]].forEach(([sid,c,ago])=>{const s=sites.find(x=>x.id===sid);const dt=addDays(today,-ago);const fixed=ago>5;
-  issues.push({id:'d'+(++n),siteId:sid,inspectionId:'',itemId:'',score:null,cleanerId:s.cleanerId,comment:c,status:fixed?'fixed':'open',created:iso(dt),due:iso(addDays(dt,3)),fixedAt:fixed?iso(addDays(dt,2)):'',source:'customer'})});
- return {v:2,items,customers,cleaners,sites,inspections,issues,settings:{reward:90,minInsp:2,fixDays:3,issueAt:2}};
+  issues.push({id:'d'+(++n),siteId:sid,inspectionId:'',itemId:'',score:null,cleanerId:s.cleanerId,comment:c,status:fixed?'fixed':'open',created:iso(dt),due:iso(addDays(dt,3)),fixedAt:fixed?iso(addDays(dt,2)):'',source:'customer',cat:/pyyhkeet|paperi|saippua/i.test(c)?'maintenance':'cleaning'})});
+ return {v:2,items,types:makeTypes(W),customers,cleaners,sites,inspections,issues,settings:{reward:90,minInsp:4,fixDays:3,issueAt:2}};
 }
-function calcScore(items){let e=0,p=0;Object.values(items).forEach(x=>{if(x.s==null)return;e+=x.s/5*x.w;p+=x.w});return p?Math.round(e/p*1000)/10:null}
+// cleaner=true leaves out items marked as maintenance/supplies faults, so cleaners are scored only on their own work
+function calcScore(items,cleaner){let e=0,p=0;Object.values(items).forEach(x=>{if(x.s==null||(cleaner&&x.m))return;e+=x.s/5*x.w;p+=x.w});return p?Math.round(e/p*1000)/10:null}
+const BASE=['wc_toilets','wc_sinks','wc_mirrors','supplies','wc_floor','floors','touch','dust','waste','entrance'];
+const MAINT=['supplies','lifts','glass','wc_mirrors'];
+function makeTypes(W){const T=(id,fi,en,extra,drop=[])=>({id,fi,en,items:Object.fromEntries(BASE.concat(extra).filter(x=>!drop.includes(x)&&W[x]!=null).map(x=>[x,W[x]]))});
+ return [T('hospital','Sairaala','Hospital',['stairs','lifts','glass','patient','waiting']),T('health','Terveysasema','Health centre',['stairs','waiting']),T('office','Toimisto','Office',['lifts','offices','meeting','kitchen']),
+  T('school','Koulu','School',['stairs','kitchen','gym','classrooms']),T('daycare','Päiväkoti','Day-care centre',['kitchen','classrooms'],['wc_mirrors']),T('sports','Liikuntapaikka','Sports facility',['stairs','gym','changing']),T('library','Kirjasto','Library',['stairs','glass','offices'])]}
+// upgrades data saved by earlier versions in place
+function migrate(d){
+ if(!d.types){d.types=makeTypes(Object.fromEntries(d.items.map(i=>[i.id,i.w])));if(d.settings.minInsp<4)d.settings.minInsp=4}
+ d.sites.forEach(s=>{if(!s.type||!d.types.some(x=>x.id===s.type)){let best=d.types[0],bs=-1;d.types.forEach(ty=>{const a=Object.keys(s.items),b=Object.keys(ty.items);const sc=a.filter(k=>b.includes(k)).length/new Set(a.concat(b)).size;if(sc>bs){bs=sc;best=ty}});s.type=best?.id||''}});
+ d.inspections.forEach(i=>{if(i.cscore===undefined)i.cscore=calcScore(i.items,true)});d.issues.forEach(x=>{if(!x.cat)x.cat='cleaning'});return d}
 
 /* ================= state ================= */
 let db=store.get(KEY,null);
-if(!db||db.v!==2||!Array.isArray(db.sites)){db=seed();store.set(KEY,db)}
+if(!db||db.v!==2||!Array.isArray(db.sites)){db=seed();store.set(KEY,db)}else{migrate(db);store.set(KEY,db)}
 const saveDb=()=>store.set(KEY,db);
 let session=store.get(SKEY,null);
 let draft=store.get(DKEY,null);if(draft&&!db.sites.some(s=>s.id===draft.siteId))draft=null;
@@ -544,7 +593,7 @@ function mountCombos(){document.querySelectorAll('[data-combo]').forEach(el=>{
 /* ================= shell & router ================= */
 function route(){const h=location.hash.replace(/^#\/?/,'');const [r,a]=h.split('/');return [r||'dashboard',a?decodeURIComponent(a):undefined]}
 function navGroups(){return isAdmin()?[['',[['dashboard','grid']]],['grp_ops',[['inspect','check'],['issues','alert']]],['grp_mgmt',[['sites','building'],['cleaners','users'],['reports','file']]],['grp_admin',[['settings','sliders']]]]:[['',[['dashboard','grid'],['sites','building'],['issues','alert'],['reports','file']]],['grp_help',[['feedback','msg']]]]}
-function shell(r,body){const cur={site:'sites',siteEdit:'sites',cleaner:'cleaners',insp:'dashboard'}[r]||r;
+function shell(r,body){const cur={site:'sites',siteEdit:'sites',cleaner:'cleaners',insp:'dashboard',typeEdit:'settings'}[r]||r;
  const who=isAdmin()?t('admin'):custName(session.customerId);const ini=who.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
  const lnk=([k,i])=>`<a href="#/${k}" class="nav-${k}${cur===k?' on':''}"${cur===k?' aria-current="page"':''}>${ic(i)}<span>${t('nav_'+k)}</span></a>`;
  const today=new Date().toLocaleDateString(loc(),{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -552,13 +601,13 @@ function shell(r,body){const cur={site:'sites',siteEdit:'sites',cleaner:'cleaner
  <nav class="snav" aria-label="${t('menu')}">${navGroups().map(([g,ls])=>(g?`<div class="grp">${t(g)}</div>`:'')+ls.map(lnk).join('')).join('')}</nav>
  <div class="side-foot"><span class="avatar">${esc(ini)}</span><div class="who"><b>${esc(who)}</b><small>${isAdmin()?t('roleAdmin'):t('loginCustomer')}</small></div><button class="icon-btn" data-act="logout" title="${t('logout')}" aria-label="${t('logout')}">${ic('logout')}</button></div></aside>
  <div class="content"><header class="topbar"><a class="brand" href="#/dashboard">${logo()}<div><b>Eagle Eye</b><small>${t('forCo')}</small></div></a><div class="ctx"><b>${esc(who)}</b> · ${esc(today)}</div>
- <div class="top-r"><button class="chip" data-act="lang" aria-label="Language / Kieli">${lang==='fi'?'EN':'FI'}</button>${isAdmin()?`<a class="chip m-only" href="#/settings" aria-label="${t('nav_settings')}">${ic('sliders')}</a>`:''}<button class="chip m-only" data-act="logout" aria-label="${t('logout')}">${ic('logout')}</button></div></header>
+ <div class="top-r"><button class="chip" data-act="help" aria-label="${t('helpTitle')}" title="${t('helpTitle')}">${ic('help')}</button><button class="chip" data-act="lang" aria-label="Language / Kieli">${lang==='fi'?'EN':'FI'}</button>${isAdmin()?`<a class="chip m-only" href="#/settings" aria-label="${t('nav_settings')}">${ic('sliders')}</a>`:''}<button class="chip m-only" data-act="logout" aria-label="${t('logout')}">${ic('logout')}</button></div></header>
  <main class="wrap">${body}</main><p class="foot">${t('demoNote')}</p></div>
  <nav class="tabs" aria-label="${t('menu')}">${navGroups().flatMap(g=>g[1]).map(lnk).join('')}</nav></div>`}
 function render(){combos={};document.documentElement.lang=lang;const app=$('#app');
  if(!session){app.innerHTML=V.login();return}
  let [r,a]=route();
- const allowed=isAdmin()?['dashboard','inspect','issues','sites','site','siteEdit','cleaners','cleaner','reports','settings','insp','feedback']:['dashboard','sites','site','issues','reports','feedback','insp'];
+ const allowed=isAdmin()?['dashboard','inspect','issues','sites','site','siteEdit','cleaners','cleaner','reports','settings','typeEdit','insp','feedback']:['dashboard','sites','site','issues','reports','feedback','insp'];
  if(!allowed.includes(r))r='dashboard';
  let body;try{body=V[r](a)}catch(err){console.error(err);body=`<div class="card">Error: ${esc(err.message)}</div>`}
  app.innerHTML=shell(r,body);mountCombos();if(r==='inspect'&&draft)updateLive()}
@@ -575,25 +624,47 @@ V.login=()=>`<div class="login"><section class="login-hero"><a class="brand" hre
  <div class="role-card"><span class="role-ic">${ic('building')}</span><div class="grow"><strong>${t('loginCustomer')}</strong><p>${t('loginCustomerDesc')}</p><label class="f" for="custSel" style="margin-top:12px">${t('selectCustomer')}</label><select id="custSel" class="input">${db.customers.slice().sort(byName).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select><button class="btn primary" style="width:100%;margin-top:10px" data-act="loginCustomer">${t('enter')}</button></div></div>
  <div class="login-foot"><p class="muted small" style="margin:0">${t('demoNote')}</p><button class="btn sm" data-act="lang">${lang==='fi'?'English':'Suomi'}</button></div></div></section></div>`;
 
+// what a supervisor should act on today, most urgent first
+function attention(ids){const scope=new Set(ids),rows=[];const iss=db.issues.filter(x=>scope.has(x.siteId));
+ const od=iss.filter(overdue).sort((a,b)=>a.due.localeCompare(b.due));
+ if(od.length)rows.push({k:'poor',i:'alert',h:t('attOverdue',od.length),s:od.slice(0,3).map(x=>siteName(x.siteId)+': '+(x.itemId?itemName(x.itemId):t('fromCustomer'))).join(' · '),act:'goIssues',arg:'overdue'});
+ const cu=iss.filter(x=>x.source==='customer'&&x.status==='open');
+ if(cu.length)rows.push({k:'fair',i:'msg',h:t('attCustomer',cu.length),s:cu.slice(0,3).map(x=>siteName(x.siteId)).join(' · '),act:'goIssues',arg:'open'});
+ const R=periodRange('last30');
+ ids.map(id=>({s:site(id),v:avg(inspIn(R,new Set([id])).map(i=>i.score))})).filter(x=>x.v!=null&&x.v<x.s.target).sort((a,b)=>(a.v-a.s.target)-(b.v-b.s.target))
+  .forEach(x=>rows.push({k:'fair',i:'building',h:t('attBelow',x.s.name),s:t('attBelowSub',fmtPct(x.v),x.s.target),href:'#/site/'+x.s.id}));
+ if(isAdmin())ids.map(id=>({s:site(id),l:lastInsp(id)})).filter(x=>!x.l||daysSince(x.l.date)>=14).sort((a,b)=>(a.l?.date||'').localeCompare(b.l?.date||''))
+  .forEach(x=>rows.push({k:'mute',i:'check',h:t('attStale',x.s.name),s:x.l?t('lastInsp',fmtDate(x.l.date),daysSince(x.l.date)):t('noInspYet'),act:'startInsp',arg:x.s.id}));
+ return rows}
+function attentionCard(ids){const rows=attention(ids);
+ return `<div class="card"><div class="row-b"><h2>${t('needsAttention')}</h2>${rows.length?`<span class="count">${rows.length}</span>`:''}</div>
+ ${rows.length?rows.slice(0,8).map(r=>{const inner=`<span class="att-ic ${r.k}">${ic(r.i)}</span><span class="grow"><strong>${esc(r.h)}</strong><span class="muted small">${esc(r.s)}</span></span>${ic('arrow')}`;
+  return r.href?`<a class="att-row" href="${r.href}">${inner}</a>`:`<button class="att-row" data-act="${r.act}" data-arg="${r.arg}">${inner}</button>`}).join('')+(rows.length>8?`<p class="muted small" style="margin:8px 0 0">${t('andMore',rows.length-8)}</p>`:'')
+ :`<div class="all-good">${ic('ok')}<span><strong>${t('allGood')}</strong><span class="muted small">${t('allGoodSub')}</span></span></div>`}</div>`}
 V.dashboard=()=>{
  const sites=mySites();const ids=ui.dashSite&&canSee(ui.dashSite)?[ui.dashSite]:sites.map(s=>s.id);const scope=new Set(ids);
+ const months=last12();const trend=months.map(m=>avg(inspIn(periodRange(m),scope).map(i=>i.score)));const tgt=avg(ids.map(id=>site(id).target));
+ const open=db.issues.filter(x=>scope.has(x.siteId)&&x.status!=='fixed');const od=open.filter(overdue).length;
+ const siteCombo=combo('dashSite',{value:ui.dashSite,allowAll:true,onPick:id=>{ui.dashSite=id;render()}});
+ const trendCard=`<div class="card"><h2>${t('trend')}</h2>${lineChart(months.map(monthShort),[{name:t('avgScore'),values:trend,color:'#1d5fa8'}],{target:tgt})}</div>`;
+ if(!isAdmin()){const R=periodRange('last30'),PR=prevRange('last30');const cur=inspIn(R,scope);const a=avg(cur.map(i=>i.score)),pa=avg(inspIn(PR,scope).map(i=>i.score));
+  const list=open.slice().sort((x,y)=>(overdue(y)-overdue(x))||y.created.localeCompare(x.created));
+  return `<div class="pg-h"><div><h1>${t('customerWelcome',esc(custName(session.customerId)))}</h1><p class="muted small">${t('custLead')}</p></div><div class="filters">${siteCombo}</div></div>
+  <div class="kpis k3">${kpi(t('last30Avg'),fmtPct(a),(a!=null&&tgt!=null?(a>=tgt?`<span class="delta up">${t('onTarget')}</span>`:`<span class="delta down">${t('belowTargetShort')}</span>`):'')+delta(a,pa))}
+  ${kpi(t('openIssues'),open.length,od?`<span class="delta down">${t('overdueN',od)}</span>`:`<span class="muted">${t('noneOverdue')}</span>`)}${kpi(t('insp30'),cur.length,`<span class="muted">${t('target')} ${fmtPct(tgt)}</span>`)}</div>
+  <div class="two wide">${trendCard}<div class="card"><div class="row-b"><h2>${t('openIssues')}</h2><a class="link small" href="#/issues">${t('viewAll')}</a></div>
+  ${list.length?list.slice(0,5).map(x=>`<a class="list-row" href="#/issues"><div><strong>${x.itemId?esc(itemName(x.itemId)):t('fromCustomer')}</strong><div class="muted small">${esc(siteName(x.siteId))} · ${overdue(x)?`<span class="delta down">${t('isOverdue')}</span>`:t('due',fmtDate(x.due))}</div></div><span class="pill st-${x.status}">${t('status_'+x.status)}</span></a>`).join(''):`<p class="muted">${t('noIssues')}</p>`}
+  <div class="btns" style="margin-top:14px"><a class="btn primary" href="#/feedback">${ic('msg')} ${t('feedbackTitle')}</a><a class="btn" href="#/reports">${ic('file')} ${t('reportTitle')}</a></div></div></div>`}
  const R=periodRange(ui.period),PR=prevRange(ui.period);const cur=inspIn(R,scope),prev=inspIn(PR,scope);
  const a=avg(cur.map(i=>i.score)),pa=avg(prev.map(i=>i.score));
- const open=db.issues.filter(x=>scope.has(x.siteId)&&x.status!=='fixed');const od=open.filter(overdue).length;
- const siteRows=ids.map(id=>({s:site(id),v:avg(cur.filter(i=>i.siteId===id).map(i=>i.score))}));
- const below=siteRows.filter(x=>x.v!=null&&x.v<x.s.target).length;const tgt=avg(ids.map(id=>site(id).target));
- const months=last12();const trend=months.map(m=>avg(inspIn(periodRange(m),scope).map(i=>i.score)));
- const weak=itemAvgs(cur).sort((x,y)=>x.v-y.v).slice(0,6).map(x=>({label:itemName(x.id),v:x.v}));
- const areas=areaAvgs(cur).map(x=>({label:areaName(x.id),v:x.v}));
- let cl='';if(isAdmin()){const st=cleanerStats(R,PR).filter(x=>x.n).slice(0,3);cl=`<div class="card"><div class="row-b"><h2>${t('topCleaners')} · ${ui.period==='last30'?t('last30'):monthLong(ui.period)}</h2><a class="link small" href="#/cleaners">${t('viewAll')}</a></div>${st.length?`<div class="lb">${st.map((x,i)=>lbRow(x,i,false)).join('')}</div>`:`<p class="muted">${t('noData')}</p>`}</div>`}
- return `<div class="pg-h"><div><h1>${isAdmin()?t('nav_dashboard'):t('customerWelcome',esc(custName(session.customerId)))}</h1><p class="muted small">${t('gradeLegend')}</p></div>
- <div class="filters">${combo('dashSite',{value:ui.dashSite,allowAll:true,onPick:id=>{ui.dashSite=id;render()}})}${monthSelect('period',ui.period,true)}</div></div>
+ const below=ids.filter(id=>{const v=avg(cur.filter(i=>i.siteId===id).map(i=>i.score));return v!=null&&v<site(id).target}).length;
+ const el=cleanerStats(R,PR).filter(x=>x.eligible);
+ return `<div class="pg-h"><div><h1>${t('nav_dashboard')}</h1></div><div class="filters">${siteCombo}${monthSelect('period',ui.period,true)}</div></div>
  <div class="kpis">${kpi(t('avgScore'),fmtPct(a),gradePill(a)+delta(a,pa))}${kpi(t('inspections'),cur.length,`<span class="muted">${t('prevN',prev.length)}</span>`)}
  ${kpi(t('openIssues'),open.length,od?`<span class="delta down">${t('overdueN',od)}</span>`:'')}${kpi(t('belowTarget'),below,`<span class="muted">${t('sitesOf',below,ids.length)}</span>`)}</div>
- <div class="two wide"><div class="card"><h2>${t('trend')}</h2>${lineChart(months.map(monthShort),[{name:t('avgScore'),values:trend,color:'#1d5fa8'}],{target:tgt})}<p class="muted small">${t('scoreExplain')}</p></div>
- <div class="card"><h2>${t('byArea')}</h2>${hbars(areas)}<h3>${t('weakItems')}</h3>${hbars(weak)}</div></div>
- ${ids.length>1?`<div class="card"><h2>${t('bySite')}</h2>${hbars(siteRows.filter(x=>x.v!=null).sort((x,y)=>y.v-x.v).map(x=>({label:x.s.name,v:x.v,target:x.s.target,href:'#/site/'+x.s.id})))}</div>`:''}
- <div class="two">${cl}<div class="card"><h2>${t('recentInsp')}</h2>${cur.length?cur.slice().sort((x,y)=>y.date.localeCompare(x.date)).slice(0,6).map(inspRow).join(''):`<p class="muted">${t('noData')}</p>`}</div></div>`};
+ <div class="two wide">${attentionCard(ids)}${trendCard}</div>
+ <div class="two"><div class="card"><div class="row-b"><h2>${t('rewardEligible')} · ${ui.period==='last30'?t('last30'):monthLong(ui.period)}</h2><a class="link small" href="#/cleaners">${t('viewAll')}</a></div>${el.length?`<div class="lb">${el.slice(0,4).map(x=>lbRow(x,false)).join('')}</div>`:`<p class="muted">${t('noneEligible')}</p>`}</div>
+ <div class="card"><div class="row-b"><h2>${t('recentInsp')}</h2><a class="link small" href="#/reports">${t('nav_reports')}</a></div>${cur.length?cur.slice().sort((x,y)=>y.date.localeCompare(x.date)).slice(0,6).map(inspRow).join(''):`<p class="muted">${t('noData')}</p>`}</div></div>`};
 
 /* ---- inspection ---- */
 function newDraft(sid){const s=site(sid);return {siteId:sid,cleanerId:s.cleanerId,inspector:store.get('ee_inspector',''),date:todayIso(),rep:'',notes:'',items:{}}}
@@ -603,7 +674,7 @@ function pickInspSite(id){if(draft&&draft.siteId===id)return;if(draft&&Object.ke
 function itemCard(id,w){const r=draft.items[id]||{};const v=r.v;const flag=typeof v==='number'&&v<=db.settings.issueAt;const open=flag||r.c||r.p||r.x;const nm=esc(itemName(id));
  return `<div class="card item${flag?' flag':''}" id="it-${id}"><div class="item-h"><strong>${nm}</strong><span class="wchip">${t('weight',w)}</span></div>
  <div class="scale" role="group" aria-label="${nm}">${[0,1,2,3,4,5].map(n=>`<button type="button" class="sc s${n}${v===n?' on':''}" data-act="rate" data-arg="${id}:${n}" aria-pressed="${v===n}">${n}</button>`).join('')}<button type="button" class="sc na${v==='na'?' on':''}" data-act="rate" data-arg="${id}:na" aria-pressed="${v==='na'}">${t('na')}</button></div>
- ${open?`<div class="item-x"><textarea class="input" rows="2" data-in="itemComment" data-id="${id}" placeholder="${t('commentPh')}" aria-label="${t('commentPh')}">${esc(r.c||'')}</textarea><div class="photo-row"><label class="btn sm">${ic('camera')} ${t('photo')}<input type="file" accept="image/*" capture="environment" data-ch="itemPhoto" data-id="${id}" hidden></label>${r.p?`<img class="thumb" src="${r.p}" data-act="zoom" alt=""><button type="button" class="link" data-act="rmPhoto" data-arg="${id}">${t('removePhoto')}</button>`:''}</div></div>`:`<button type="button" class="link small" data-act="openX" data-arg="${id}">${t('addComment')}</button>`}</div>`}
+ ${open?`<div class="item-x">${flag?`<div class="cause"><span class="small muted">${t('causeQ')}</span><div class="seg" role="group">${[['c','causeCleaning'],['m','causeMaint']].map(([k,l])=>`<button type="button" class="${(k==='m')===!!r.m?'on':''}" data-act="cause" data-arg="${id}:${k}" aria-pressed="${(k==='m')===!!r.m}">${t(l)}</button>`).join('')}</div></div>`:''}<textarea class="input" rows="2" data-in="itemComment" data-id="${id}" placeholder="${t('commentPh')}" aria-label="${t('commentPh')}">${esc(r.c||'')}</textarea><div class="photo-row"><label class="btn sm">${ic('camera')} ${t('photo')}<input type="file" accept="image/*" capture="environment" data-ch="itemPhoto" data-id="${id}" hidden></label>${r.p?`<img class="thumb" src="${r.p}" data-act="zoom" alt=""><button type="button" class="link" data-act="rmPhoto" data-arg="${id}">${t('removePhoto')}</button>`:''}</div></div>`:`<button type="button" class="link small" data-act="openX" data-arg="${id}">${t('addComment')}</button>`}</div>`}
 function refreshCard(id){const el=document.getElementById('it-'+id);if(el)el.outerHTML=itemCard(id,site(draft.siteId).items[id])}
 function liveScore(){const s=site(draft.siteId);let e=0,p=0,n=0;Object.entries(s.items).forEach(([id,w])=>{const v=draft.items[id]?.v;if(v===undefined)return;n++;if(v==='na')return;e+=v/5*w;p+=w});return {v:p?e/p*100:null,n,total:Object.keys(s.items).length}}
 function updateLive(){const el=$('#liveScore');if(!el||!draft)return;const L=liveScore();el.textContent=fmtPct(L.v);$('#liveCount').textContent=t('rated',L.n,L.total);$('#liveGrade').outerHTML=`<span id="liveGrade">${L.v==null?'':gradePill(L.v)}</span>`}
@@ -621,8 +692,8 @@ V.inspect=()=>{
   <div><label class="f" for="dIn">${t('inspector')} *</label><input id="dIn" class="input" data-in="draftField" data-f="inspector" value="${esc(draft.inspector)}" autocomplete="name"></div>
   <div><label class="f" for="dDa">${t('date')}</label><input id="dDa" type="date" class="input" data-in="draftField" data-f="date" value="${esc(draft.date)}" max="${todayIso()}"></div>
   <div><label class="f" for="dRe">${t('customerRep')}</label><input id="dRe" class="input" data-in="draftField" data-f="rep" value="${esc(draft.rep)}"></div></div>
-  <p class="muted small" style="margin-bottom:0">${t('scaleHelp',db.settings.issueAt)} ${t('draftNote')}</p></div>
- ${areaGroups(ids).map(([a,list])=>`<div class="area-h"><span>${areaName(a)}</span><span>${list.length}</span></div>${list.map(id=>itemCard(id,s.items[id])).join('')}`).join('')}
+  <div class="quick"><p class="muted small" style="margin:0">${t('quickHelp')}</p><button type="button" class="btn sm" data-act="allOk">${ic('ok')} ${t('allOk')}</button></div></div>
+ ${areaGroups(ids).map(([a,list])=>`<div class="area-h"><span>${areaName(a)} · ${list.length}</span><button type="button" class="btn sm" data-act="areaOk" data-arg="${a}">${ic('ok')} ${t('areaOk')}</button></div>${list.map(id=>itemCard(id,s.items[id])).join('')}`).join('')}
  <div class="card"><label class="f" for="dNo">${t('notes')}</label><textarea id="dNo" class="input" rows="3" data-in="draftField" data-f="notes">${esc(draft.notes)}</textarea></div>
  <div class="scorebar"><div><small>${t('liveScore')}</small><b id="liveScore">–</b> <span id="liveGrade"></span><small id="liveCount"></small></div><button class="btn primary" data-act="saveInsp">${t('saveInspection')}</button></div>`};
 
@@ -637,10 +708,10 @@ V.insp=id=>{const ins=db.inspections.find(i=>i.id===id);if(!ins||!canSee(ins.sit
 /* ---- deviations ---- */
 function issuePhoto(x){if(x.photo)return x.photo;const ins=x.inspectionId?db.inspections.find(i=>i.id===x.inspectionId):null;return (ins&&ins.items[x.itemId]?.p)||''}
 function issueRow(x){const od=overdue(x),ph=issuePhoto(x);
- return `<div class="card issue${od?' od':''}"><div class="row-b"><div><strong>${x.itemId?esc(itemName(x.itemId)):t('fromCustomer')}</strong>${x.score!=null?` <span class="muted small">· ${t('score',x.score)}</span>`:''}<div class="muted small"><a class="link" style="padding:0" href="#/site/${x.siteId}">${esc(siteName(x.siteId))}</a> · ${t('created',fmtDate(x.created))} · ${t('cleaner')}: ${esc(cleanerName(x.cleanerId))}</div></div><span class="pill st-${x.status}">${t('status_'+x.status)}</span></div>
+ return `<div class="card issue${od?' od':''}"><div class="row-b"><div><strong>${x.itemId?esc(itemName(x.itemId)):t('fromCustomer')}</strong>${x.score!=null?` <span class="muted small">· ${t('score',x.score)}</span>`:''}${x.cat==='maintenance'?` <span class="tag">${t('causeMaint')}</span>`:''}<div class="muted small"><a class="link" style="padding:0" href="#/site/${x.siteId}">${esc(siteName(x.siteId))}</a> · ${t('created',fmtDate(x.created))} · ${t('cleaner')}: ${esc(cleanerName(x.cleanerId))}</div></div><span class="pill st-${x.status}">${t('status_'+x.status)}</span></div>
  ${x.comment?`<p style="margin:8px 0">${esc(x.comment)}</p>`:''}${ph?`<img class="thumb" src="${ph}" data-act="zoom" alt="" style="margin:8px 0">`:''}
  <div class="row-b" style="align-items:center;flex-wrap:wrap;margin-top:6px"><span class="small">${x.status==='fixed'?t('fixedOn',fmtDate(x.fixedAt))+(x.fixedAt>x.due?` · <span class="delta down">${t('isOverdue')}</span>`:''):(od?`<b class="delta down">${t('isOverdue')}</b> · `:'')+t('due',fmtDate(x.due))}</span>
- ${isAdmin()?`<span class="btns">${x.status==='open'?`<button class="btn sm" data-act="issueSet" data-arg="${x.id}:progress">${t('markProgress')}</button>`:''}${x.status!=='fixed'?`<button class="btn sm primary" data-act="issueSet" data-arg="${x.id}:fixed">${t('markFixed')}</button>`:`<button class="btn sm" data-act="issueSet" data-arg="${x.id}:open">${t('reopen')}</button>`}</span>`:''}</div></div>`}
+ ${isAdmin()?`<span class="btns"><button class="btn sm" data-act="issueCat" data-arg="${x.id}" title="${t('causeQ')}">${x.cat==='maintenance'?t('toCleaning'):t('toMaint')}</button>${x.status==='open'?`<button class="btn sm" data-act="issueSet" data-arg="${x.id}:progress">${t('markProgress')}</button>`:''}${x.status!=='fixed'?`<button class="btn sm primary" data-act="issueSet" data-arg="${x.id}:fixed">${t('markFixed')}</button>`:`<button class="btn sm" data-act="issueSet" data-arg="${x.id}:open">${t('reopen')}</button>`}</span>`:''}</div></div>`}
 V.issues=()=>{const scope=new Set(mySites().map(s=>s.id));let list=db.issues.filter(x=>scope.has(x.siteId));
  if(ui.issueSite&&scope.has(ui.issueSite))list=list.filter(x=>x.siteId===ui.issueSite);
  const cnt=k=>k==='all'?list.length:k==='overdue'?list.filter(overdue).length:list.filter(x=>x.status===k).length;
@@ -674,36 +745,51 @@ V.site=id=>{const s=site(id);if(!s||!canSee(id))return notFound();const sc=new S
  <div class="card"><h2>${t('itemAvg90')}</h2>${hbars(Object.keys(s.items).map(k=>({label:itemName(k),v:i90.find(x=>x.id===k)?.v??null})).sort((x,y)=>(x.v??101)-(y.v??101)))}</div></div>
  <div class="two"><div class="card"><h2>${t('inspList')}</h2>${all.length?all.slice(0,10).map(inspRow).join(''):`<p class="muted">${t('noInspYet')}</p>`}</div>
  <div>${open.length?`<h2 style="font-size:16px">${t('openIssues')}</h2>`+open.map(issueRow).join(''):''}</div></div>`};
-V.siteEdit=id=>{const isNew=id==='new';const s=isNew?{id:'',name:'',address:'',customerId:db.customers[0]?.id,cleanerId:'',target:85,items:{}}:site(id);if(!s)return notFound();
+const typeName=id=>{const x=db.types.find(y=>y.id===id);return x?(x[lang]||x.fi):''};
+function typeDiff(s){const ty=db.types.find(y=>y.id===s.type);if(!ty)return 0;return new Set(Object.keys(s.items).concat(Object.keys(ty.items))).size-Object.keys(s.items).filter(k=>ty.items[k]===s.items[k]).length}
+function checklistHtml(map){return AREAS.map(a=>{const its=db.items.filter(i=>i.area===a.id);return its.length?`<h3>${a[lang]}</h3>${its.map(i=>`<label class="chk-row"><input type="checkbox" name="it" value="${i.id}"${map[i.id]!=null?' checked':''}><span>${esc(i[lang]||i.fi)}</span><input class="input" type="number" min="1" max="20" name="w_${i.id}" value="${map[i.id]??i.w}" aria-label="${t('weight','')}"></label>`).join('')}`:''}).join('')}
+function readChecklist(fd){const items={};fd.getAll('it').forEach(k=>{items[k]=Math.max(1,Math.min(20,+fd.get('w_'+k)||1))});return items}
+V.typeEdit=id=>{const isNew=id==='new';const ty=isNew?{id:'',fi:'',en:'',items:Object.fromEntries(BASE.map(k=>[k,item(k)?.w||5]))}:db.types.find(x=>x.id===id);if(!ty)return notFound();const used=db.sites.filter(s=>s.type===ty.id).length;
+ return `<a class="link" href="#/settings">${t('back')}</a><div class="pg-h"><div><h1>${isNew?t('addType'):esc(ty[lang]||ty.fi)}</h1><p class="muted small">${t('typeHelp')}${used?' '+t('typeUsed',used):''}</p></div></div><form id="typeForm" onsubmit="return false">
+ <div class="card"><div class="fields"><div><label class="f" for="tyF">${t('nameFi')} *</label><input id="tyF" class="input" name="fi" value="${esc(ty.fi)}"></div><div><label class="f" for="tyE">${t('nameEn')}</label><input id="tyE" class="input" name="en" value="${esc(ty.en)}"></div></div></div>
+ <div class="card"><h2>${t('checklist')}</h2>${checklistHtml(ty.items)}</div>
+ <div class="btns"><button class="btn primary" data-act="saveType" data-arg="${isNew?'new':id}">${t('save')}</button><a class="btn" href="#/settings">${t('cancel')}</a>${!isNew&&!used?`<button class="btn danger" data-act="delType" data-arg="${id}">${t('delete')}</button>`:''}</div></form>`};
+V.siteEdit=id=>{const isNew=id==='new';const ty0=db.types[0];const s=isNew?{id:'',name:'',address:'',customerId:db.customers[0]?.id,cleanerId:'',target:85,type:ty0?.id||'',items:{...(ty0?.items||{})}}:site(id);if(!s)return notFound();const diff=isNew?0:typeDiff(s);
  return `<a class="link" href="${isNew?'#/sites':'#/site/'+id}">${t('back')}</a><div class="pg-h"><h1>${isNew?t('addSite'):esc(s.name)}</h1></div><form id="siteForm" onsubmit="return false">
  <div class="card"><div class="fields"><div><label class="f" for="sfN">${t('name')} *</label><input id="sfN" class="input" name="name" value="${esc(s.name)}" required></div>
  <div><label class="f" for="sfA">${t('address')}</label><input id="sfA" class="input" name="address" value="${esc(s.address)}"></div>
  <div><label class="f" for="sfC">${t('customer')}</label><select id="sfC" class="input" name="customerId">${db.customers.slice().sort(byName).map(c=>`<option value="${c.id}"${c.id===s.customerId?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
  <div><label class="f" for="sfK">${t('cleaner')}</label><select id="sfK" class="input" name="cleanerId"><option value="">${t('noCleaner')}</option>${db.cleaners.filter(c=>c.active||c.id===s.cleanerId).sort(byName).map(c=>`<option value="${c.id}"${c.id===s.cleanerId?' selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
- <div><label class="f" for="sfT">${t('targetPct')}</label><input id="sfT" class="input" type="number" min="0" max="100" name="target" value="${s.target}"></div></div></div>
- <div class="card"><h2>${t('checklist')}</h2><p class="muted small">${t('checklistHelp')}</p>${AREAS.map(a=>{const its=db.items.filter(i=>i.area===a.id);return its.length?`<h3>${a[lang]}</h3>${its.map(i=>`<label class="chk-row"><input type="checkbox" name="it" value="${i.id}"${s.items[i.id]!=null?' checked':''}><span>${esc(i[lang]||i.fi)}</span><input class="input" type="number" min="1" max="20" name="w_${i.id}" value="${s.items[i.id]??i.w}" aria-label="${t('weight','')}"></label>`).join('')}`:''}).join('')}</div>
+ <div><label class="f" for="sfT">${t('targetPct')}</label><input id="sfT" class="input" type="number" min="0" max="100" name="target" value="${s.target}"></div>
+ <div><label class="f" for="sfY">${t('siteType')}</label><select id="sfY" class="input" name="type" data-ch="siteType" data-new="${isNew?1:0}">${db.types.map(y=>`<option value="${y.id}"${y.id===s.type?' selected':''}>${esc(y[lang]||y.fi)}</option>`).join('')}</select></div></div></div>
+ <details class="card adv"><summary><b>${t('checklist')}</b> <span class="muted small">${diff?t('typeDiff',diff):t('typeSame')}</span></summary><p class="muted small">${t('checklistHelp')}</p><button type="button" class="btn sm" data-act="resetToType">${t('resetToType')}</button><div id="chkBox">${checklistHtml(s.items)}</div></details>
  <div class="btns"><button class="btn primary" data-act="saveSite" data-arg="${isNew?'new':id}">${t('save')}</button><a class="btn" href="${isNew?'#/sites':'#/site/'+id}">${t('cancel')}</a>${isNew?'':`<button class="btn danger" data-act="delSite" data-arg="${id}">${t('delete')}</button>`}</div></form>`};
 
 /* ---- cleaners ---- */
+// cleaners are judged on cscore (maintenance/supply faults removed) and only on cleaning deviations
+const cScore=i=>i.cscore??i.score;
 function cleanerStats(R,PR){const cur=inspIn(R),prev=inspIn(PR);const min=db.settings.minInsp;
  const rows=db.cleaners.map(c=>{const mine=cur.filter(i=>i.cleanerId===c.id),pm=prev.filter(i=>i.cleanerId===c.id);
-  const iss=db.issues.filter(x=>x.cleanerId===c.id&&x.created>=R[0]&&x.created<=R[1]);const judged=iss.filter(x=>x.status==='fixed'||overdue(x));const ok=judged.filter(x=>x.status==='fixed'&&x.fixedAt<=x.due).length;
-  const a=avg(mine.map(i=>i.score)),pa=avg(pm.map(i=>i.score));
+  const iss=db.issues.filter(x=>x.cleanerId===c.id&&x.cat!=='maintenance'&&x.created>=R[0]&&x.created<=R[1]);const judged=iss.filter(x=>x.status==='fixed'||overdue(x));const ok=judged.filter(x=>x.status==='fixed'&&x.fixedAt<=x.due).length;
+  const a=avg(mine.map(cScore)),pa=avg(pm.map(cScore));
   return {c,n:mine.length,a,pa,d:a!=null&&pa!=null?a-pa:null,issues:iss.length,onTime:judged.length?ok/judged.length*100:null,sites:new Set(mine.map(i=>i.siteId)).size,enough:mine.length>=min,eligible:mine.length>=min&&a!=null&&a>=db.settings.reward}})
   .filter(x=>x.c.active||x.n).sort((x,y)=>(y.enough-x.enough)||((y.a??-1)-(x.a??-1))||(y.n-x.n));
  const top=rows.find(x=>x.eligible);if(top)top.best=true;
  const imp=rows.filter(x=>x.enough&&x.d!=null&&x.d>=3).sort((x,y)=>y.d-x.d)[0];if(imp)imp.improved=true;return rows}
-function lbRow(x,i,full=true){return `<a class="lb-row" href="#/cleaner/${x.c.id}"><span class="rank${x.enough&&i<3?' r'+(i+1):''}">${i+1}</span><div><strong>${esc(x.c.name)}</strong>
+const initials=n=>String(n).replace(/\(.*?\)/g,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+function lbRow(x,full=true){return `<a class="lb-row" href="#/cleaner/${x.c.id}"><span class="rank${x.best?' r1':''}">${esc(initials(x.c.name))}</span><div><strong>${esc(x.c.name)}</strong>
  <div class="badges">${x.best?`<span class="badge">${ic('trophy')} ${t('cleanerOfMonth')}</span>`:''}${x.eligible&&!x.best?`<span class="badge ok">${ic('star')} ${t('rewardEligible')}</span>`:''}${x.improved?`<span class="badge imp">${ic('up')} ${t('mostImproved')}</span>`:''}${!x.enough?`<span class="badge mute">${t('notEnough')}</span>`:''}</div>
  ${full?`<div class="muted small" style="margin-top:4px">${t('inspN',x.n)} · ${t('sitesN',x.sites)} · ${t('devN',x.issues)}${x.onTime!=null?' · '+t('onTimeN',fmtNum(x.onTime,0)+' %'):''}</div>`:''}</div>
  <div class="lb-score"><b style="color:${gradeColor(x.a)}">${fmtPct(x.a)}</b>${delta(x.a,x.pa)}</div></a>`}
 V.cleaners=()=>{const R=periodRange(ui.cmonth),PR=prevRange(ui.cmonth);const rows=cleanerStats(R,PR);
- return `<div class="pg-h"><div><h1>${t('cleanersTitle')}</h1><p class="muted small">${t('rewardRule',db.settings.minInsp,db.settings.reward)}</p></div><div class="filters">${monthSelect('cmonth',ui.cmonth)}<button class="btn" data-act="toggleAddCleaner">${ic('plus')} ${t('addCleaner')}</button></div></div>
+ const el=rows.filter(x=>x.eligible),rest=rows.filter(x=>!x.eligible).sort((a,b)=>a.c.name.localeCompare(b.c.name,'fi'));
+ return `<div class="pg-h"><div><h1>${t('cleanersTitle')}</h1><p class="muted small">${t('rewardRule',db.settings.minInsp,db.settings.reward)} <button class="link small" data-act="help">${t('howScored')}</button></p></div><div class="filters">${monthSelect('cmonth',ui.cmonth)}<button class="btn" data-act="toggleAddCleaner">${ic('plus')} ${t('addCleaner')}</button></div></div>
  ${ui.addCleaner?`<div class="card"><div class="fields"><div><label class="f" for="ncN">${t('name')} *</label><input id="ncN" class="input"></div><div><label class="f" for="ncP">${t('phone')}</label><input id="ncP" class="input" type="tel"></div></div><div class="btns" style="margin-top:12px"><button class="btn primary" data-act="addCleaner">${t('save')}</button><button class="btn" data-act="toggleAddCleaner">${t('cancel')}</button></div></div>`:''}
- <div class="two wide"><div class="lb" style="margin-bottom:14px">${rows.map((x,i)=>lbRow(x,i)).join('')||`<div class="card empty">${t('noData')}</div>`}</div>
- <div class="card"><h2>${t('avgScore')} · ${monthLong(ui.cmonth)}</h2>${hbars(rows.filter(x=>x.a!=null).map(x=>({label:x.c.name,v:x.a,target:db.settings.reward,href:'#/cleaner/'+x.c.id})))}<p class="muted small">${t('inactiveHidden')}</p></div></div>`};
+ <div class="two wide"><div><div class="sec-h">${ic('trophy')} ${t('rewardEligible')} <span class="count">${el.length}</span></div><div class="lb" style="margin-bottom:20px">${el.map(x=>lbRow(x)).join('')||`<div class="card empty">${t('noneEligible')}</div>`}</div>
+ <div class="sec-h">${t('otherCleaners')} <span class="count">${rest.length}</span></div><div class="lb" style="margin-bottom:16px">${rest.map(x=>lbRow(x)).join('')}</div></div>
+ <div class="card"><h2>${t('avgScore')} · ${monthLong(ui.cmonth)}</h2>${hbars(rows.filter(x=>x.a!=null).map(x=>({label:x.c.name,v:x.a,target:db.settings.reward,href:'#/cleaner/'+x.c.id})))}<p class="muted small">${t('fairNote')} ${t('inactiveHidden')}</p></div></div>`};
 V.cleaner=id=>{const c=db.cleaners.find(x=>x.id===id);if(!c)return notFound();const months=last12();const min=db.settings.minInsp;
- const ms=months.map(m=>{const l=inspIn(periodRange(m)).filter(i=>i.cleanerId===id);const a=avg(l.map(i=>i.score));return {m,n:l.length,a,el:l.length>=min&&a!=null&&a>=db.settings.reward}});
+ const ms=months.map(m=>{const l=inspIn(periodRange(m)).filter(i=>i.cleanerId===id);const a=avg(l.map(cScore));return {m,n:l.length,a,el:l.length>=min&&a!=null&&a>=db.settings.reward}});
  const mine=db.inspections.filter(i=>i.cleanerId===id).sort((x,y)=>y.date.localeCompare(x.date));const sites=db.sites.filter(s=>s.cleanerId===id).sort(byName);
  return `<a class="link" href="#/cleaners">${t('back')}</a><div class="pg-h"><h1>${esc(c.name)}${c.active?'':` <span class="pill">${t('inactive')}</span>`}</h1></div>
  <div class="two wide"><div class="card"><h2>${t('monthly')}</h2>${lineChart(months.map(monthShort),[{name:c.name,values:ms.map(x=>x.a),color:'#1d5fa8'}],{target:db.settings.reward,targetLabel:t('rewardEligible')})}
@@ -732,13 +818,21 @@ V.reports=()=>{const {ids,cur,prev,iss}=reportData();const a=avg(cur.map(i=>i.sc
 /* ---- settings ---- */
 V.settings=()=>{const S=db.settings;let kb=0;try{kb=Math.round((localStorage.getItem(KEY)||'').length*2/1024)}catch(e){}
  const num=(k,min,max)=>`<div><label class="f" for="st_${k}">${t(k)}</label><input id="st_${k}" class="input" type="number" min="${min}" max="${max}" value="${S[k]}" data-ch="rule" data-k="${k}"></div>`;
- return `<div class="pg-h"><h1>${t('settingsTitle')}</h1></div>
- <div class="card"><h2>${t('rules')}</h2><div class="fields">${num('reward',0,100)}${num('minInsp',1,20)}${num('fixDays',1,30)}${num('issueAt',0,4)}</div><p class="muted small">${t('scoreExplain')} ${t('gradeLegend')}</p></div>
- <div class="card"><h2>${t('itemsLib')}</h2><p class="muted small">${t('itemsLibHelp')}</p><div class="tbl"><table class="t"><thead><tr><th>${t('nameFi')}</th><th>${t('nameEn')}</th><th>${t('area')}</th><th class="n">${t('defWeight')}</th></tr></thead><tbody>
+ return `<div class="pg-h"><h1>${t('settingsTitle')}</h1><button class="btn sm" data-act="help">${ic('help')} ${t('helpTitle')}</button></div>
+ <div class="card"><h2>${t('rules')}</h2><div class="fields">${num('reward',0,100)}${num('minInsp',1,20)}${num('fixDays',1,30)}${num('issueAt',0,4)}</div></div>
+ <div class="card"><div class="row-b"><h2>${t('siteTypes')}</h2><a class="btn sm" href="#/typeEdit/new">${ic('plus')} ${t('addType')}</a></div><p class="muted small" style="margin-top:0">${t('typeHelp')}</p>
+ ${db.types.map(y=>{const n=db.sites.filter(s=>s.type===y.id).length;return `<a class="list-row" href="#/typeEdit/${y.id}"><div><strong>${esc(y[lang]||y.fi)}</strong><div class="muted small">${t('typeItems',Object.keys(y.items).length)} · ${t('sitesN',n)}</div></div>${ic('arrow')}</a>`}).join('')}</div>
+ <div class="card"><h2>${t('dataTitle')}</h2><p class="muted small">${t('demoNote')} ${t('storageNote',kb)}</p><div class="btns"><button class="btn" data-act="exportData">${ic('download')} ${t('exportData')}</button><label class="btn">${t('importData')}<input type="file" accept=".json,application/json" data-ch="importFile" hidden></label><button class="btn danger" data-act="resetDemo">${t('resetDemo')}</button></div></div>
+ <details class="card adv"><summary><b>${t('advanced')}</b> <span class="muted small">${t('advancedSub')}</span></summary>
+ <h3>${t('itemsLib')}</h3><p class="muted small">${t('itemsLibHelp')}</p><div class="tbl"><table class="t"><thead><tr><th>${t('nameFi')}</th><th>${t('nameEn')}</th><th>${t('area')}</th><th class="n">${t('defWeight')}</th></tr></thead><tbody>
  ${db.items.map(i=>`<tr><td><input class="input" value="${esc(i.fi)}" data-ch="lib" data-id="${i.id}" data-f="fi" aria-label="${t('nameFi')}"></td><td><input class="input" value="${esc(i.en)}" data-ch="lib" data-id="${i.id}" data-f="en" aria-label="${t('nameEn')}"></td><td><select class="input" data-ch="lib" data-id="${i.id}" data-f="area" aria-label="${t('area')}">${AREAS.map(a=>`<option value="${a.id}"${a.id===i.area?' selected':''}>${a[lang]}</option>`).join('')}</select></td><td><input class="input" style="width:76px" type="number" min="1" max="20" value="${i.w}" data-ch="lib" data-id="${i.id}" data-f="w" aria-label="${t('defWeight')}"></td></tr>`).join('')}</tbody></table></div>
- <button class="btn" style="margin-top:12px" data-act="addItem">${ic('plus')} ${t('addItem')}</button></div>
- <div class="card"><h2>${t('customers')}</h2>${db.customers.map(c=>`<div style="margin-bottom:8px"><input class="input" value="${esc(c.name)}" data-ch="cust" data-id="${c.id}" aria-label="${t('customer')}"></div>`).join('')}<button class="btn" data-act="addCustomer">${ic('plus')} ${t('addCustomer')}</button></div>
- <div class="card"><h2>${t('dataTitle')}</h2><p class="muted small">${t('demoNote')} ${t('storageNote',kb)}</p><div class="btns"><button class="btn" data-act="exportData">${ic('download')} ${t('exportData')}</button><label class="btn">${t('importData')}<input type="file" accept=".json,application/json" data-ch="importFile" hidden></label><button class="btn danger" data-act="resetDemo">${t('resetDemo')}</button></div></div>`};
+ <button class="btn" style="margin-top:12px" data-act="addItem">${ic('plus')} ${t('addItem')}</button>
+ <h3>${t('customers')}</h3>${db.customers.map(c=>`<div style="margin-bottom:8px"><input class="input" value="${esc(c.name)}" data-ch="cust" data-id="${c.id}" aria-label="${t('customer')}"></div>`).join('')}<button class="btn" data-act="addCustomer">${ic('plus')} ${t('addCustomer')}</button></details>`};
+function helpHtml(){const S=db.settings;return `<div class="modal" role="dialog" aria-modal="true" aria-labelledby="helpH"><div class="modal-card"><div class="row-b"><h2 id="helpH">${t('helpTitle')}</h2><button class="icon-btn" data-act="closeHelp" aria-label="${t('close')}">✕</button></div>
+ <h3>${t('h_score')}</h3><p>${t('scoreExplain')}</p><p>${t('h_scale',S.issueAt)}</p>
+ <h3>${t('h_grades')}</h3><p class="grades">${['excellent','good','fair','poor'].map((g,i)=>`<span class="pill g-${g}">${t('grade_'+g)} ${['≥ 90 %','80–89 %','70–79 %','< 70 %'][i]}</span>`).join(' ')}</p>
+ <h3>${t('h_dev')}</h3><p>${t('h_devText',S.issueAt,S.fixDays)}</p>
+ <h3>${t('h_reward')}</h3><p>${t('rewardRule',S.minInsp,S.reward)} ${t('fairNote')}</p></div></div>`}
 
 /* ================= actions ================= */
 let tt;function toast(m,k){let el=$('#toast');if(!el){el=document.createElement('div');el.id='toast';el.setAttribute('role','status');document.body.appendChild(el)}el.className='toast '+(k||'');el.textContent=m;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>{el.hidden=true},3400)}
@@ -753,32 +847,46 @@ const A={
  newInsp(){location.hash='#/inspect';render()},
  discard(){if(!confirm(t('confirmDiscard')))return;draft=null;store.del(DKEY);render()},
  rate(arg){const [id,v]=arg.split(':');const r=dItem(id);r.v=v==='na'?'na':+v;saveDraft();refreshCard(id);updateLive()},
+ areaOk(a){const s=site(draft.siteId);const ids=Object.keys(s.items).filter(k=>a==null||(item(k)?.area||'general')===a);let n=0;ids.forEach(k=>{const r=dItem(k);if(r.v===undefined){r.v=5;n++}});saveDraft();ids.forEach(refreshCard);updateLive();toast(t('markedOk',n))},
+ allOk(){A.areaOk(null)},
+ cause(arg){const [id,k]=arg.split(':');dItem(id).m=k==='m';saveDraft();refreshCard(id)},
  openX(id){dItem(id).x=1;refreshCard(id);document.querySelector(`#it-${id} textarea`)?.focus()},
  rmPhoto(id){delete dItem(id).p;saveDraft();refreshCard(id)},
  saveInsp(){const s=site(draft.siteId);const ids=Object.keys(s.items);const miss=ids.find(id=>draft.items[id]?.v===undefined);
   if(miss){toast(t('rateAll'),'err');const el=document.getElementById('it-'+miss);el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('pulse');setTimeout(()=>el.classList.remove('pulse'),1500);return}
   if(!draft.inspector.trim()){toast(t('needInspector'),'err');const f=$('#dIn');f.scrollIntoView({block:'center'});f.focus();return}
-  const items={};ids.forEach(id=>{const r=draft.items[id];items[id]={s:r.v==='na'?null:r.v,w:s.items[id]};if(r.c&&r.c.trim())items[id].c=r.c.trim();if(r.p)items[id].p=r.p});
-  const ins={id:uid('ins'),siteId:s.id,cleanerId:draft.cleanerId,inspector:draft.inspector.trim(),date:draft.date||todayIso(),rep:draft.rep.trim(),notes:draft.notes.trim(),items,score:calcScore(items)};
+  const items={};ids.forEach(id=>{const r=draft.items[id];items[id]={s:r.v==='na'?null:r.v,w:s.items[id]};if(r.c&&r.c.trim())items[id].c=r.c.trim();if(r.p)items[id].p=r.p;if(r.m&&typeof r.v==='number'&&r.v<=db.settings.issueAt)items[id].m=true});
+  const ins={id:uid('ins'),siteId:s.id,cleanerId:draft.cleanerId,inspector:draft.inspector.trim(),date:draft.date||todayIso(),rep:draft.rep.trim(),notes:draft.notes.trim(),items,score:calcScore(items),cscore:calcScore(items,true)};
   const due=iso(addDays(parseIso(ins.date),db.settings.fixDays));const newIss=[];
-  ids.forEach(id=>{const x=items[id];if(x.s!=null&&x.s<=db.settings.issueAt)newIss.push({id:uid('d'),siteId:s.id,inspectionId:ins.id,itemId:id,score:x.s,cleanerId:ins.cleanerId,comment:x.c||'',status:'open',created:ins.date,due,fixedAt:'',source:'inspection'})});
+  ids.forEach(id=>{const x=items[id];if(x.s!=null&&x.s<=db.settings.issueAt)newIss.push({id:uid('d'),siteId:s.id,inspectionId:ins.id,itemId:id,score:x.s,cleanerId:ins.cleanerId,comment:x.c||'',status:'open',created:ins.date,due,fixedAt:'',source:'inspection',cat:x.m?'maintenance':'cleaning'})});
   db.inspections.push(ins);db.issues.push(...newIss);
   if(!saveDb()){db.inspections.pop();db.issues.splice(db.issues.length-newIss.length,newIss.length);return}
   store.set('ee_inspector',ins.inspector);draft=null;store.del(DKEY);ui.saved={id:ins.id,n:newIss.length};render();window.scrollTo(0,0)},
  delInsp(id){if(!confirm(t('confirmDelete')))return;const sid=db.inspections.find(i=>i.id===id)?.siteId;db.inspections=db.inspections.filter(i=>i.id!==id);db.issues=db.issues.filter(x=>x.inspectionId!==id);saveDb();location.hash=sid?'#/site/'+sid:'#/dashboard'},
+ help(){document.body.insertAdjacentHTML('beforeend',helpHtml());$('.modal .icon-btn')?.focus()},
+ closeHelp(){$('.modal')?.remove()},
+ goIssues(k){ui.issueStatus=k;ui.issueSite='';if(location.hash==='#/issues')render();else location.hash='#/issues'},
  issueStatus(k){ui.issueStatus=k;render()},
  issueSet(arg){const [id,st]=arg.split(':');const x=db.issues.find(i=>i.id===id);if(!x)return;x.status=st;x.fixedAt=st==='fixed'?todayIso():'';saveDb();render()},
+ issueCat(id){const x=db.issues.find(i=>i.id===id);if(!x)return;x.cat=x.cat==='maintenance'?'cleaning':'maintenance';
+  const ins=x.inspectionId&&db.inspections.find(i=>i.id===x.inspectionId);if(ins&&ins.items[x.itemId]){if(x.cat==='maintenance')ins.items[x.itemId].m=true;else delete ins.items[x.itemId].m;ins.cscore=calcScore(ins.items,true)}
+  saveDb();render()},
  reportFor(id){ui.fbSite=id;location.hash='#/feedback'},
  sendFeedback(){const sid=ui.fbSite;const desc=$('#fbDesc').value.trim();if(!sid||!canSee(sid)){toast(t('pickSite'),'err');return}if(!desc){toast(t('needDesc'),'err');$('#fbDesc').focus();return}
-  const s=site(sid);const d=todayIso();db.issues.push({id:uid('d'),siteId:sid,inspectionId:'',itemId:'',score:null,cleanerId:s.cleanerId,comment:desc,photo:ui.fbPhoto||'',status:'open',created:d,due:iso(addDays(new Date(),db.settings.fixDays)),fixedAt:'',source:'customer'});
+  const s=site(sid);const d=todayIso();db.issues.push({id:uid('d'),siteId:sid,inspectionId:'',itemId:'',score:null,cleanerId:s.cleanerId,comment:desc,photo:ui.fbPhoto||'',status:'open',created:d,due:iso(addDays(new Date(),db.settings.fixDays)),fixedAt:'',source:'customer',cat:'cleaning'});
   if(!saveDb()){db.issues.pop();return}ui.fbPhoto='';ui.issueStatus='open';ui.issueSite=sid;toast(t('feedbackSent'));location.hash='#/issues'},
  saveSite(id){const f=$('#siteForm');const fd=new FormData(f);const name=String(fd.get('name')||'').trim();if(!name){toast(t('required'),'err');f.name.focus();return}
-  const items={};fd.getAll('it').forEach(k=>{items[k]=Math.max(1,Math.min(20,+fd.get('w_'+k)||1))});
-  const data={name,address:String(fd.get('address')||'').trim(),customerId:fd.get('customerId'),cleanerId:fd.get('cleanerId'),target:Math.max(0,Math.min(100,+fd.get('target')||0)),items};
+  const items=readChecklist(fd);
+  const data={name,address:String(fd.get('address')||'').trim(),customerId:fd.get('customerId'),cleanerId:fd.get('cleanerId'),target:Math.max(0,Math.min(100,+fd.get('target')||0)),type:fd.get('type')||'',items};
   let s;if(id==='new'){s={id:uid('s'),...data};db.sites.push(s)}else{s=site(id);Object.assign(s,data)}
   if(draft&&draft.siteId===s.id){Object.keys(draft.items).forEach(k=>{if(!items[k])delete draft.items[k]});saveDraft()}
   saveDb();toast(t('savedOk'));location.hash='#/site/'+s.id},
  delSite(id){if(!confirm(t('confirmDeleteSite')))return;db.sites=db.sites.filter(s=>s.id!==id);db.inspections=db.inspections.filter(i=>i.siteId!==id);db.issues=db.issues.filter(x=>x.siteId!==id);if(draft?.siteId===id){draft=null;store.del(DKEY)}saveDb();location.hash='#/sites'},
+ resetToType(){const sel=$('#sfY');const ty=db.types.find(y=>y.id===sel?.value);if(ty)$('#chkBox').innerHTML=checklistHtml(ty.items)},
+ saveType(id){const f=$('#typeForm');const fd=new FormData(f);const fi=String(fd.get('fi')||'').trim();if(!fi){toast(t('required'),'err');f.fi.focus();return}
+  const data={fi,en:String(fd.get('en')||'').trim()||fi,items:readChecklist(fd)};if(id==='new')db.types.push({id:uid('t'),...data});else Object.assign(db.types.find(y=>y.id===id),data);
+  saveDb();toast(t('savedOk'));location.hash='#/settings'},
+ delType(id){if(!confirm(t('confirmDelete')))return;db.types=db.types.filter(y=>y.id!==id);saveDb();location.hash='#/settings'},
  toggleAddCleaner(){ui.addCleaner=!ui.addCleaner;render();if(ui.addCleaner)$('#ncN')?.focus()},
  addCleaner(){const n=$('#ncN').value.trim();if(!n){toast(t('required'),'err');return}db.cleaners.push({id:uid('k'),name:n,phone:$('#ncP').value.trim(),active:true});saveDb();ui.addCleaner=false;toast(t('savedOk'));render()},
  saveCleaner(id){const c=db.cleaners.find(x=>x.id===id);const n=$('#ceN').value.trim();if(!n){toast(t('required'),'err');return}c.name=n;c.phone=$('#ceP').value.trim();c.active=$('#ceA').checked;saveDb();toast(t('savedOk'));render()},
@@ -794,6 +902,7 @@ const A={
  zoom(_,el){const o=document.createElement('div');o.className='overlay';const im=new Image();im.src=el.src;im.alt='';o.appendChild(im);o.onclick=()=>o.remove();document.body.appendChild(o)}
 };
 const C={
+ siteType(el){if(el.dataset.new==='1'||confirm(t('applyTypeQ')))A.resetToType()},
  period(el){ui.period=el.value;render()},cmonth(el){ui.cmonth=el.value;render()},rmonth(el){ui.rmonth=el.value;render()},
  async itemPhoto(el){const f=el.files[0];if(!f)return;const id=el.dataset.id;try{const p=await resizeImage(f);const r=dItem(id);r.p=p;if(!saveDraft())delete r.p;refreshCard(id)}catch(e){toast(t('photoFail'),'err')}},
  async fbPhoto(el){const f=el.files[0];if(!f)return;try{ui.fbPhoto=await resizeImage(f);$('#fbPrev').innerHTML=`<img class="thumb" src="${ui.fbPhoto}" alt="">`}catch(e){toast(t('photoFail'),'err')}},
@@ -809,6 +918,7 @@ const I={
 document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const fn=A[el.dataset.act];if(fn){e.preventDefault();fn(el.dataset.arg,el,e)}});
 document.addEventListener('change',e=>{const el=e.target.closest('[data-ch]');if(el&&C[el.dataset.ch])C[el.dataset.ch](el)});
 document.addEventListener('input',e=>{const el=e.target.closest('[data-in]');if(el&&I[el.dataset.in])I[el.dataset.in](el)});
+document.addEventListener('click',e=>{if(e.target.classList?.contains('modal'))A.closeHelp()});document.addEventListener('keydown',e=>{if(e.key==='Escape')A.closeHelp()});
 window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
 render();
 </script>
