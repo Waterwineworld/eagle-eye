@@ -305,6 +305,12 @@ details.adv[open]>summary{margin-bottom:12px}
 .grades{display:flex;gap:6px;flex-wrap:wrap}
 .icon-btn{color:var(--muted)}
 .side .icon-btn{color:inherit}
+.st-review{background:var(--accent-soft);color:var(--accent)}
+.returned{margin:8px 0;padding:8px 10px;background:var(--fair-bg);color:var(--fair);border-radius:var(--r-sm);font-size:13px}
+.after{margin:10px 0 4px;padding:10px 12px;background:var(--subtle);border:1px solid var(--line-2);border-radius:var(--r-sm)}
+.pick{display:flex;gap:8px;margin-top:10px}.pick .input{flex:1;min-width:0}
+body.busy{cursor:progress}body.busy .btn{opacity:.7}
+.tabs a.nav-users{display:none}
 @media print{
  .side,.topbar,.tabs,.no-print,.foot,.toast{display:none!important}
  .content{margin:0}
@@ -316,6 +322,7 @@ details.adv[open]>summary{margin-bottom:12px}
 </head>
 <body>
 <div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
 <script>
 'use strict';
 /* ================= storage ================= */
@@ -357,7 +364,7 @@ settingsTitle:'Asetukset',rules:'Säännöt',reward:'Palkkioraja, keskiarvo %',m
 itemsLib:'Tarkastuskohteiden kirjasto',itemsLibHelp:'Oletuspaino käytetään, kun kohta lisätään kohteeseen. Kohdekohtaiset painot muutetaan kohteen asetuksista.',area:'Alue',defWeight:'Oletuspaino',nameFi:'Nimi (suomi)',nameEn:'Nimi (englanti)',addItem:'Lisää tarkastuskohta',
 customers:'Asiakkaat',addCustomer:'Lisää asiakas',dataTitle:'Tiedot',exportData:'Vie tiedot (JSON)',importData:'Tuo tiedot',resetDemo:'Palauta esimerkkidata',confirmReset:'Korvataanko kaikki tiedot esimerkkidatalla?',importOk:'Tiedot tuotu.',importBad:'Tiedosto ei kelpaa.',
 storageFull:'Selaimen tallennustila on täynnä. Poista kuvia tai vie tiedot talteen ja tyhjennä vanhoja.',photoFail:'Kuvan lukeminen epäonnistui.',
-customerWelcome:'Tervetuloa, {0}',needsAttention:'Vaatii huomiota',attOverdue:'{0} myöhässä olevaa poikkeamaa',attCustomer:'{0} uutta asiakkaan ilmoitusta',attBelow:'{0} alle tavoitteen',attBelowSub:'30 pv: {0} · tavoite {1} %',attStale:'{0}: tarkastus puuttuu',andMore:'+ {0} muuta',allGood:'Kaikki kunnossa',allGoodSub:'Ei myöhässä olevia poikkeamia eikä kohteita alle tavoitteen.',noneEligible:'Kukaan ei vielä täytä palkkioehtoja tällä jaksolla.',custLead:'Kohteidenne siisteystaso, avoimet asiat ja raportit yhdellä sivulla.',noneOverdue:'ei myöhässä',quickHelp:'Useimmat kohdat ovat yleensä kunnossa: merkitse ne yhdellä napautuksella ja muuta vain poikkeavat.',allOk:'Merkitse loput kunnossa',areaOk:'Kaikki kunnossa',markedOk:'{0} kohtaa merkitty kuntoon (5).',causeQ:'Syy:',causeCleaning:'Siivous',causeMaint:'Huolto / tarvikkeet',toMaint:'→ Huolto',toCleaning:'→ Siivous',siteType:'Kohdetyyppi',siteTypes:'Kohdetyypit (mallipohjat)',addType:'Lisää kohdetyyppi',typeHelp:'Kohdetyyppi määrää uuden kohteen tarkastuskohdat ja painot. Yksittäistä kohdetta voi muokata erikseen.',typeUsed:'Käytössä {0} kohteessa – muutokset koskevat vain uusia kohteita.',typeItems:'{0} tarkastuskohtaa',typeDiff:'{0} poikkeamaa kohdetyypistä',typeSame:'sama kuin kohdetyyppi',resetToType:'Palauta kohdetyypin oletukset',applyTypeQ:'Korvataanko tarkastuskohdat kohdetyypin oletuksilla?',otherCleaners:'Muut siivoojat',howScored:'Miten pisteet lasketaan?',fairNote:'Huolto- ja tarvikeviat (esim. rikkinäinen annostelija) eivät vaikuta siivoojan pisteisiin.',helpTitle:'Ohje',close:'Sulje',advanced:'Lisäasetukset',advancedSub:'tarkastuskohteiden kirjasto ja asiakkaat',h_score:'Siisteystason laskenta',h_scale:'Jokainen kohta arvioidaan 0–5. E/K jätetään laskusta pois. Arvio {0} tai alle luo poikkeaman.',h_grades:'Arvosanat',h_dev:'Poikkeamat',h_devText:'Arvio {0} tai alle luo poikkeaman, joka on korjattava {1} päivässä. Merkitse syy: siivous vai huolto/tarvikkeet.',h_reward:'Palkitseminen',menu:'Päävalikko',roleAdmin:'Uusi Era · Ylläpito',grp_ops:'Toiminta',grp_mgmt:'Hallinta',grp_admin:'Ylläpito',grp_help:'Palaute',loginTitle:'Kirjaudu sisään',loginLead:'Valitse käyttäjärooli jatkaaksesi.',heroTitle:'Siivouksen laatu, mitattuna ja näkyvänä.',heroLead:'Eagle Eye on Uusi Eran laadunseurantajärjestelmä tarkastuksiin, poikkeamien hallintaan ja asiakasraportointiin.',vp1:'Mobiilitarkastukset painotetulla 0–5-pisteytyksellä',vp2:'Poikkeamat määräaikoineen ja kuvineen',vp3:'Asiakkaalle oma reaaliaikainen laatunäkymä',vp4:'Siivoojien kuukausittainen suoriutuminen ja palkitseminen',scoreExplain:'Siisteystaso = Σ(arvio ÷ 5 × paino) ÷ Σ paino. E/K-kohdat jätetään laskusta pois.',newItem:'Uusi kohta',newCustomer:'Uusi asiakas',newCleaner:'Uusi siivooja',selectCustomer:'Valitse asiakas',noCleaner:'—',storageNote:'Tallennustilaa käytössä noin {0} kt.'
+customerWelcome:'Tervetuloa, {0}',nav_tasks:'Omat tehtävät',nav_mine:'Oma suoritus',nav_users:'Käyttäjät',role_admin:'Ylläpitäjä',role_inspector:'Tarkastaja',role_cleaner:'Siivooja',role_customer:'Asiakas',role_pending:'Odottaa käyttöoikeutta',role:'Rooli',status_review:'Odottaa vahvistusta',attReview:'{0} korjausta odottaa vahvistusta',loginEmailLead:'Kirjaudu sähköpostiosoitteella ja salasanalla.',email:'Sähköposti',password:'Salasana',signIn:'Kirjaudu',forgot:'Unohditko salasanan?',tryDemo:'Kokeile demoa',demoTitle:'Demo',realLogin:'Kirjaudu oikeilla tunnuksilla',noConnection:'Yhteys palvelimeen ei onnistu. Tarkista verkkoyhteys ja lataa sivu uudelleen.',badLogin:'Väärä sähköposti tai salasana.',setupMissing:'Tietokantaa ei voitu ladata. Onko asennusskripti ajettu?',emailFirst:'Kirjoita ensin sähköpostiosoite.',resetSent:'Jos osoite on käytössä, saat sähköpostiin ohjeen salasanan vaihtamiseen.',loginInspectorDesc:'Tekee tarkastukset ja vahvistaa korjaukset.',loginCleanerDesc:'Näkee omat tehtävät ja oman suorituksen.',pendingTitle:'Odottaa käyttöoikeutta',pendingText:'Tili {0} on luotu. Ylläpitäjän on vielä annettava sille rooli.',newPassword:'Uusi salasana',passwordRule:'Salasanassa on oltava vähintään 8 merkkiä.',account:'Oma tili',tasksLead:'Korjaa kohdat, merkitse ne valmiiksi ja lisää kuva korjauksesta.',tasksNone:'Ei avoimia tehtäviä',tasksNoneSub:'Hyvää työtä!',tasksDone:'Äskettäin korjatut',taskFixed:'Korjattu',taskNote:'Mitä teit? (valinnainen)',afterPhoto:'Kuva korjauksesta',taskSend:'Lähetä vahvistettavaksi',taskSent:'Lähetetty esihenkilön vahvistettavaksi.',notLinked:'Tiliäsi ei ole vielä liitetty siivoojaan. Ota yhteys ylläpitäjään.',returnedNote:'Palautettu korjattavaksi',cleanerReport:'Siivoojan ilmoitus',sendBack:'Palauta',confirmFix:'Vahvista korjaus',sendBackQ:'Miksi korjaus palautetaan? (näytetään siivoojalle)',rewardRule2:'Palkkio edellyttää vähintään {0} tarkastusta kuukaudessa ja keskiarvoa {1} %.',onTimeShort:'Korjattu ajallaan',saveFail:'Tallennus epäonnistui. Tarkista yhteys ja yritä uudelleen.',saveOffline:'Tallennus ei onnistunut. Tiedot säilyvät tällä laitteella; yritä uudelleen, kun yhteys toimii.',loading:'Ladataan…',emptyTitle:'Aloita lisäämällä tiedot',emptyText:'Tietokanta on tyhjä. Lisää ensin asiakkaat (Asetukset → Lisäasetukset), siivoojat ja kohteet, tai lataa esimerkkidata kokeilua varten.',addUser:'Lisää käyttäjä Supabasessa',usersHelp:'Uusi käyttäjä: paina painiketta, valitse Supabasessa Add user → Create new user, anna sähköposti ja salasana ja ruksaa Auto Confirm User. Käyttäjä ilmestyy tänne; anna hänelle rooli. Ilman roolia käyttäjä ei näe mitään.',usersSub:'Kirjautumiset ja roolit',cloudNote:'Tiedot tallennetaan yhteiseen tietokantaan.',wipeAll:'Poista kaikki tiedot',wipeQ:'Tämä poistaa kaikki asiakkaat, siivoojat, kohteet, tarkastukset ja poikkeamat. Vahvista kirjoittamalla DELETE',loadDemo:'Lataa esimerkkidata',loadDemoQ:'Ladataanko esimerkkidata tietokantaan? Voit poistaa sen myöhemmin kohdasta Poista kaikki tiedot.',needsAttention:'Vaatii huomiota',attOverdue:'{0} myöhässä olevaa poikkeamaa',attCustomer:'{0} uutta asiakkaan ilmoitusta',attBelow:'{0} alle tavoitteen',attBelowSub:'30 pv: {0} · tavoite {1} %',attStale:'{0}: tarkastus puuttuu',andMore:'+ {0} muuta',allGood:'Kaikki kunnossa',allGoodSub:'Ei myöhässä olevia poikkeamia eikä kohteita alle tavoitteen.',noneEligible:'Kukaan ei vielä täytä palkkioehtoja tällä jaksolla.',custLead:'Kohteidenne siisteystaso, avoimet asiat ja raportit yhdellä sivulla.',noneOverdue:'ei myöhässä',quickHelp:'Useimmat kohdat ovat yleensä kunnossa: merkitse ne yhdellä napautuksella ja muuta vain poikkeavat.',allOk:'Merkitse loput kunnossa',areaOk:'Kaikki kunnossa',markedOk:'{0} kohtaa merkitty kuntoon (5).',causeQ:'Syy:',causeCleaning:'Siivous',causeMaint:'Huolto / tarvikkeet',toMaint:'→ Huolto',toCleaning:'→ Siivous',siteType:'Kohdetyyppi',siteTypes:'Kohdetyypit (mallipohjat)',addType:'Lisää kohdetyyppi',typeHelp:'Kohdetyyppi määrää uuden kohteen tarkastuskohdat ja painot. Yksittäistä kohdetta voi muokata erikseen.',typeUsed:'Käytössä {0} kohteessa – muutokset koskevat vain uusia kohteita.',typeItems:'{0} tarkastuskohtaa',typeDiff:'{0} poikkeamaa kohdetyypistä',typeSame:'sama kuin kohdetyyppi',resetToType:'Palauta kohdetyypin oletukset',applyTypeQ:'Korvataanko tarkastuskohdat kohdetyypin oletuksilla?',otherCleaners:'Muut siivoojat',howScored:'Miten pisteet lasketaan?',fairNote:'Huolto- ja tarvikeviat (esim. rikkinäinen annostelija) eivät vaikuta siivoojan pisteisiin.',helpTitle:'Ohje',close:'Sulje',advanced:'Lisäasetukset',advancedSub:'tarkastuskohteiden kirjasto ja asiakkaat',h_score:'Siisteystason laskenta',h_scale:'Jokainen kohta arvioidaan 0–5. E/K jätetään laskusta pois. Arvio {0} tai alle luo poikkeaman.',h_grades:'Arvosanat',h_dev:'Poikkeamat',h_devText:'Arvio {0} tai alle luo poikkeaman, joka on korjattava {1} päivässä. Merkitse syy: siivous vai huolto/tarvikkeet.',h_reward:'Palkitseminen',menu:'Päävalikko',roleAdmin:'Uusi Era · Ylläpito',grp_ops:'Toiminta',grp_mgmt:'Hallinta',grp_admin:'Ylläpito',grp_help:'Palaute',loginTitle:'Kirjaudu sisään',loginLead:'Valitse käyttäjärooli jatkaaksesi.',heroTitle:'Siivouksen laatu, mitattuna ja näkyvänä.',heroLead:'Eagle Eye on Uusi Eran laadunseurantajärjestelmä tarkastuksiin, poikkeamien hallintaan ja asiakasraportointiin.',vp1:'Mobiilitarkastukset painotetulla 0–5-pisteytyksellä',vp2:'Poikkeamat määräaikoineen ja kuvineen',vp3:'Asiakkaalle oma reaaliaikainen laatunäkymä',vp4:'Siivoojien kuukausittainen suoriutuminen ja palkitseminen',scoreExplain:'Siisteystaso = Σ(arvio ÷ 5 × paino) ÷ Σ paino. E/K-kohdat jätetään laskusta pois.',newItem:'Uusi kohta',newCustomer:'Uusi asiakas',newCleaner:'Uusi siivooja',selectCustomer:'Valitse asiakas',noCleaner:'—',storageNote:'Tallennustilaa käytössä noin {0} kt.'
 },en:{
 appSub:'Cleaning quality monitoring',forCo:'Uusi Era Palvelut Oy',loginAdmin:'Uusi Era staff',loginAdminDesc:'Inspections, sites, cleaners, reports and settings.',loginCustomer:'Customer',loginCustomerDesc:'Cleanliness of your own sites, reports and reporting problems.',enter:'Continue',
 demoNote:'Demo: data is stored in this browser only. Move data between devices via Settings → Export / Import.',logout:'Sign out',admin:'Admin',
@@ -388,7 +395,7 @@ settingsTitle:'Settings',rules:'Rules',reward:'Reward threshold, average %',minI
 itemsLib:'Checklist item library',itemsLibHelp:'The default weight is used when an item is added to a site. Site-specific weights are changed in the site settings.',area:'Area',defWeight:'Default weight',nameFi:'Name (Finnish)',nameEn:'Name (English)',addItem:'Add checklist item',
 customers:'Customers',addCustomer:'Add customer',dataTitle:'Data',exportData:'Export data (JSON)',importData:'Import data',resetDemo:'Restore demo data',confirmReset:'Replace all data with the demo data?',importOk:'Data imported.',importBad:'The file is not valid.',
 storageFull:'Browser storage is full. Remove photos, or export your data and clear old records.',photoFail:'Could not read the photo.',
-customerWelcome:'Welcome, {0}',needsAttention:'Needs attention',attOverdue:'{0} overdue deviations',attCustomer:'{0} new customer reports',attBelow:'{0} below target',attBelowSub:'30 days: {0} · target {1} %',attStale:'{0}: inspection overdue',andMore:'+ {0} more',allGood:'All good',allGoodSub:'No overdue deviations and no sites below target.',noneEligible:'Nobody meets the reward criteria for this period yet.',custLead:'Your sites’ cleanliness, open issues and reports on one page.',noneOverdue:'none overdue',quickHelp:'Most items are usually fine: mark them in one tap and only change the exceptions.',allOk:'Mark the rest OK',areaOk:'All OK',markedOk:'{0} items marked OK (5).',causeQ:'Cause:',causeCleaning:'Cleaning',causeMaint:'Maintenance / supplies',toMaint:'→ Maintenance',toCleaning:'→ Cleaning',siteType:'Site type',siteTypes:'Site types (templates)',addType:'Add site type',typeHelp:'The site type sets the checklist and weights for new sites. Individual sites can still be adjusted.',typeUsed:'Used by {0} sites – changes apply to new sites only.',typeItems:'{0} checklist items',typeDiff:'{0} differences from site type',typeSame:'same as site type',resetToType:'Reset to site-type defaults',applyTypeQ:'Replace the checklist with the site type defaults?',otherCleaners:'Other cleaners',howScored:'How is this scored?',fairNote:'Maintenance and supply faults (e.g. a broken dispenser) do not count against the cleaner.',helpTitle:'Help',close:'Close',advanced:'Advanced',advancedSub:'checklist item library and customers',h_score:'How cleanliness is calculated',h_scale:'Each item is rated 0–5. N/A is left out. A rating of {0} or lower creates a deviation.',h_grades:'Grades',h_dev:'Deviations',h_devText:'A rating of {0} or lower creates a deviation to be fixed within {1} days. Mark the cause: cleaning or maintenance/supplies.',h_reward:'Rewards',menu:'Main menu',roleAdmin:'Uusi Era · Admin',grp_ops:'Operations',grp_mgmt:'Management',grp_admin:'Administration',grp_help:'Feedback',loginTitle:'Sign in',loginLead:'Choose a role to continue.',heroTitle:'Cleaning quality, measured and visible.',heroLead:'Eagle Eye is Uusi Era’s quality platform for inspections, deviation management and client reporting.',vp1:'Mobile inspections with weighted 0–5 scoring',vp2:'Deviations with due dates and photo evidence',vp3:'A live quality view for every client',vp4:'Monthly cleaner performance and rewards',scoreExplain:'Cleanliness = Σ(rating ÷ 5 × weight) ÷ Σ weight. N/A items are left out.',newItem:'New item',newCustomer:'New customer',newCleaner:'New cleaner',selectCustomer:'Choose customer',noCleaner:'—',storageNote:'About {0} kB of storage in use.'
+customerWelcome:'Welcome, {0}',nav_tasks:'My tasks',nav_mine:'My performance',nav_users:'Users',role_admin:'Admin',role_inspector:'Inspector',role_cleaner:'Cleaner',role_customer:'Customer',role_pending:'Waiting for access',role:'Role',status_review:'Awaiting confirmation',attReview:'{0} fixes awaiting confirmation',loginEmailLead:'Sign in with your email and password.',email:'Email',password:'Password',signIn:'Sign in',forgot:'Forgot your password?',tryDemo:'Try the demo',demoTitle:'Demo',realLogin:'Sign in with a real account',noConnection:'Cannot reach the server. Check your connection and reload the page.',badLogin:'Wrong email or password.',setupMissing:'Could not load the database. Has the setup script been run?',emailFirst:'Enter your email address first.',resetSent:'If that address has an account, a password reset email is on its way.',loginInspectorDesc:'Carries out inspections and confirms fixes.',loginCleanerDesc:'Sees their own tasks and performance.',pendingTitle:'Waiting for access',pendingText:'The account {0} exists, but an admin still needs to give it a role.',newPassword:'New password',passwordRule:'Passwords need at least 8 characters.',account:'My account',tasksLead:'Fix these items, mark them done and add a photo of the result.',tasksNone:'No open tasks',tasksNoneSub:'Good work!',tasksDone:'Recently fixed',taskFixed:'Fixed',taskNote:'What did you do? (optional)',afterPhoto:'Photo of the fix',taskSend:'Send for confirmation',taskSent:'Sent to your supervisor for confirmation.',notLinked:'Your account is not linked to a cleaner yet. Please contact your admin.',returnedNote:'Sent back',cleanerReport:'Cleaner’s report',sendBack:'Send back',confirmFix:'Confirm fix',sendBackQ:'Why is this being sent back? (shown to the cleaner)',rewardRule2:'A reward requires at least {0} inspections in the month and an average of {1}%.',onTimeShort:'Fixed on time',saveFail:'Could not save. Check your connection and try again.',saveOffline:'Could not save. Your work is kept on this device; try again when you have a connection.',loading:'Loading…',emptyTitle:'Start by adding your data',emptyText:'The database is empty. Add customers (Settings → Advanced), cleaners and sites, or load the demo data to try things out.',addUser:'Add user in Supabase',usersHelp:'To add someone: click the button, choose Add user → Create new user in Supabase, enter an email and password and tick Auto Confirm User. They then appear here for you to give them a role. Without a role they can see nothing.',usersSub:'Logins and roles',cloudNote:'Data is stored in the shared database.',wipeAll:'Delete all data',wipeQ:'This deletes all customers, cleaners, sites, inspections and deviations. Type DELETE to confirm',loadDemo:'Load demo data',loadDemoQ:'Load the demo data into the database? You can remove it later with Delete all data.',needsAttention:'Needs attention',attOverdue:'{0} overdue deviations',attCustomer:'{0} new customer reports',attBelow:'{0} below target',attBelowSub:'30 days: {0} · target {1} %',attStale:'{0}: inspection overdue',andMore:'+ {0} more',allGood:'All good',allGoodSub:'No overdue deviations and no sites below target.',noneEligible:'Nobody meets the reward criteria for this period yet.',custLead:'Your sites’ cleanliness, open issues and reports on one page.',noneOverdue:'none overdue',quickHelp:'Most items are usually fine: mark them in one tap and only change the exceptions.',allOk:'Mark the rest OK',areaOk:'All OK',markedOk:'{0} items marked OK (5).',causeQ:'Cause:',causeCleaning:'Cleaning',causeMaint:'Maintenance / supplies',toMaint:'→ Maintenance',toCleaning:'→ Cleaning',siteType:'Site type',siteTypes:'Site types (templates)',addType:'Add site type',typeHelp:'The site type sets the checklist and weights for new sites. Individual sites can still be adjusted.',typeUsed:'Used by {0} sites – changes apply to new sites only.',typeItems:'{0} checklist items',typeDiff:'{0} differences from site type',typeSame:'same as site type',resetToType:'Reset to site-type defaults',applyTypeQ:'Replace the checklist with the site type defaults?',otherCleaners:'Other cleaners',howScored:'How is this scored?',fairNote:'Maintenance and supply faults (e.g. a broken dispenser) do not count against the cleaner.',helpTitle:'Help',close:'Close',advanced:'Advanced',advancedSub:'checklist item library and customers',h_score:'How cleanliness is calculated',h_scale:'Each item is rated 0–5. N/A is left out. A rating of {0} or lower creates a deviation.',h_grades:'Grades',h_dev:'Deviations',h_devText:'A rating of {0} or lower creates a deviation to be fixed within {1} days. Mark the cause: cleaning or maintenance/supplies.',h_reward:'Rewards',menu:'Main menu',roleAdmin:'Uusi Era · Admin',grp_ops:'Operations',grp_mgmt:'Management',grp_admin:'Administration',grp_help:'Feedback',loginTitle:'Sign in',loginLead:'Choose a role to continue.',heroTitle:'Cleaning quality, measured and visible.',heroLead:'Eagle Eye is Uusi Era’s quality platform for inspections, deviation management and client reporting.',vp1:'Mobile inspections with weighted 0–5 scoring',vp2:'Deviations with due dates and photo evidence',vp3:'A live quality view for every client',vp4:'Monthly cleaner performance and rewards',scoreExplain:'Cleanliness = Σ(rating ÷ 5 × weight) ÷ Σ weight. N/A items are left out.',newItem:'New item',newCustomer:'New customer',newCleaner:'New cleaner',selectCustomer:'Choose customer',noCleaner:'—',storageNote:'About {0} kB of storage in use.'
 }};
 let lang=store.get('ee_lang','fi');if(!T[lang])lang='fi';
 function t(k,...a){let s=T[lang][k]??T.fi[k]??k;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -448,9 +455,7 @@ const logo=()=>`<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="
 
 /* ================= demo data ================= */
 const AREAS=[{id:'sanitary',fi:'Saniteettitilat',en:'Restrooms'},{id:'general',fi:'Yleiset tilat ja pinnat',en:'Common areas & surfaces'},{id:'rooms',fi:'Huonetilat',en:'Rooms & facilities'}];
-function seed(){
- let a=20261102;const r=()=>{a|=0;a=a+0x6D2B79F5|0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296};
- const items=[
+function defaultItems(){return [
  ['wc_toilets','sanitary',10,'WC-istuimet ja pisuaarit','Toilets and urinals'],['wc_sinks','sanitary',8,'Käsienpesualtaat ja hanat','Sinks and taps'],['wc_mirrors','sanitary',4,'Peilit','Mirrors'],
  ['supplies','sanitary',6,'Paperit ja saippuat (täydennys)','Paper and soap refills'],['wc_floor','sanitary',8,'WC-tilojen lattiat','Restroom floors'],
  ['floors','general',8,'Lattiat','Floors'],['stairs','general',6,'Portaikot','Staircases'],['lifts','general',4,'Hissit','Lifts'],['touch','general',7,'Ovet ja kosketuspinnat','Doors and touch points'],
@@ -458,7 +463,10 @@ function seed(){
  ['entrance','rooms',6,'Aula ja sisääntulo','Lobby and entrance'],['offices','rooms',5,'Toimistot ja työpisteet','Offices and workstations'],['meeting','rooms',4,'Neuvotteluhuoneet','Meeting rooms'],
  ['kitchen','rooms',6,'Taukotila ja keittiö','Break room and kitchen'],['gym','rooms',6,'Kuntosali','Gym'],['changing','rooms',8,'Pukuhuoneet ja suihkut','Changing rooms and showers'],
  ['patient','rooms',9,'Potilashuoneet','Patient rooms'],['waiting','rooms',5,'Odotustilat','Waiting areas'],['classrooms','rooms',6,'Luokkahuoneet','Classrooms']
- ].map(([id,area,w,fi,en])=>({id,area,w,fi,en}));
+ ].map(([id,area,w,fi,en],pos)=>({id,area,w,pos,fi,en}))}
+function seed(){
+ let a=20261102;const r=()=>{a|=0;a=a+0x6D2B79F5|0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296};
+ const items=defaultItems();
  const W=Object.fromEntries(items.map(i=>[i.id,i.w]));
  const customers=[{id:'c1',name:'Pirkanmaan hyvinvointialue'},{id:'c2',name:'Tampereen kaupunki'},{id:'c3',name:'Kiinteistö Oy Hermia'}];
  const Q={k1:4.62,k2:4.2,k3:4.45,k4:3.85,k5:4.35,k6:3.35,k7:4.05,k8:4.0};
@@ -510,14 +518,24 @@ function migrate(d){
  d.inspections.forEach(i=>{if(i.cscore===undefined)i.cscore=calcScore(i.items,true)});d.issues.forEach(x=>{if(!x.cat)x.cat='cleaning'});return d}
 
 /* ================= state ================= */
-let db=store.get(KEY,null);
-if(!db||db.v!==2||!Array.isArray(db.sites)){db=seed();store.set(KEY,db)}else{migrate(db);store.set(KEY,db)}
+// the publishable key is meant to be public; the access rules in supabase/schema.sql protect the data
+const CLOUD={url:'https://nouapybvutaborhccbyd.supabase.co',key:'sb_publishable_dXcQYOaeujp_xCWp_mm5Yw_iAE6EO3S'};
+const DEMO=/[?&]demo\b/.test(location.search);
+const sb=!DEMO&&window.supabase?window.supabase.createClient(CLOUD.url,CLOUD.key):null;
+const emptyDb=()=>({v:2,items:[],types:[],customers:[],cleaners:[],sites:[],inspections:[],issues:[],settings:{reward:90,minInsp:4,fixDays:3,issueAt:2}});
+let db=emptyDb();
+if(DEMO){db=store.get(KEY,null);if(!db||db.v!==2||!Array.isArray(db.sites)){db=seed();store.set(KEY,db)}else{migrate(db);store.set(KEY,db)}}
 const saveDb=()=>store.set(KEY,db);
-let session=store.get(SKEY,null);
-let draft=store.get(DKEY,null);if(draft&&!db.sites.some(s=>s.id===draft.siteId))draft=null;
+let session=DEMO?store.get(SKEY,null):null;
+const dkey=()=>DKEY+(session?.uid?'_'+session.uid:'');
+let draft=null;
+function loadDraft(){draft=store.get(dkey(),null);if(draft&&!db.sites.some(s=>s.id===draft.siteId))draft=null}
 const prevMonthKey=()=>{const n=new Date();return mk(new Date(n.getFullYear(),n.getMonth()-1,1))};
-let ui={period:'last30',dashSite:'',issueStatus:'open',issueSite:'',cmonth:prevMonthKey(),rmonth:prevMonthKey(),repSite:'',fbSite:'',fbPhoto:'',addCleaner:false,saved:null};
-const isAdmin=()=>session&&session.role==='admin';
+let ui={period:'last30',dashSite:'',issueStatus:'open',issueSite:'',cmonth:prevMonthKey(),rmonth:prevMonthKey(),repSite:'',fbSite:'',fbPhoto:'',addCleaner:false,saved:null,taskOpen:null,taskPhoto:'',profiles:null,recovery:false};
+const isAdmin=()=>session?.role==='admin';
+const isStaff=()=>session?.role==='admin'||session?.role==='inspector';
+const isCustomer=()=>session?.role==='customer';
+const isCleaner=()=>session?.role==='cleaner';
 
 const site=id=>db.sites.find(s=>s.id===id);
 const siteName=id=>site(id)?.name||'?';
@@ -527,14 +545,52 @@ const item=id=>db.items.find(i=>i.id===id);
 const itemName=id=>{const x=item(id);return x?(x[lang]||x.fi):id};
 const areaName=id=>{const x=AREAS.find(a=>a.id===id);return x?x[lang]:id};
 const byName=(a,b)=>a.name.localeCompare(b.name,'fi',{sensitivity:'base'});
-function mySites(){return db.sites.filter(s=>isAdmin()||s.customerId===session.customerId).sort(byName)}
-const canSee=sid=>{const s=site(sid);return !!s&&(isAdmin()||s.customerId===session.customerId)};
+const cleanerSees=sid=>site(sid)?.cleanerId===session.cleanerId||db.issues.some(x=>x.siteId===sid&&x.cleanerId===session.cleanerId)||db.inspections.some(i=>i.siteId===sid&&i.cleanerId===session.cleanerId);
+const canSee=sid=>{const s=site(sid);return !!s&&(isStaff()||(isCustomer()&&s.customerId===session.customerId)||(isCleaner()&&cleanerSees(sid)))};
+function mySites(){return db.sites.filter(s=>canSee(s.id)).sort(byName)}
 function inspIn(R,scope){return db.inspections.filter(i=>i.date>=R[0]&&i.date<=R[1]&&(!scope||scope.has(i.siteId)))}
-const overdue=x=>x.status!=='fixed'&&x.due<todayIso();
+const overdue=x=>(x.status==='open'||x.status==='progress')&&x.due<todayIso();
 const lastInsp=sid=>db.inspections.filter(i=>i.siteId===sid).reduce((m,i)=>!m||i.date>m.date?i:m,null);
-function areaGroups(ids){return AREAS.map(a=>[a.id,ids.filter(id=>(item(id)?.area||'general')===a.id)]).filter(g=>g[1].length)}
+function areaGroups(ids){const s=new Set(ids);return AREAS.map(a=>[a.id,db.items.filter(i=>i.area===a.id&&s.has(i.id)).map(i=>i.id)]).filter(g=>g[1].length)}
 function itemAvgs(list){const m={};list.forEach(i=>Object.entries(i.items).forEach(([id,x])=>{if(x.s==null)return;(m[id]||(m[id]={s:0,n:0})).s+=x.s*20;m[id].n++}));return Object.entries(m).map(([id,x])=>({id,v:x.s/x.n,n:x.n}))}
 function areaAvgs(list){const e={},p={};list.forEach(i=>Object.entries(i.items).forEach(([id,x])=>{if(x.s==null)return;const a=item(id)?.area||'general';e[a]=(e[a]||0)+x.s/5*x.w;p[a]=(p[a]||0)+x.w}));return AREAS.filter(a=>p[a.id]).map(a=>({id:a.id,v:e[a.id]/p[a.id]*100}))}
+
+/* ================= cloud data ================= */
+const snake=k=>k.replace(/[A-Z]/g,c=>'_'+c.toLowerCase());
+const camel=k=>k.replace(/_([a-z])/g,(_,c)=>c.toUpperCase());
+function toRow(o){const r={};for(const [k,v] of Object.entries(o))r[snake(k)]=v===''?null:v;return r}
+function toObj(r){const o={};for(const [k,v] of Object.entries(r))o[camel(k)]=v===null&&k!=='score'&&k!=='cscore'?'':v;return o}
+function dbFail(err){console.error(err);toast(t('saveFail'),'err');if(sb)loadCloud().then(render).catch(()=>{});return false}
+async function dbInsert(tb,o){if(!sb)return saveDb();const {error}=await sb.from(tb).insert(toRow(o));return error?dbFail(error):true}
+async function dbUpdate(tb,o){if(!sb)return saveDb();const {data,error}=await sb.from(tb).update(toRow(o)).eq('id',o.id).select('id');if(error)return dbFail(error);return data.length?true:dbFail(new Error('no row changed: '+tb+' '+o.id))}
+async function dbDelete(tb,id){if(!sb)return saveDb();const {error}=await sb.from(tb).delete().eq('id',id);return error?dbFail(error):true}
+async function saveContact(id,phone){if(!sb)return true;const {error}=await sb.from('cleaner_contacts').upsert({id,phone:phone||null});return error?dbFail(error):true}
+async function saveSettings(){if(!sb)return saveDb();const {error}=await sb.from('settings').update({data:db.settings}).eq('id',1);return error?dbFail(error):true}
+async function fetchAll(tb){let out=[],from=0;for(;;){const {data,error}=await sb.from(tb).select('*').order('id').range(from,from+999);if(error)throw error;out=out.concat(data);if(data.length<1000)return out;from+=1000}}
+let lastLoad=0,loadingNow=false;
+async function loadCloud(){const [items,types,customers,cleaners,contacts,sites,inspections,issues,settings]=await Promise.all(['items','site_types','customers','cleaners','cleaner_contacts','sites','inspections','issues','settings'].map(fetchAll));
+ const phone=Object.fromEntries(contacts.map(c=>[c.id,c.phone||'']));signed={};
+ db={v:2,items:items.map(toObj).sort((a,b)=>(a.pos||0)-(b.pos||0)),types:types.map(toObj),customers:customers.map(toObj),cleaners:cleaners.map(c=>({...toObj(c),phone:phone[c.id]||''})),sites:sites.map(toObj),inspections:inspections.map(toObj),issues:issues.map(toObj),settings:settings[0]?.data||emptyDb().settings};
+ lastLoad=Date.now();
+ // a brand-new database gets the standard checklist and site types on the first admin login
+ if(isAdmin()&&!db.items.length){const its=defaultItems();const W=Object.fromEntries(its.map(i=>[i.id,i.w]));const tys=makeTypes(W);
+  const a=await sb.from('items').insert(its.map(toRow));const b=await sb.from('site_types').insert(tys.map(toRow));if(a.error||b.error)throw a.error||b.error;db.items=its;db.types=tys}}
+async function enter(user){const {data,error}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();if(error)throw error;
+ session={uid:user.id,email:user.email,role:data?.role||'pending',customerId:data?.customer_id||'',cleanerId:data?.cleaner_id||'',name:data?.name||''};
+ if(session.role!=='pending'){await loadCloud();loadDraft()}}
+const READ_VIEWS=['dashboard','issues','sites','site','cleaners','cleaner','reports','insp','tasks','mine'];
+// picks up other people's changes when the app is reopened or the user moves between pages
+async function refreshIfStale(){if(!sb||!session||session.role==='pending'||loadingNow||Date.now()-lastLoad<60000)return;loadingNow=true;
+ try{await loadCloud();const [r]=route();if(READ_VIEWS.includes(r)&&!ui.taskOpen&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))render()}catch(e){console.error(e)}finally{loadingNow=false}}
+let signed={};
+const photoTag=(p,style='')=>!p?'':String(p).startsWith('data:')?`<img class="thumb" src="${p}" data-act="zoom" alt=""${style?` style="${style}"`:''}>`:`<img class="thumb" data-path="${esc(p)}" data-act="zoom" alt=""${style?` style="${style}"`:''}>`;
+async function hydratePhotos(){if(!sb)return;const els=[...document.querySelectorAll('img[data-path]:not([src])')];if(!els.length)return;
+ const need=[...new Set(els.map(e=>e.dataset.path))].filter(p=>!signed[p]);
+ if(need.length){const {data}=await sb.storage.from('photos').createSignedUrls(need,3600);(data||[]).forEach(d=>{if(d.signedUrl)signed[d.path]=d.signedUrl})}
+ els.forEach(e=>{if(signed[e.dataset.path])e.src=signed[e.dataset.path]})}
+async function uploadPhoto(sid,dataUrl){if(!dataUrl)return '';if(!sb)return dataUrl;const blob=await (await fetch(dataUrl)).blob();const path=`${sid}/${uid('p')}.jpg`;const {error}=await sb.storage.from('photos').upload(path,blob,{contentType:'image/jpeg'});if(error)throw error;return path}
+function removePhotos(paths){if(!sb)return;const list=paths.filter(p=>p&&!String(p).startsWith('data:'));if(list.length)sb.storage.from('photos').remove(list).catch(()=>{})}
+const inspPhotos=i=>Object.values(i.items||{}).map(x=>x.p);
 
 /* ================= charts ================= */
 function lineChart(labels,series,o={}){
@@ -592,48 +648,50 @@ function mountCombos(){document.querySelectorAll('[data-combo]').forEach(el=>{
 
 /* ================= shell & router ================= */
 function route(){const h=location.hash.replace(/^#\/?/,'');const [r,a]=h.split('/');return [r||'dashboard',a?decodeURIComponent(a):undefined]}
-function navGroups(){return isAdmin()?[['',[['dashboard','grid']]],['grp_ops',[['inspect','check'],['issues','alert']]],['grp_mgmt',[['sites','building'],['cleaners','users'],['reports','file']]],['grp_admin',[['settings','sliders']]]]:[['',[['dashboard','grid'],['sites','building'],['issues','alert'],['reports','file']]],['grp_help',[['feedback','msg']]]]}
-function shell(r,body){const cur={site:'sites',siteEdit:'sites',cleaner:'cleaners',insp:'dashboard',typeEdit:'settings'}[r]||r;
- const who=isAdmin()?t('admin'):custName(session.customerId);const ini=who.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+function navGroups(){if(isAdmin())return [['',[['dashboard','grid']]],['grp_ops',[['inspect','check'],['issues','alert']]],['grp_mgmt',[['sites','building'],['cleaners','users'],['reports','file']]],['grp_admin',[['settings','sliders']]]];
+ if(session.role==='inspector')return [['',[['dashboard','grid']]],['grp_ops',[['inspect','check'],['issues','alert']]],['grp_mgmt',[['sites','building'],['reports','file']]]];
+ if(isCleaner())return [['',[['tasks','check'],['mine','star']]]];
+ return [['',[['dashboard','grid'],['sites','building'],['issues','alert'],['reports','file']]],['grp_help',[['feedback','msg']]]]}
+function shell(r,body){const cur={site:'sites',siteEdit:'sites',cleaner:'cleaners',insp:isCleaner()?'mine':'dashboard',typeEdit:'settings',users:'settings'}[r]||r;
+ const who=session.name||session.email||(isAdmin()?t('admin'):isCustomer()?custName(session.customerId):isCleaner()?cleanerName(session.cleanerId):t('role_inspector'));const ini=who.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
  const lnk=([k,i])=>`<a href="#/${k}" class="nav-${k}${cur===k?' on':''}"${cur===k?' aria-current="page"':''}>${ic(i)}<span>${t('nav_'+k)}</span></a>`;
  const today=new Date().toLocaleDateString(loc(),{weekday:'long',day:'numeric',month:'long',year:'numeric'});
  return `<div class="app"><aside class="side"><a class="brand" href="#/dashboard">${logo()}<div><b>Eagle Eye</b><small>${t('forCo')}</small></div></a>
  <nav class="snav" aria-label="${t('menu')}">${navGroups().map(([g,ls])=>(g?`<div class="grp">${t(g)}</div>`:'')+ls.map(lnk).join('')).join('')}</nav>
- <div class="side-foot"><span class="avatar">${esc(ini)}</span><div class="who"><b>${esc(who)}</b><small>${isAdmin()?t('roleAdmin'):t('loginCustomer')}</small></div><button class="icon-btn" data-act="logout" title="${t('logout')}" aria-label="${t('logout')}">${ic('logout')}</button></div></aside>
+ <div class="side-foot"><span class="avatar">${esc(ini)}</span><div class="who"><b>${esc(who)}</b><small>${t('role_'+session.role)}</small></div><button class="icon-btn" data-act="logout" title="${t('logout')}" aria-label="${t('logout')}">${ic('logout')}</button></div></aside>
  <div class="content"><header class="topbar"><a class="brand" href="#/dashboard">${logo()}<div><b>Eagle Eye</b><small>${t('forCo')}</small></div></a><div class="ctx"><b>${esc(who)}</b> · ${esc(today)}</div>
  <div class="top-r"><button class="chip" data-act="help" aria-label="${t('helpTitle')}" title="${t('helpTitle')}">${ic('help')}</button><button class="chip" data-act="lang" aria-label="Language / Kieli">${lang==='fi'?'EN':'FI'}</button>${isAdmin()?`<a class="chip m-only" href="#/settings" aria-label="${t('nav_settings')}">${ic('sliders')}</a>`:''}<button class="chip m-only" data-act="logout" aria-label="${t('logout')}">${ic('logout')}</button></div></header>
- <main class="wrap">${body}</main><p class="foot">${t('demoNote')}</p></div>
+ <main class="wrap">${body}</main><p class="foot">${DEMO?t('demoNote')+` <a href="${location.pathname}">${t('realLogin')}</a>`:''}</p></div>
  <nav class="tabs" aria-label="${t('menu')}">${navGroups().flatMap(g=>g[1]).map(lnk).join('')}</nav></div>`}
 function render(){combos={};document.documentElement.lang=lang;const app=$('#app');
+ if(ui.recovery){app.innerHTML=V.newPass();return}
  if(!session){app.innerHTML=V.login();return}
+ if(session.role==='pending'){app.innerHTML=V.pending();return}
  let [r,a]=route();
- const allowed=isAdmin()?['dashboard','inspect','issues','sites','site','siteEdit','cleaners','cleaner','reports','settings','typeEdit','insp','feedback']:['dashboard','sites','site','issues','reports','feedback','insp'];
- if(!allowed.includes(r))r='dashboard';
+ const cloudOnly=sb?['account']:[];
+ const allowed=(isAdmin()?['dashboard','inspect','issues','sites','site','siteEdit','cleaners','cleaner','reports','settings','typeEdit','users','insp','feedback']:session.role==='inspector'?['dashboard','inspect','issues','sites','site','reports','insp','feedback']:isCleaner()?['tasks','mine','insp']:['dashboard','sites','site','issues','reports','feedback','insp']).concat(cloudOnly);
+ if(!allowed.includes(r))r=isCleaner()?'tasks':'dashboard';
+ if(r==='users'&&sb&&!ui.profiles)sb.from('profiles').select('*').order('email').then(({data,error})=>{if(error)toast(t('saveFail'),'err');ui.profiles=data||[];render()});
  let body;try{body=V[r](a)}catch(err){console.error(err);body=`<div class="card">Error: ${esc(err.message)}</div>`}
- app.innerHTML=shell(r,body);mountCombos();if(r==='inspect'&&draft)updateLive()}
+ app.innerHTML=shell(r,body);mountCombos();if(r==='inspect'&&draft)updateLive();hydratePhotos()}
 const notFound=()=>`<div class="card empty">${t('notFound')}<br><a class="link" href="#/dashboard">${t('back')}</a></div>`;
 function monthSelect(ch,val,withLast30){return `<select class="input sel" data-ch="${ch}" aria-label="${t('month')}">${withLast30?`<option value="last30"${val==='last30'?' selected':''}>${t('last30')}</option>`:''}${last12().reverse().map(m=>`<option value="${m}"${val===m?' selected':''}>${monthLong(m)}</option>`).join('')}</select>`}
 const inspRow=i=>`<a class="list-row" href="#/insp/${i.id}"><div><strong>${esc(siteName(i.siteId))}</strong><div class="muted small">${fmtDate(i.date)} · ${esc(cleanerName(i.cleanerId))}</div></div>${scorePill(i.score)}</a>`;
 
 /* ================= views ================= */
 const V={};
-V.login=()=>`<div class="login"><section class="login-hero"><a class="brand" href="#/">${logo()}<div><b>Eagle Eye</b><small>${t('forCo')}</small></div></a>
- <div><h2>${t('heroTitle')}</h2><p>${t('heroLead')}</p><ul class="vp">${['vp1','vp2','vp3','vp4'].map(k=>`<li>${ic('ok')}<span>${t(k)}</span></li>`).join('')}</ul></div><small>© ${new Date().getFullYear()} Uusi Era Palvelut Oy</small></section>
- <section class="login-main"><div class="login-card"><h1>${t('loginTitle')}</h1><p>${t('loginLead')}</p>
- <button class="role-card" data-act="loginAdmin"><span class="role-ic">${ic('check')}</span><span class="grow"><strong>${t('loginAdmin')}</strong><p>${t('loginAdminDesc')}</p></span>${ic('arrow')}</button>
- <div class="role-card"><span class="role-ic">${ic('building')}</span><div class="grow"><strong>${t('loginCustomer')}</strong><p>${t('loginCustomerDesc')}</p><label class="f" for="custSel" style="margin-top:12px">${t('selectCustomer')}</label><select id="custSel" class="input">${db.customers.slice().sort(byName).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select><button class="btn primary" style="width:100%;margin-top:10px" data-act="loginCustomer">${t('enter')}</button></div></div>
- <div class="login-foot"><p class="muted small" style="margin:0">${t('demoNote')}</p><button class="btn sm" data-act="lang">${lang==='fi'?'English':'Suomi'}</button></div></div></section></div>`;
-
 // what a supervisor should act on today, most urgent first
 function attention(ids){const scope=new Set(ids),rows=[];const iss=db.issues.filter(x=>scope.has(x.siteId));
  const od=iss.filter(overdue).sort((a,b)=>a.due.localeCompare(b.due));
  if(od.length)rows.push({k:'poor',i:'alert',h:t('attOverdue',od.length),s:od.slice(0,3).map(x=>siteName(x.siteId)+': '+(x.itemId?itemName(x.itemId):t('fromCustomer'))).join(' · '),act:'goIssues',arg:'overdue'});
+ const rv=iss.filter(x=>x.status==='review');
+ if(rv.length)rows.push({k:'fair',i:'check',h:t('attReview',rv.length),s:rv.slice(0,3).map(x=>siteName(x.siteId)).join(' · '),act:'goIssues',arg:'review'});
  const cu=iss.filter(x=>x.source==='customer'&&x.status==='open');
  if(cu.length)rows.push({k:'fair',i:'msg',h:t('attCustomer',cu.length),s:cu.slice(0,3).map(x=>siteName(x.siteId)).join(' · '),act:'goIssues',arg:'open'});
  const R=periodRange('last30');
  ids.map(id=>({s:site(id),v:avg(inspIn(R,new Set([id])).map(i=>i.score))})).filter(x=>x.v!=null&&x.v<x.s.target).sort((a,b)=>(a.v-a.s.target)-(b.v-b.s.target))
   .forEach(x=>rows.push({k:'fair',i:'building',h:t('attBelow',x.s.name),s:t('attBelowSub',fmtPct(x.v),x.s.target),href:'#/site/'+x.s.id}));
- if(isAdmin())ids.map(id=>({s:site(id),l:lastInsp(id)})).filter(x=>!x.l||daysSince(x.l.date)>=14).sort((a,b)=>(a.l?.date||'').localeCompare(b.l?.date||''))
+ if(isStaff())ids.map(id=>({s:site(id),l:lastInsp(id)})).filter(x=>!x.l||daysSince(x.l.date)>=14).sort((a,b)=>(a.l?.date||'').localeCompare(b.l?.date||''))
   .forEach(x=>rows.push({k:'mute',i:'check',h:t('attStale',x.s.name),s:x.l?t('lastInsp',fmtDate(x.l.date),daysSince(x.l.date)):t('noInspYet'),act:'startInsp',arg:x.s.id}));
  return rows}
 function attentionCard(ids){const rows=attention(ids);
@@ -647,7 +705,7 @@ V.dashboard=()=>{
  const open=db.issues.filter(x=>scope.has(x.siteId)&&x.status!=='fixed');const od=open.filter(overdue).length;
  const siteCombo=combo('dashSite',{value:ui.dashSite,allowAll:true,onPick:id=>{ui.dashSite=id;render()}});
  const trendCard=`<div class="card"><h2>${t('trend')}</h2>${lineChart(months.map(monthShort),[{name:t('avgScore'),values:trend,color:'#1d5fa8'}],{target:tgt})}</div>`;
- if(!isAdmin()){const R=periodRange('last30'),PR=prevRange('last30');const cur=inspIn(R,scope);const a=avg(cur.map(i=>i.score)),pa=avg(inspIn(PR,scope).map(i=>i.score));
+ if(isCustomer()){const R=periodRange('last30'),PR=prevRange('last30');const cur=inspIn(R,scope);const a=avg(cur.map(i=>i.score)),pa=avg(inspIn(PR,scope).map(i=>i.score));
   const list=open.slice().sort((x,y)=>(overdue(y)-overdue(x))||y.created.localeCompare(x.created));
   return `<div class="pg-h"><div><h1>${t('customerWelcome',esc(custName(session.customerId)))}</h1><p class="muted small">${t('custLead')}</p></div><div class="filters">${siteCombo}</div></div>
   <div class="kpis k3">${kpi(t('last30Avg'),fmtPct(a),(a!=null&&tgt!=null?(a>=tgt?`<span class="delta up">${t('onTarget')}</span>`:`<span class="delta down">${t('belowTargetShort')}</span>`):'')+delta(a,pa))}
@@ -658,17 +716,18 @@ V.dashboard=()=>{
  const R=periodRange(ui.period),PR=prevRange(ui.period);const cur=inspIn(R,scope),prev=inspIn(PR,scope);
  const a=avg(cur.map(i=>i.score)),pa=avg(prev.map(i=>i.score));
  const below=ids.filter(id=>{const v=avg(cur.filter(i=>i.siteId===id).map(i=>i.score));return v!=null&&v<site(id).target}).length;
- const el=cleanerStats(R,PR).filter(x=>x.eligible);
+ const el=isAdmin()?cleanerStats(R,PR).filter(x=>x.eligible):[];
  return `<div class="pg-h"><div><h1>${t('nav_dashboard')}</h1></div><div class="filters">${siteCombo}${monthSelect('period',ui.period,true)}</div></div>
+ ${isAdmin()&&!sites.length?`<div class="card"><h2>${t('emptyTitle')}</h2><p class="muted" style="margin-top:0">${t('emptyText')}</p><div class="btns"><a class="btn primary" href="#/siteEdit/new">${ic('plus')} ${t('addSite')}</a><a class="btn" href="#/settings">${t('settingsTitle')}</a></div></div>`:''}
  <div class="kpis">${kpi(t('avgScore'),fmtPct(a),gradePill(a)+delta(a,pa))}${kpi(t('inspections'),cur.length,`<span class="muted">${t('prevN',prev.length)}</span>`)}
  ${kpi(t('openIssues'),open.length,od?`<span class="delta down">${t('overdueN',od)}</span>`:'')}${kpi(t('belowTarget'),below,`<span class="muted">${t('sitesOf',below,ids.length)}</span>`)}</div>
  <div class="two wide">${attentionCard(ids)}${trendCard}</div>
- <div class="two"><div class="card"><div class="row-b"><h2>${t('rewardEligible')} · ${ui.period==='last30'?t('last30'):monthLong(ui.period)}</h2><a class="link small" href="#/cleaners">${t('viewAll')}</a></div>${el.length?`<div class="lb">${el.slice(0,4).map(x=>lbRow(x,false)).join('')}</div>`:`<p class="muted">${t('noneEligible')}</p>`}</div>
+ <div class="two">${isAdmin()?`<div class="card"><div class="row-b"><h2>${t('rewardEligible')} · ${ui.period==='last30'?t('last30'):monthLong(ui.period)}</h2><a class="link small" href="#/cleaners">${t('viewAll')}</a></div>${el.length?`<div class="lb">${el.slice(0,4).map(x=>lbRow(x,false)).join('')}</div>`:`<p class="muted">${t('noneEligible')}</p>`}</div>`:''}
  <div class="card"><div class="row-b"><h2>${t('recentInsp')}</h2><a class="link small" href="#/reports">${t('nav_reports')}</a></div>${cur.length?cur.slice().sort((x,y)=>y.date.localeCompare(x.date)).slice(0,6).map(inspRow).join(''):`<p class="muted">${t('noData')}</p>`}</div></div>`};
 
 /* ---- inspection ---- */
-function newDraft(sid){const s=site(sid);return {siteId:sid,cleanerId:s.cleanerId,inspector:store.get('ee_inspector',''),date:todayIso(),rep:'',notes:'',items:{}}}
-const saveDraft=()=>store.set(DKEY,draft);
+function newDraft(sid){const s=site(sid);return {siteId:sid,cleanerId:s.cleanerId,inspector:store.get('ee_inspector','')||session.name||'',date:todayIso(),rep:'',notes:'',items:{}}}
+const saveDraft=()=>store.set(dkey(),draft);
 const dItem=id=>draft.items[id]||(draft.items[id]={});
 function pickInspSite(id){if(draft&&draft.siteId===id)return;if(draft&&Object.keys(draft.items).length&&!confirm(t('confirmDiscard'))){render();return}draft=newDraft(id);saveDraft();render()}
 function itemCard(id,w){const r=draft.items[id]||{};const v=r.v;const flag=typeof v==='number'&&v<=db.settings.issueAt;const open=flag||r.c||r.p||r.x;const nm=esc(itemName(id));
@@ -697,10 +756,10 @@ V.inspect=()=>{
  <div class="card"><label class="f" for="dNo">${t('notes')}</label><textarea id="dNo" class="input" rows="3" data-in="draftField" data-f="notes">${esc(draft.notes)}</textarea></div>
  <div class="scorebar"><div><small>${t('liveScore')}</small><b id="liveScore">–</b> <span id="liveGrade"></span><small id="liveCount"></small></div><button class="btn primary" data-act="saveInsp">${t('saveInspection')}</button></div>`};
 
-V.insp=id=>{const ins=db.inspections.find(i=>i.id===id);if(!ins||!canSee(ins.siteId))return notFound();const s=site(ins.siteId);
+V.insp=id=>{const ins=db.inspections.find(i=>i.id===id);if(!ins||!canSee(ins.siteId)||(isCleaner()&&ins.cleanerId!==session.cleanerId))return notFound();const s=site(ins.siteId);
  const rel=db.issues.filter(x=>x.inspectionId===id);
- return `<a class="link" href="#/site/${s.id}">← ${esc(s.name)}</a><div class="card insp-head">${ring(ins.score,110)}<div><h1>${esc(s.name)}</h1><p class="muted">${fmtDate(ins.date)} · ${t('cleaner')}: ${esc(cleanerName(ins.cleanerId))} · ${t('inspector')}: ${esc(ins.inspector)}${ins.rep?` · ${t('rep')}: ${esc(ins.rep)}`:''}</p>${gradePill(ins.score)} <span class="muted small">${t('target')} ${s.target} %</span></div></div>
- ${areaGroups(Object.keys(ins.items)).map(([a,list])=>{const sub={};list.forEach(k=>sub[k]=ins.items[k]);return `<div class="card"><div class="row-b"><h2>${areaName(a)}</h2>${scorePill(calcScore(sub))}</div>${list.map(k=>{const x=ins.items[k];return `<div class="det-row"><div><div>${esc(itemName(k))} <span class="muted small">· ${t('weight',x.w)}</span></div>${x.c?`<div class="small">${esc(x.c)}</div>`:''}${x.p?`<img class="thumb" src="${x.p}" data-act="zoom" alt="">`:''}</div><div style="white-space:nowrap">${x.s==null?`<span class="pill">${t('na')}</span>`:`<span class="dots5 ${x.s<=2?'lo':x.s===3?'mid':''}">${[1,2,3,4,5].map(i=>`<i class="${i<=x.s?'on':''}"></i>`).join('')}</span><b>${x.s}</b>/5`}</div></div>`}).join('')}</div>`}).join('')}
+ return `<a class="link" href="${isCleaner()?'#/mine':'#/site/'+s.id}">← ${esc(s.name)}</a><div class="card insp-head">${ring(ins.score,110)}<div><h1>${esc(s.name)}</h1><p class="muted">${fmtDate(ins.date)} · ${t('cleaner')}: ${esc(cleanerName(ins.cleanerId))} · ${t('inspector')}: ${esc(ins.inspector)}${ins.rep?` · ${t('rep')}: ${esc(ins.rep)}`:''}</p>${gradePill(ins.score)} <span class="muted small">${t('target')} ${s.target} %</span></div></div>
+ ${areaGroups(Object.keys(ins.items)).map(([a,list])=>{const sub={};list.forEach(k=>sub[k]=ins.items[k]);return `<div class="card"><div class="row-b"><h2>${areaName(a)}</h2>${scorePill(calcScore(sub))}</div>${list.map(k=>{const x=ins.items[k];return `<div class="det-row"><div><div>${esc(itemName(k))} <span class="muted small">· ${t('weight',x.w)}</span></div>${x.c?`<div class="small">${esc(x.c)}</div>`:''}${photoTag(x.p)}</div><div style="white-space:nowrap">${x.s==null?`<span class="pill">${t('na')}</span>`:`<span class="dots5 ${x.s<=2?'lo':x.s===3?'mid':''}">${[1,2,3,4,5].map(i=>`<i class="${i<=x.s?'on':''}"></i>`).join('')}</span><b>${x.s}</b>/5`}</div></div>`}).join('')}</div>`}).join('')}
  ${ins.notes?`<div class="card"><h2>${t('notes')}</h2><p style="margin:0">${esc(ins.notes)}</p></div>`:''}
  ${rel.length?`<div class="card"><h2>${t('nav_issues')}</h2>${rel.map(issueRow).join('')}</div>`:''}
  ${isAdmin()?`<button class="btn danger no-print" data-act="delInsp" data-arg="${id}">${t('delete')}</button>`:''}`};
@@ -709,16 +768,17 @@ V.insp=id=>{const ins=db.inspections.find(i=>i.id===id);if(!ins||!canSee(ins.sit
 function issuePhoto(x){if(x.photo)return x.photo;const ins=x.inspectionId?db.inspections.find(i=>i.id===x.inspectionId):null;return (ins&&ins.items[x.itemId]?.p)||''}
 function issueRow(x){const od=overdue(x),ph=issuePhoto(x);
  return `<div class="card issue${od?' od':''}"><div class="row-b"><div><strong>${x.itemId?esc(itemName(x.itemId)):t('fromCustomer')}</strong>${x.score!=null?` <span class="muted small">· ${t('score',x.score)}</span>`:''}${x.cat==='maintenance'?` <span class="tag">${t('causeMaint')}</span>`:''}<div class="muted small"><a class="link" style="padding:0" href="#/site/${x.siteId}">${esc(siteName(x.siteId))}</a> · ${t('created',fmtDate(x.created))} · ${t('cleaner')}: ${esc(cleanerName(x.cleanerId))}</div></div><span class="pill st-${x.status}">${t('status_'+x.status)}</span></div>
- ${x.comment?`<p style="margin:8px 0">${esc(x.comment)}</p>`:''}${ph?`<img class="thumb" src="${ph}" data-act="zoom" alt="" style="margin:8px 0">`:''}
- <div class="row-b" style="align-items:center;flex-wrap:wrap;margin-top:6px"><span class="small">${x.status==='fixed'?t('fixedOn',fmtDate(x.fixedAt))+(x.fixedAt>x.due?` · <span class="delta down">${t('isOverdue')}</span>`:''):(od?`<b class="delta down">${t('isOverdue')}</b> · `:'')+t('due',fmtDate(x.due))}</span>
- ${isAdmin()?`<span class="btns"><button class="btn sm" data-act="issueCat" data-arg="${x.id}" title="${t('causeQ')}">${x.cat==='maintenance'?t('toCleaning'):t('toMaint')}</button>${x.status==='open'?`<button class="btn sm" data-act="issueSet" data-arg="${x.id}:progress">${t('markProgress')}</button>`:''}${x.status!=='fixed'?`<button class="btn sm primary" data-act="issueSet" data-arg="${x.id}:fixed">${t('markFixed')}</button>`:`<button class="btn sm" data-act="issueSet" data-arg="${x.id}:open">${t('reopen')}</button>`}</span>`:''}</div></div>`}
+ ${x.comment?`<p style="margin:8px 0">${esc(x.comment)}</p>`:''}${x.rejectNote&&x.status!=='fixed'?`<p class="returned">${t('returnedNote')}: ${esc(x.rejectNote)}</p>`:''}${photoTag(ph,'margin:8px 0')}
+ ${x.afterPhoto||x.cleanerNote?`<div class="after"><span class="small muted">${t('cleanerReport')}</span>${x.cleanerNote?`<p style="margin:2px 0 6px">${esc(x.cleanerNote)}</p>`:''}${photoTag(x.afterPhoto)}</div>`:''}
+ <div class="row-b" style="align-items:center;flex-wrap:wrap;margin-top:6px"><span class="small">${x.status==='fixed'||x.status==='review'?t('fixedOn',fmtDate(x.fixedAt))+(x.fixedAt>x.due?` · <span class="delta down">${t('isOverdue')}</span>`:''):(od?`<b class="delta down">${t('isOverdue')}</b> · `:'')+t('due',fmtDate(x.due))}</span>
+ ${isStaff()?`<span class="btns">${x.status==='review'?`<button class="btn sm" data-act="issueReject" data-arg="${x.id}">${t('sendBack')}</button><button class="btn sm primary" data-act="issueSet" data-arg="${x.id}:fixed">${t('confirmFix')}</button>`:`${isAdmin()?`<button class="btn sm" data-act="issueCat" data-arg="${x.id}" title="${t('causeQ')}">${x.cat==='maintenance'?t('toCleaning'):t('toMaint')}</button>`:''}${x.status==='open'?`<button class="btn sm" data-act="issueSet" data-arg="${x.id}:progress">${t('markProgress')}</button>`:''}${x.status!=='fixed'?`<button class="btn sm primary" data-act="issueSet" data-arg="${x.id}:fixed">${t('markFixed')}</button>`:`<button class="btn sm" data-act="issueSet" data-arg="${x.id}:open">${t('reopen')}</button>`}`}</span>`:''}</div></div>`}
 V.issues=()=>{const scope=new Set(mySites().map(s=>s.id));let list=db.issues.filter(x=>scope.has(x.siteId));
  if(ui.issueSite&&scope.has(ui.issueSite))list=list.filter(x=>x.siteId===ui.issueSite);
  const cnt=k=>k==='all'?list.length:k==='overdue'?list.filter(overdue).length:list.filter(x=>x.status===k).length;
  const st=ui.issueStatus;list=st==='all'?list:st==='overdue'?list.filter(overdue):list.filter(x=>x.status===st);
  list.sort((a,b)=>st==='fixed'||st==='all'?(b.created.localeCompare(a.created)):(overdue(b)-overdue(a)||a.due.localeCompare(b.due)));
  return `<div class="pg-h"><h1>${t('nav_issues')}</h1><a class="btn primary sm" href="#/feedback">${ic('plus')} ${t('newIssue')}</a></div>
- <div class="filters" style="justify-content:flex-start;margin-bottom:14px"><div class="seg" role="group">${['open','progress','overdue','fixed','all'].map(k=>`<button class="${st===k?'on':''}" data-act="issueStatus" data-arg="${k}" aria-pressed="${st===k}">${k==='overdue'?t('isOverdue'):k==='all'?t('all'):t('status_'+k)} (${cnt(k)})</button>`).join('')}</div>${combo('issueSite',{value:ui.issueSite,allowAll:true,onPick:id=>{ui.issueSite=id;render()}})}</div>
+ <div class="filters" style="justify-content:flex-start;margin-bottom:14px"><div class="seg" role="group">${['open','progress','review','overdue','fixed','all'].map(k=>`<button class="${st===k?'on':''}" data-act="issueStatus" data-arg="${k}" aria-pressed="${st===k}">${k==='overdue'?t('isOverdue'):k==='all'?t('all'):t('status_'+k)} (${cnt(k)})</button>`).join('')}</div>${combo('issueSite',{value:ui.issueSite,allowAll:true,onPick:id=>{ui.issueSite=id;render()}})}</div>
  ${list.length?list.slice(0,150).map(issueRow).join(''):`<div class="card empty">${t('noIssues')}</div>`}`};
 V.feedback=()=>`<div class="pg-h"><h1>${t('feedbackTitle')}</h1></div><div class="card"><p class="muted" style="margin-top:0">${t('feedbackHelp')}</p>
  <label class="f">${t('site')} *</label>${combo('fbSite',{value:ui.fbSite,onPick:id=>{ui.fbSite=id}})}
@@ -739,7 +799,7 @@ V.site=id=>{const s=site(id);if(!s||!canSee(id))return notFound();const sc=new S
  const i90=itemAvgs(inspIn([iso(addDays(new Date(),-89)),todayIso()],sc));const all=db.inspections.filter(i=>i.siteId===id).sort((x,y)=>y.date.localeCompare(x.date));
  const open=db.issues.filter(x=>x.siteId===id&&x.status!=='fixed');
  return `<a class="link" href="#/sites">${t('back')}</a><div class="pg-h"><div><h1>${esc(s.name)}</h1><p class="muted small">${esc(s.address)} · ${esc(custName(s.customerId))} · ${t('cleaner')}: ${esc(cleanerName(s.cleanerId))}</p></div>
- <div class="btns">${isAdmin()?`<a class="btn" href="#/siteEdit/${id}">${t('edit')}</a><button class="btn primary" data-act="startInsp" data-arg="${id}">${ic('check')} ${t('startInsp')}</button>`:`<button class="btn primary" data-act="reportFor" data-arg="${id}">${ic('msg')} ${t('nav_feedback')}</button>`}</div></div>
+ <div class="btns">${isStaff()?`${isAdmin()?`<a class="btn" href="#/siteEdit/${id}">${t('edit')}</a>`:''}<button class="btn primary" data-act="startInsp" data-arg="${id}">${ic('check')} ${t('startInsp')}</button>`:`<button class="btn primary" data-act="reportFor" data-arg="${id}">${ic('msg')} ${t('nav_feedback')}</button>`}</div></div>
  <div class="kpis">${kpi(t('last30Avg'),fmtPct(a),gradePill(a)+delta(a,pa))}${kpi(t('target'),s.target+' %',a!=null?(a>=s.target?`<span class="delta up">${t('onTarget')}</span>`:`<span class="delta down">${t('belowTargetShort')}</span>`):'')}${kpi(t('insp30'),cur.length)}${kpi(t('openIssues'),open.length,open.filter(overdue).length?`<span class="delta down">${t('overdueN',open.filter(overdue).length)}</span>`:'')}</div>
  <div class="two wide"><div class="card"><h2>${t('trend')}</h2>${lineChart(months.map(monthShort),[{name:s.name,values:trend,color:'#1d5fa8'}],{target:s.target})}</div>
  <div class="card"><h2>${t('itemAvg90')}</h2>${hbars(Object.keys(s.items).map(k=>({label:itemName(k),v:i90.find(x=>x.id===k)?.v??null})).sort((x,y)=>(x.v??101)-(y.v??101)))}</div></div>
@@ -807,7 +867,7 @@ V.reports=()=>{const {ids,cur,prev,iss}=reportData();const a=avg(cur.map(i=>i.sc
  const siteRows=ids.map(id=>{const l=cur.filter(i=>i.siteId===id);return {s:site(id),n:l.length,a:avg(l.map(i=>i.score))}});
  return `<div class="pg-h no-print"><h1>${t('nav_reports')}</h1><div class="filters">${combo('repSite',{value:ui.repSite,allowAll:true,onPick:id=>{ui.repSite=id;render()}})}${monthSelect('rmonth',ui.rmonth)}</div></div>
  <div class="btns no-print" style="margin-bottom:14px"><button class="btn" data-act="print">${ic('print')} ${t('print')}</button><button class="btn" data-act="csv">${ic('download')} ${t('csv')}</button></div>
- <div class="report"><div class="card"><div class="row-b"><div><h1>${t('reportTitle')} – ${monthLong(ui.rmonth)}</h1><p class="muted" style="margin:0">${one?esc(one.name)+' · '+esc(one.address)+' · '+esc(custName(one.customerId)):(isAdmin()?t('allSites'):esc(custName(session.customerId))+' · '+t('allSites'))}</p><p class="muted small">Uusi Era Palvelut Oy · ${t('generated',fmtDate(todayIso()))}</p></div>${logo().replace('<svg','<svg width="44" height="44"')}</div></div>
+ <div class="report"><div class="card"><div class="row-b"><div><h1>${t('reportTitle')} – ${monthLong(ui.rmonth)}</h1><p class="muted" style="margin:0">${one?esc(one.name)+' · '+esc(one.address)+' · '+esc(custName(one.customerId)):(isStaff()?t('allSites'):esc(custName(session.customerId))+' · '+t('allSites'))}</p><p class="muted small">Uusi Era Palvelut Oy · ${t('generated',fmtDate(todayIso()))}</p></div>${logo().replace('<svg','<svg width="44" height="44"')}</div></div>
  <div class="kpis">${kpi(t('avgScore'),fmtPct(a),gradePill(a)+delta(a,pa))}${kpi(t('target'),fmtPct(tgt),a!=null&&tgt!=null?(a>=tgt?`<span class="delta up">${t('onTarget')}</span>`:`<span class="delta down">${t('belowTargetShort')}</span>`):'')}${kpi(t('inspections'),cur.length,`<span class="muted">${t('prevMonth')}: ${prev.length}</span>`)}${kpi(t('nav_issues'),iss.length,`<span class="muted">${t('fixedCount')}: ${fixed}</span>`)}</div>
  ${ids.length>1?`<div class="card"><h2>${t('siteSummary')}</h2><div class="tbl"><table class="t"><thead><tr><th>${t('site')}</th><th class="n">${t('inspections')}</th><th class="n">${t('avgCol')}</th><th class="n">${t('target')}</th></tr></thead><tbody>${siteRows.map(x=>`<tr><td>${esc(x.s.name)}</td><td class="n">${x.n}</td><td class="n">${x.a==null?'–':scorePill(x.a)}</td><td class="n">${x.s.target} %</td></tr>`).join('')}</tbody></table></div></div>`:''}
  <div class="two"><div class="card"><h2>${t('byArea')}</h2>${hbars(areaAvgs(cur).map(x=>({label:areaName(x.id),v:x.v})))}</div>
@@ -822,7 +882,8 @@ V.settings=()=>{const S=db.settings;let kb=0;try{kb=Math.round((localStorage.get
  <div class="card"><h2>${t('rules')}</h2><div class="fields">${num('reward',0,100)}${num('minInsp',1,20)}${num('fixDays',1,30)}${num('issueAt',0,4)}</div></div>
  <div class="card"><div class="row-b"><h2>${t('siteTypes')}</h2><a class="btn sm" href="#/typeEdit/new">${ic('plus')} ${t('addType')}</a></div><p class="muted small" style="margin-top:0">${t('typeHelp')}</p>
  ${db.types.map(y=>{const n=db.sites.filter(s=>s.type===y.id).length;return `<a class="list-row" href="#/typeEdit/${y.id}"><div><strong>${esc(y[lang]||y.fi)}</strong><div class="muted small">${t('typeItems',Object.keys(y.items).length)} · ${t('sitesN',n)}</div></div>${ic('arrow')}</a>`}).join('')}</div>
- <div class="card"><h2>${t('dataTitle')}</h2><p class="muted small">${t('demoNote')} ${t('storageNote',kb)}</p><div class="btns"><button class="btn" data-act="exportData">${ic('download')} ${t('exportData')}</button><label class="btn">${t('importData')}<input type="file" accept=".json,application/json" data-ch="importFile" hidden></label><button class="btn danger" data-act="resetDemo">${t('resetDemo')}</button></div></div>
+ ${sb?`<div class="card"><div class="row-b"><div><h2 style="margin-bottom:4px">${t('nav_users')}</h2><p class="muted small" style="margin:0">${t('usersSub')}</p></div><a class="btn sm" href="#/users">${t('open')}</a></div></div>`:''}
+ <div class="card"><h2>${t('dataTitle')}</h2>${sb?`<p class="muted small">${t('cloudNote')}</p><div class="btns"><button class="btn" data-act="exportData">${ic('download')} ${t('exportData')}</button>${db.sites.length?`<button class="btn danger" data-act="wipeCloud">${t('wipeAll')}</button>`:`<button class="btn" data-act="loadDemoCloud">${t('loadDemo')}</button>`}</div>`:`<p class="muted small">${t('demoNote')} ${t('storageNote',kb)}</p><div class="btns"><button class="btn" data-act="exportData">${ic('download')} ${t('exportData')}</button><label class="btn">${t('importData')}<input type="file" accept=".json,application/json" data-ch="importFile" hidden></label><button class="btn danger" data-act="resetDemo">${t('resetDemo')}</button></div>`}</div>
  <details class="card adv"><summary><b>${t('advanced')}</b> <span class="muted small">${t('advancedSub')}</span></summary>
  <h3>${t('itemsLib')}</h3><p class="muted small">${t('itemsLibHelp')}</p><div class="tbl"><table class="t"><thead><tr><th>${t('nameFi')}</th><th>${t('nameEn')}</th><th>${t('area')}</th><th class="n">${t('defWeight')}</th></tr></thead><tbody>
  ${db.items.map(i=>`<tr><td><input class="input" value="${esc(i.fi)}" data-ch="lib" data-id="${i.id}" data-f="fi" aria-label="${t('nameFi')}"></td><td><input class="input" value="${esc(i.en)}" data-ch="lib" data-id="${i.id}" data-f="en" aria-label="${t('nameEn')}"></td><td><select class="input" data-ch="lib" data-id="${i.id}" data-f="area" aria-label="${t('area')}">${AREAS.map(a=>`<option value="${a.id}"${a.id===i.area?' selected':''}>${a[lang]}</option>`).join('')}</select></td><td><input class="input" style="width:76px" type="number" min="1" max="20" value="${i.w}" data-ch="lib" data-id="${i.id}" data-f="w" aria-label="${t('defWeight')}"></td></tr>`).join('')}</tbody></table></div>
@@ -832,7 +893,65 @@ function helpHtml(){const S=db.settings;return `<div class="modal" role="dialog"
  <h3>${t('h_score')}</h3><p>${t('scoreExplain')}</p><p>${t('h_scale',S.issueAt)}</p>
  <h3>${t('h_grades')}</h3><p class="grades">${['excellent','good','fair','poor'].map((g,i)=>`<span class="pill g-${g}">${t('grade_'+g)} ${['≥ 90 %','80–89 %','70–79 %','< 70 %'][i]}</span>`).join(' ')}</p>
  <h3>${t('h_dev')}</h3><p>${t('h_devText',S.issueAt,S.fixDays)}</p>
- <h3>${t('h_reward')}</h3><p>${t('rewardRule',S.minInsp,S.reward)} ${t('fairNote')}</p></div></div>`}
+ ${isCustomer()?'':`<h3>${t('h_reward')}</h3><p>${t('rewardRule',S.minInsp,S.reward)} ${t('fairNote')}</p>`}
+ ${sb?`<button class="btn sm" style="margin-top:10px" data-act="goAccount">${t('account')}</button>`:''}</div></div>`}
+
+const hero=()=>`<section class="login-hero"><a class="brand" href="#/">${logo()}<div><b>Eagle Eye</b><small>${t('forCo')}</small></div></a>
+ <div><h2>${t('heroTitle')}</h2><p>${t('heroLead')}</p><ul class="vp">${['vp1','vp2','vp3','vp4'].map(k=>`<li>${ic('ok')}<span>${t(k)}</span></li>`).join('')}</ul></div><small>© ${new Date().getFullYear()} Uusi Era Palvelut Oy</small></section>`;
+const langBtn=()=>`<button class="btn sm" data-act="lang">${lang==='fi'?'English':'Suomi'}</button>`;
+V.login=()=>{
+ if(!DEMO)return `<div class="login">${hero()}<section class="login-main"><div class="login-card"><h1>${t('loginTitle')}</h1><p>${t('loginEmailLead')}</p>
+ ${sb?`<form id="loginForm" onsubmit="return false"><label class="f" for="liE">${t('email')}</label><input id="liE" class="input" type="email" autocomplete="username" required>
+ <label class="f" for="liP" style="margin-top:14px">${t('password')}</label><input id="liP" class="input" type="password" autocomplete="current-password" required>
+ <button class="btn primary" style="width:100%;margin-top:16px" data-act="signIn">${t('signIn')}</button></form>
+ <button class="link" style="margin-top:10px" data-act="forgot">${t('forgot')}</button>`:`<div class="card empty">${t('noConnection')}</div>`}
+ <div class="login-foot"><a class="link" href="?demo=1">${t('tryDemo')}</a>${langBtn()}</div></div></section></div>`;
+ const sel=(id,list)=>`<select id="${id}" class="input">${list.slice().sort(byName).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>`;
+ return `<div class="login">${hero()}<section class="login-main"><div class="login-card"><h1>${t('demoTitle')}</h1><p>${t('loginLead')}</p>
+ <button class="role-card" data-act="loginAdmin"><span class="role-ic">${ic('sliders')}</span><span class="grow"><strong>${t('role_admin')}</strong><p>${t('loginAdminDesc')}</p></span>${ic('arrow')}</button>
+ <button class="role-card" data-act="loginInspector"><span class="role-ic">${ic('check')}</span><span class="grow"><strong>${t('role_inspector')}</strong><p>${t('loginInspectorDesc')}</p></span>${ic('arrow')}</button>
+ <div class="role-card"><span class="role-ic">${ic('users')}</span><div class="grow"><strong>${t('role_cleaner')}</strong><p>${t('loginCleanerDesc')}</p><div class="pick">${sel('clSel',db.cleaners)}<button class="btn primary" data-act="loginCleaner">${t('enter')}</button></div></div></div>
+ <div class="role-card"><span class="role-ic">${ic('building')}</span><div class="grow"><strong>${t('role_customer')}</strong><p>${t('loginCustomerDesc')}</p><div class="pick">${sel('custSel',db.customers)}<button class="btn primary" data-act="loginCustomer">${t('enter')}</button></div></div></div>
+ <div class="login-foot"><p class="muted small" style="margin:0">${t('demoNote')} <a href="${location.pathname}">${t('realLogin')}</a></p>${langBtn()}</div></div></section></div>`};
+V.pending=()=>`<div class="login">${hero()}<section class="login-main"><div class="login-card"><h1>${t('pendingTitle')}</h1><p>${t('pendingText',esc(session.email))}</p><button class="btn" data-act="logout">${t('logout')}</button></div></section></div>`;
+const passwordForm=()=>`<label class="f" for="npP">${t('newPassword')}</label><input id="npP" class="input" type="password" autocomplete="new-password" minlength="8"><button class="btn primary" style="margin-top:12px" data-act="setPassword">${t('save')}</button>`;
+V.newPass=()=>`<div class="login">${hero()}<section class="login-main"><div class="login-card"><h1>${t('newPassword')}</h1><p>${t('passwordRule')}</p>${passwordForm()}</div></section></div>`;
+V.account=()=>`<div class="pg-h"><h1>${t('account')}</h1></div><div class="card"><p style="margin-top:0"><strong>${esc(session.email)}</strong><br><span class="muted">${t('role_'+session.role)}</span></p><p class="muted small">${t('passwordRule')}</p>${passwordForm()}</div>`;
+
+/* ---- cleaner ---- */
+function taskCard(x,act){const od=overdue(x),s=site(x.siteId),open=ui.taskOpen===x.id;
+ return `<div class="card issue${od?' od':''}"><div class="row-b"><div><strong>${x.itemId?esc(itemName(x.itemId)):t('fromCustomer')}</strong>${x.cat==='maintenance'?` <span class="tag">${t('causeMaint')}</span>`:''}<div class="muted small">${esc(s?.name||'')}${s?.address?' · '+esc(s.address):''}</div></div><span class="pill st-${x.status}">${t('status_'+x.status)}</span></div>
+ ${x.comment?`<p style="margin:8px 0">${esc(x.comment)}</p>`:''}${x.rejectNote&&x.status!=='review'&&x.status!=='fixed'?`<p class="returned">${t('returnedNote')}: ${esc(x.rejectNote)}</p>`:''}${photoTag(issuePhoto(x),'margin:8px 0')}
+ <div class="small">${x.status==='fixed'||x.status==='review'?t('fixedOn',fmtDate(x.fixedAt)):(od?`<b class="delta down">${t('isOverdue')}</b> · `:'')+t('due',fmtDate(x.due))}</div>
+ ${act?(open?`<div class="item-x"><label class="f" for="taskNote" style="margin:0">${t('taskNote')}</label><textarea id="taskNote" class="input" rows="2"></textarea><div class="photo-row"><label class="btn sm">${ic('camera')} ${t('afterPhoto')}<input type="file" accept="image/*" capture="environment" data-ch="taskPhoto" hidden></label><span id="taskPrev">${ui.taskPhoto?`<img class="thumb" src="${ui.taskPhoto}" alt="">`:''}</span></div><div class="btns"><button class="btn primary" data-act="taskDone" data-arg="${x.id}">${t('taskSend')}</button><button class="btn" data-act="taskOpen">${t('cancel')}</button></div></div>`
+  :`<div class="btns" style="margin-top:12px">${x.status==='open'?`<button class="btn" data-act="taskStart" data-arg="${x.id}">${t('markProgress')}</button>`:''}<button class="btn primary" data-act="taskOpen" data-arg="${x.id}">${ic('ok')} ${t('taskFixed')}</button></div>`):''}</div>`}
+V.tasks=()=>{if(!session.cleanerId)return `<div class="card empty">${t('notLinked')}</div>`;
+ const mine=db.issues.filter(x=>x.cleanerId===session.cleanerId);
+ const todo=mine.filter(x=>x.status==='open'||x.status==='progress').sort((a,b)=>(overdue(b)-overdue(a))||a.due.localeCompare(b.due));
+ const rev=mine.filter(x=>x.status==='review');const done=mine.filter(x=>x.status==='fixed').sort((a,b)=>String(b.fixedAt).localeCompare(String(a.fixedAt))).slice(0,5);
+ return `<div class="pg-h"><div><h1>${t('nav_tasks')}</h1><p class="muted small">${t('tasksLead')}</p></div></div>
+ ${todo.length?todo.map(x=>taskCard(x,true)).join(''):`<div class="all-good">${ic('ok')}<span><strong>${t('tasksNone')}</strong><span class="muted small">${t('tasksNoneSub')}</span></span></div>`}
+ ${rev.length?`<div class="sec-h" style="margin-top:24px">${t('status_review')} <span class="count">${rev.length}</span></div>${rev.map(x=>taskCard(x,false)).join('')}`:''}
+ ${done.length?`<div class="sec-h" style="margin-top:24px">${t('tasksDone')}</div>${done.map(x=>taskCard(x,false)).join('')}`:''}`};
+V.mine=()=>{const id=session.cleanerId;if(!id)return `<div class="card empty">${t('notLinked')}</div>`;const S=db.settings;
+ const x=cleanerStats(periodRange(ui.cmonth),prevRange(ui.cmonth)).find(r=>r.c.id===id)||{n:0,issues:0};const months=last12();
+ const ms=months.map(m=>avg(inspIn(periodRange(m)).filter(i=>i.cleanerId===id).map(cScore)));
+ const list=db.inspections.filter(i=>i.cleanerId===id).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8);
+ return `<div class="pg-h"><div><h1>${t('nav_mine')}</h1><p class="muted small">${t('rewardRule2',S.minInsp,S.reward)} ${t('fairNote')}</p></div><div class="filters">${monthSelect('cmonth',ui.cmonth)}</div></div>
+ <div class="kpis">${kpi(t('avgCol'),fmtPct(x.a),x.eligible?`<span class="badge ok">${ic('star')} ${t('rewardEligible')}</span>`:delta(x.a,x.pa))}${kpi(t('inspections'),x.n,!x.enough?`<span class="muted">${t('notEnough')}</span>`:'')}${kpi(t('nav_issues'),x.issues)}${kpi(t('onTimeShort'),x.onTime==null?'–':fmtNum(x.onTime,0)+' %')}</div>
+ <div class="two wide"><div class="card"><h2>${t('monthly')}</h2>${lineChart(months.map(monthShort),[{name:t('avgCol'),values:ms,color:'#1d5fa8'}],{target:S.reward,targetLabel:t('rewardEligible')})}</div>
+ <div class="card"><h2>${t('recentInsp')}</h2>${list.length?list.map(inspRow).join(''):`<p class="muted">${t('noData')}</p>`}</div></div>`};
+
+/* ---- users ---- */
+V.users=()=>{if(!sb)return notFound();if(!ui.profiles)return `<div class="card empty">${t('loading')}</div>`;
+ const opt=(list,val)=>`<option value="">${t('noCleaner')}</option>`+list.slice().sort(byName).map(c=>`<option value="${c.id}"${c.id===val?' selected':''}>${esc(c.name)}</option>`).join('');
+ return `<a class="link" href="#/settings">${t('back')}</a><div class="pg-h"><div><h1>${t('nav_users')}</h1></div><a class="btn primary" href="https://supabase.com/dashboard/project/${CLOUD.url.split('//')[1].split('.')[0]}/auth/users" target="_blank" rel="noopener">${ic('plus')} ${t('addUser')}</a></div>
+ <div class="card"><p class="muted small" style="margin:0">${t('usersHelp')}</p></div>
+ ${ui.profiles.map(p=>`<div class="card"><div class="row-b"><strong>${esc(p.email)}</strong>${p.role==='pending'?`<span class="pill st-progress">${t('role_pending')}</span>`:''}</div><div class="fields" style="margin-top:12px">
+ <div><label class="f" for="un_${p.id}">${t('name')}</label><input id="un_${p.id}" class="input" value="${esc(p.name||'')}" data-ch="profile" data-id="${p.id}" data-f="name"></div>
+ <div><label class="f" for="ur_${p.id}">${t('role')}</label><select id="ur_${p.id}" class="input" data-ch="profile" data-id="${p.id}" data-f="role"${p.id===session.uid?' disabled':''}>${['pending','admin','inspector','cleaner','customer'].map(r=>`<option value="${r}"${r===p.role?' selected':''}>${t('role_'+r)}</option>`).join('')}</select></div>
+ ${p.role==='customer'?`<div><label class="f" for="uc_${p.id}">${t('customer')}</label><select id="uc_${p.id}" class="input" data-ch="profile" data-id="${p.id}" data-f="customer_id">${opt(db.customers,p.customer_id)}</select></div>`:''}
+ ${p.role==='cleaner'?`<div><label class="f" for="uk_${p.id}">${t('cleaner')}</label><select id="uk_${p.id}" class="input" data-ch="profile" data-id="${p.id}" data-f="cleaner_id">${opt(db.cleaners,p.cleaner_id)}</select></div>`:''}</div></div>`).join('')}`};
 
 /* ================= actions ================= */
 let tt;function toast(m,k){let el=$('#toast');if(!el){el=document.createElement('div');el.id='toast';el.setAttribute('role','status');document.body.appendChild(el)}el.className='toast '+(k||'');el.textContent=m;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>{el.hidden=true},3400)}
@@ -840,87 +959,132 @@ function download(name,text,type){const b=new Blob([text],{type});const a=docume
 function resizeImage(file,max=900,q=.62){return new Promise((res,rej)=>{const fr=new FileReader();fr.onerror=rej;fr.onload=()=>{const img=new Image();img.onerror=rej;img.onload=()=>{const k=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',q))};img.src=fr.result};fr.readAsDataURL(file)})}
 const A={
  lang(){lang=lang==='fi'?'en':'fi';store.set('ee_lang',lang);render()},
- loginAdmin(){session={role:'admin'};store.set(SKEY,session);location.hash='#/dashboard';render()},
- loginCustomer(){const id=$('#custSel')?.value;if(!id)return;session={role:'customer',customerId:id};ui.dashSite=ui.issueSite=ui.repSite=ui.fbSite='';store.set(SKEY,session);location.hash='#/dashboard';render()},
- logout(){session=null;store.del(SKEY);ui.dashSite=ui.issueSite=ui.repSite=ui.fbSite='';location.hash='';render()},
+ demoLogin(s){session=s;ui.dashSite=ui.issueSite=ui.repSite=ui.fbSite='';store.set(SKEY,session);loadDraft();location.hash='#/';render()},
+ loginAdmin(){A.demoLogin({role:'admin'})},
+ loginInspector(){A.demoLogin({role:'inspector'})},
+ loginCustomer(){const id=$('#custSel')?.value;if(id)A.demoLogin({role:'customer',customerId:id})},
+ loginCleaner(){const id=$('#clSel')?.value;if(id)A.demoLogin({role:'cleaner',cleanerId:id})},
+ async signIn(){const em=$('#liE').value.trim(),pw=$('#liP').value;if(!em||!pw){toast(t('required'),'err');return}
+  const {data,error}=await sb.auth.signInWithPassword({email:em,password:pw});if(error){console.error(error);toast(t('badLogin'),'err');return}
+  try{await enter(data.user)}catch(e){console.error(e);toast(t('setupMissing'),'err')}location.hash='#/';render()},
+ async forgot(){const em=$('#liE').value.trim();if(!em){toast(t('emailFirst'),'err');$('#liE').focus();return}
+  const {error}=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});if(error){console.error(error);toast(t('saveFail'),'err');return}toast(t('resetSent'))},
+ async setPassword(){const pw=$('#npP').value;if(pw.length<8){toast(t('passwordRule'),'err');return}
+  const {error}=await sb.auth.updateUser({password:pw});if(error){console.error(error);toast(t('saveFail'),'err');return}
+  $('#npP').value='';toast(t('savedOk'));if(ui.recovery){ui.recovery=false;render()}},
+ goAccount(){A.closeHelp();location.hash='#/account'},
+ async logout(){if(sb)await sb.auth.signOut();session=null;draft=null;store.del(SKEY);if(sb){db=emptyDb();signed={}}ui.dashSite=ui.issueSite=ui.repSite=ui.fbSite='';ui.profiles=null;location.hash='';render()},
  startInsp(id){if(draft&&draft.siteId!==id&&Object.keys(draft.items).length&&!confirm(t('confirmDiscard')))return;if(!draft||draft.siteId!==id){draft=newDraft(id);saveDraft()}if(location.hash==='#/inspect')render();else location.hash='#/inspect';window.scrollTo(0,0)},
  newInsp(){location.hash='#/inspect';render()},
- discard(){if(!confirm(t('confirmDiscard')))return;draft=null;store.del(DKEY);render()},
+ discard(){if(!confirm(t('confirmDiscard')))return;draft=null;store.del(dkey());render()},
  rate(arg){const [id,v]=arg.split(':');const r=dItem(id);r.v=v==='na'?'na':+v;saveDraft();refreshCard(id);updateLive()},
  areaOk(a){const s=site(draft.siteId);const ids=Object.keys(s.items).filter(k=>a==null||(item(k)?.area||'general')===a);let n=0;ids.forEach(k=>{const r=dItem(k);if(r.v===undefined){r.v=5;n++}});saveDraft();ids.forEach(refreshCard);updateLive();toast(t('markedOk',n))},
  allOk(){A.areaOk(null)},
  cause(arg){const [id,k]=arg.split(':');dItem(id).m=k==='m';saveDraft();refreshCard(id)},
  openX(id){dItem(id).x=1;refreshCard(id);document.querySelector(`#it-${id} textarea`)?.focus()},
  rmPhoto(id){delete dItem(id).p;saveDraft();refreshCard(id)},
- saveInsp(){const s=site(draft.siteId);const ids=Object.keys(s.items);const miss=ids.find(id=>draft.items[id]?.v===undefined);
+ async saveInsp(){const s=site(draft.siteId);const ids=Object.keys(s.items);const miss=ids.find(id=>draft.items[id]?.v===undefined);
   if(miss){toast(t('rateAll'),'err');const el=document.getElementById('it-'+miss);el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('pulse');setTimeout(()=>el.classList.remove('pulse'),1500);return}
   if(!draft.inspector.trim()){toast(t('needInspector'),'err');const f=$('#dIn');f.scrollIntoView({block:'center'});f.focus();return}
-  const items={};ids.forEach(id=>{const r=draft.items[id];items[id]={s:r.v==='na'?null:r.v,w:s.items[id]};if(r.c&&r.c.trim())items[id].c=r.c.trim();if(r.p)items[id].p=r.p;if(r.m&&typeof r.v==='number'&&r.v<=db.settings.issueAt)items[id].m=true});
-  const ins={id:uid('ins'),siteId:s.id,cleanerId:draft.cleanerId,inspector:draft.inspector.trim(),date:draft.date||todayIso(),rep:draft.rep.trim(),notes:draft.notes.trim(),items,score:calcScore(items),cscore:calcScore(items,true)};
+  const items={};ids.forEach(id=>{const r=draft.items[id];items[id]={s:r.v==='na'?null:r.v,w:s.items[id]};if(r.c&&r.c.trim())items[id].c=r.c.trim();if(r.m&&typeof r.v==='number'&&r.v<=db.settings.issueAt)items[id].m=true});
+  // the id and uploaded photo paths stay in the draft, so retrying after a lost connection can't create duplicates
+  try{for(const id of ids){const r=draft.items[id];if(!r.p)continue;if(sb){if(!r.up){r.up=await uploadPhoto(s.id,r.p);saveDraft()}items[id].p=r.up}else items[id].p=r.p}}catch(e){console.error(e);toast(t('saveOffline'),'err');return}
+  if(!draft.insId){draft.insId=uid('ins');saveDraft()}
+  const ins={id:draft.insId,siteId:s.id,cleanerId:draft.cleanerId,inspector:draft.inspector.trim(),date:draft.date||todayIso(),rep:draft.rep.trim(),notes:draft.notes.trim(),items,score:calcScore(items),cscore:calcScore(items,true)};
   const due=iso(addDays(parseIso(ins.date),db.settings.fixDays));const newIss=[];
-  ids.forEach(id=>{const x=items[id];if(x.s!=null&&x.s<=db.settings.issueAt)newIss.push({id:uid('d'),siteId:s.id,inspectionId:ins.id,itemId:id,score:x.s,cleanerId:ins.cleanerId,comment:x.c||'',status:'open',created:ins.date,due,fixedAt:'',source:'inspection',cat:x.m?'maintenance':'cleaning'})});
+  ids.forEach(id=>{const x=items[id];if(x.s!=null&&x.s<=db.settings.issueAt)newIss.push({id:ins.id+'_'+id,siteId:s.id,inspectionId:ins.id,itemId:id,score:x.s,cleanerId:ins.cleanerId,comment:x.c||'',status:'open',created:ins.date,due,fixedAt:'',source:'inspection',cat:x.m?'maintenance':'cleaning'})});
+  if(sb){const {error}=await sb.rpc('save_inspection',{p_inspection:toRow(ins),p_issues:newIss.map(toRow)});if(error){console.error(error);toast(t('saveOffline'),'err');return}}
   db.inspections.push(ins);db.issues.push(...newIss);
-  if(!saveDb()){db.inspections.pop();db.issues.splice(db.issues.length-newIss.length,newIss.length);return}
-  store.set('ee_inspector',ins.inspector);draft=null;store.del(DKEY);ui.saved={id:ins.id,n:newIss.length};render();window.scrollTo(0,0)},
- delInsp(id){if(!confirm(t('confirmDelete')))return;const sid=db.inspections.find(i=>i.id===id)?.siteId;db.inspections=db.inspections.filter(i=>i.id!==id);db.issues=db.issues.filter(x=>x.inspectionId!==id);saveDb();location.hash=sid?'#/site/'+sid:'#/dashboard'},
+  if(!sb&&!saveDb()){db.inspections.pop();db.issues.splice(db.issues.length-newIss.length,newIss.length);return}
+  store.set('ee_inspector',ins.inspector);draft=null;store.del(dkey());ui.saved={id:ins.id,n:newIss.length};render();window.scrollTo(0,0)},
+ async delInsp(id){if(!confirm(t('confirmDelete')))return;const ins=db.inspections.find(i=>i.id===id);const sid=ins?.siteId;const paths=ins?inspPhotos(ins):[];db.issues.filter(x=>x.inspectionId===id).forEach(x=>paths.push(x.afterPhoto));
+  db.inspections=db.inspections.filter(i=>i.id!==id);db.issues=db.issues.filter(x=>x.inspectionId!==id);if(!await dbDelete('inspections',id))return;removePhotos(paths);location.hash=sid?'#/site/'+sid:'#/dashboard'},
  help(){document.body.insertAdjacentHTML('beforeend',helpHtml());$('.modal .icon-btn')?.focus()},
  closeHelp(){$('.modal')?.remove()},
  goIssues(k){ui.issueStatus=k;ui.issueSite='';if(location.hash==='#/issues')render();else location.hash='#/issues'},
  issueStatus(k){ui.issueStatus=k;render()},
- issueSet(arg){const [id,st]=arg.split(':');const x=db.issues.find(i=>i.id===id);if(!x)return;x.status=st;x.fixedAt=st==='fixed'?todayIso():'';saveDb();render()},
- issueCat(id){const x=db.issues.find(i=>i.id===id);if(!x)return;x.cat=x.cat==='maintenance'?'cleaning':'maintenance';
+ // confirming a cleaner's report keeps the date they finished, so "on time" reflects their work, not the review
+ async issueSet(arg){const [id,st]=arg.split(':');const x=db.issues.find(i=>i.id===id);if(!x)return;const keep=x.status==='review'&&x.fixedAt;x.status=st;x.fixedAt=st==='fixed'?(keep||todayIso()):'';if(await dbUpdate('issues',{id,status:st,fixedAt:x.fixedAt}))render()},
+ async issueReject(id){const x=db.issues.find(i=>i.id===id);if(!x)return;const why=prompt(t('sendBackQ'));if(why===null)return;Object.assign(x,{status:'open',fixedAt:'',rejectNote:why.trim()});if(await dbUpdate('issues',{id,status:'open',fixedAt:'',rejectNote:x.rejectNote}))render()},
+ async issueCat(id){const x=db.issues.find(i=>i.id===id);if(!x)return;x.cat=x.cat==='maintenance'?'cleaning':'maintenance';
   const ins=x.inspectionId&&db.inspections.find(i=>i.id===x.inspectionId);if(ins&&ins.items[x.itemId]){if(x.cat==='maintenance')ins.items[x.itemId].m=true;else delete ins.items[x.itemId].m;ins.cscore=calcScore(ins.items,true)}
-  saveDb();render()},
+  if(!await dbUpdate('issues',{id,cat:x.cat}))return;if(ins&&!await dbUpdate('inspections',{id:ins.id,items:ins.items,cscore:ins.cscore}))return;render()},
+ taskOpen(id){ui.taskOpen=id||null;ui.taskPhoto='';render();if(id)$('#taskNote')?.focus()},
+ async taskStart(id){const x=db.issues.find(i=>i.id===id);if(!x)return;x.status='progress';if(await dbUpdate('issues',{id,status:'progress'}))render()},
+ async taskDone(id){const x=db.issues.find(i=>i.id===id);if(!x)return;let after='';try{after=await uploadPhoto(x.siteId,ui.taskPhoto)}catch(e){console.error(e);toast(t('saveOffline'),'err');return}
+  const note=$('#taskNote')?.value.trim()||'';Object.assign(x,{status:'review',afterPhoto:after,cleanerNote:note,fixedAt:todayIso()});
+  if(!await dbUpdate('issues',{id,status:'review',afterPhoto:after,cleanerNote:note,fixedAt:x.fixedAt}))return;ui.taskOpen=null;ui.taskPhoto='';toast(t('taskSent'));render()},
  reportFor(id){ui.fbSite=id;location.hash='#/feedback'},
- sendFeedback(){const sid=ui.fbSite;const desc=$('#fbDesc').value.trim();if(!sid||!canSee(sid)){toast(t('pickSite'),'err');return}if(!desc){toast(t('needDesc'),'err');$('#fbDesc').focus();return}
-  const s=site(sid);const d=todayIso();db.issues.push({id:uid('d'),siteId:sid,inspectionId:'',itemId:'',score:null,cleanerId:s.cleanerId,comment:desc,photo:ui.fbPhoto||'',status:'open',created:d,due:iso(addDays(new Date(),db.settings.fixDays)),fixedAt:'',source:'customer',cat:'cleaning'});
-  if(!saveDb()){db.issues.pop();return}ui.fbPhoto='';ui.issueStatus='open';ui.issueSite=sid;toast(t('feedbackSent'));location.hash='#/issues'},
- saveSite(id){const f=$('#siteForm');const fd=new FormData(f);const name=String(fd.get('name')||'').trim();if(!name){toast(t('required'),'err');f.name.focus();return}
+ async sendFeedback(){const sid=ui.fbSite;const desc=$('#fbDesc').value.trim();if(!sid||!canSee(sid)){toast(t('pickSite'),'err');return}if(!desc){toast(t('needDesc'),'err');$('#fbDesc').focus();return}
+  let photo='';try{photo=await uploadPhoto(sid,ui.fbPhoto)}catch(e){console.error(e);toast(t('saveOffline'),'err');return}
+  const s=site(sid);const d=todayIso();const nw=({id:uid('d'),siteId:sid,inspectionId:'',itemId:'',score:null,cleanerId:s.cleanerId,comment:desc,photo,status:'open',created:d,due:iso(addDays(new Date(),db.settings.fixDays)),fixedAt:'',source:'customer',cat:'cleaning'});
+  db.issues.push(nw);if(!await dbInsert('issues',nw)){db.issues.pop();return}ui.fbPhoto='';ui.issueStatus='open';ui.issueSite=sid;toast(t('feedbackSent'));location.hash='#/issues'},
+ async saveSite(id){const f=$('#siteForm');const fd=new FormData(f);const name=String(fd.get('name')||'').trim();if(!name){toast(t('required'),'err');f.name.focus();return}
   const items=readChecklist(fd);
   const data={name,address:String(fd.get('address')||'').trim(),customerId:fd.get('customerId'),cleanerId:fd.get('cleanerId'),target:Math.max(0,Math.min(100,+fd.get('target')||0)),type:fd.get('type')||'',items};
   let s;if(id==='new'){s={id:uid('s'),...data};db.sites.push(s)}else{s=site(id);Object.assign(s,data)}
   if(draft&&draft.siteId===s.id){Object.keys(draft.items).forEach(k=>{if(!items[k])delete draft.items[k]});saveDraft()}
-  saveDb();toast(t('savedOk'));location.hash='#/site/'+s.id},
- delSite(id){if(!confirm(t('confirmDeleteSite')))return;db.sites=db.sites.filter(s=>s.id!==id);db.inspections=db.inspections.filter(i=>i.siteId!==id);db.issues=db.issues.filter(x=>x.siteId!==id);if(draft?.siteId===id){draft=null;store.del(DKEY)}saveDb();location.hash='#/sites'},
+  if(!await (id==='new'?dbInsert('sites',s):dbUpdate('sites',{id:s.id,...data})))return;toast(t('savedOk'));location.hash='#/site/'+s.id},
+ async delSite(id){if(!confirm(t('confirmDeleteSite')))return;const paths=db.inspections.filter(i=>i.siteId===id).flatMap(inspPhotos);db.issues.filter(x=>x.siteId===id).forEach(x=>paths.push(x.photo,x.afterPhoto));
+  db.sites=db.sites.filter(s=>s.id!==id);db.inspections=db.inspections.filter(i=>i.siteId!==id);db.issues=db.issues.filter(x=>x.siteId!==id);if(draft?.siteId===id){draft=null;store.del(dkey())}if(!await dbDelete('sites',id))return;removePhotos(paths);location.hash='#/sites'},
  resetToType(){const sel=$('#sfY');const ty=db.types.find(y=>y.id===sel?.value);if(ty)$('#chkBox').innerHTML=checklistHtml(ty.items)},
- saveType(id){const f=$('#typeForm');const fd=new FormData(f);const fi=String(fd.get('fi')||'').trim();if(!fi){toast(t('required'),'err');f.fi.focus();return}
-  const data={fi,en:String(fd.get('en')||'').trim()||fi,items:readChecklist(fd)};if(id==='new')db.types.push({id:uid('t'),...data});else Object.assign(db.types.find(y=>y.id===id),data);
-  saveDb();toast(t('savedOk'));location.hash='#/settings'},
- delType(id){if(!confirm(t('confirmDelete')))return;db.types=db.types.filter(y=>y.id!==id);saveDb();location.hash='#/settings'},
+ async saveType(id){const f=$('#typeForm');const fd=new FormData(f);const fi=String(fd.get('fi')||'').trim();if(!fi){toast(t('required'),'err');f.fi.focus();return}
+  const data={fi,en:String(fd.get('en')||'').trim()||fi,items:readChecklist(fd)};let ok;if(id==='new'){const ty={id:uid('t'),...data};db.types.push(ty);ok=await dbInsert('site_types',ty)}else{Object.assign(db.types.find(y=>y.id===id),data);ok=await dbUpdate('site_types',{id,...data})}
+  if(!ok)return;toast(t('savedOk'));location.hash='#/settings'},
+ async delType(id){if(!confirm(t('confirmDelete')))return;db.types=db.types.filter(y=>y.id!==id);if(await dbDelete('site_types',id))location.hash='#/settings'},
  toggleAddCleaner(){ui.addCleaner=!ui.addCleaner;render();if(ui.addCleaner)$('#ncN')?.focus()},
- addCleaner(){const n=$('#ncN').value.trim();if(!n){toast(t('required'),'err');return}db.cleaners.push({id:uid('k'),name:n,phone:$('#ncP').value.trim(),active:true});saveDb();ui.addCleaner=false;toast(t('savedOk'));render()},
- saveCleaner(id){const c=db.cleaners.find(x=>x.id===id);const n=$('#ceN').value.trim();if(!n){toast(t('required'),'err');return}c.name=n;c.phone=$('#ceP').value.trim();c.active=$('#ceA').checked;saveDb();toast(t('savedOk'));render()},
+ async addCleaner(){const n=$('#ncN').value.trim();if(!n){toast(t('required'),'err');return}const c={id:uid('k'),name:n,phone:$('#ncP').value.trim(),active:true};db.cleaners.push(c);
+  if(!await dbInsert('cleaners',{id:c.id,name:c.name,active:true})||!await saveContact(c.id,c.phone))return;if(!sb)saveDb();ui.addCleaner=false;toast(t('savedOk'));render()},
+ async saveCleaner(id){const c=db.cleaners.find(x=>x.id===id);const n=$('#ceN').value.trim();if(!n){toast(t('required'),'err');return}c.name=n;c.phone=$('#ceP').value.trim();c.active=$('#ceA').checked;
+  if(!await dbUpdate('cleaners',{id,name:n,active:c.active})||!await saveContact(id,c.phone))return;toast(t('savedOk'));render()},
  print(){window.print()},
  csv(){const {cur}=reportData();const q=v=>{const s=String(v??'');return /[";\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
   const rows=[[t('date'),t('site'),t('customer'),t('cleaner'),t('inspector'),t('avgScore')+' %',t('area'),t('item'),'0-5',t('weight','').trim(),t('commentPh').split(':')[0]]];
   cur.forEach(i=>{const s=site(i.siteId);Object.entries(i.items).forEach(([k,x])=>rows.push([i.date,s.name,custName(s.customerId),cleanerName(i.cleanerId),i.inspector,fmtNum(i.score),areaName(item(k)?.area),itemName(k),x.s==null?t('na'):x.s,x.w,x.c||'']))});
   download(`eagle-eye-${ui.rmonth}${ui.repSite?'-'+norm(siteName(ui.repSite)).replace(/[^a-z0-9]+/g,'-'):''}.csv`,'﻿'+rows.map(r=>r.map(q).join(';')).join('\r\n'),'text/csv;charset=utf-8')},
- addItem(){db.items.push({id:uid('i'),area:'general',w:5,fi:T.fi.newItem,en:T.en.newItem});saveDb();render()},
- addCustomer(){db.customers.push({id:uid('c'),name:t('newCustomer')});saveDb();render()},
+ async addItem(){const x={id:uid('i'),area:'general',w:5,pos:db.items.length,fi:T.fi.newItem,en:T.en.newItem};db.items.push(x);if(await dbInsert('items',x))render()},
+ async addCustomer(){const c={id:uid('c'),name:t('newCustomer')};db.customers.push(c);if(await dbInsert('customers',c))render()},
  exportData(){download(`eagle-eye-data-${todayIso()}.json`,JSON.stringify(db),'application/json')},
- resetDemo(){if(!confirm(t('confirmReset')))return;db=seed();draft=null;store.del(DKEY);saveDb();toast(t('savedOk'));render()},
+ resetDemo(){if(!confirm(t('confirmReset')))return;db=seed();draft=null;store.del(dkey());saveDb();toast(t('savedOk'));render()},
+ async loadDemoCloud(){if(db.sites.length||!confirm(t('loadDemoQ')))return;toast(t('loading'));const d=seed();
+  try{for(const [tb,rows] of [['customers',d.customers],['cleaners',d.cleaners.map(({phone,...c})=>c)],['sites',d.sites],['inspections',d.inspections],['issues',d.issues]])for(let i=0;i<rows.length;i+=200){const {error}=await sb.from(tb).insert(rows.slice(i,i+200).map(toRow));if(error)throw error}
+   await loadCloud();toast(t('savedOk'))}catch(e){dbFail(e);return}render()},
+ async wipeCloud(){if(prompt(t('wipeQ'))!=='DELETE')return;const paths=db.inspections.flatMap(inspPhotos);db.issues.forEach(x=>paths.push(x.photo,x.afterPhoto));
+  try{for(const tb of ['issues','inspections','sites','cleaners','customers']){const {error}=await sb.from(tb).delete().neq('id','');if(error)throw error}removePhotos(paths);draft=null;store.del(dkey());await loadCloud();toast(t('savedOk'))}catch(e){dbFail(e);return}render()},
  zoom(_,el){const o=document.createElement('div');o.className='overlay';const im=new Image();im.src=el.src;im.alt='';o.appendChild(im);o.onclick=()=>o.remove();document.body.appendChild(o)}
 };
 const C={
  siteType(el){if(el.dataset.new==='1'||confirm(t('applyTypeQ')))A.resetToType()},
  period(el){ui.period=el.value;render()},cmonth(el){ui.cmonth=el.value;render()},rmonth(el){ui.rmonth=el.value;render()},
  async itemPhoto(el){const f=el.files[0];if(!f)return;const id=el.dataset.id;try{const p=await resizeImage(f);const r=dItem(id);r.p=p;if(!saveDraft())delete r.p;refreshCard(id)}catch(e){toast(t('photoFail'),'err')}},
+ async taskPhoto(el){const f=el.files[0];if(!f)return;try{ui.taskPhoto=await resizeImage(f);$('#taskPrev').innerHTML=`<img class="thumb" src="${ui.taskPhoto}" alt="">`}catch(e){toast(t('photoFail'),'err')}},
+ async profile(el){const id=el.dataset.id,f=el.dataset.f,v=el.value.trim();const {data,error}=await sb.from('profiles').update({[f]:v||null}).eq('id',id).select('*');if(error||!data?.length){console.error(error);toast(t('saveFail'),'err');return}
+  ui.profiles=ui.profiles.map(p=>p.id===id?data[0]:p);toast(t('savedOk'));if(f==='role')render()},
  async fbPhoto(el){const f=el.files[0];if(!f)return;try{ui.fbPhoto=await resizeImage(f);$('#fbPrev').innerHTML=`<img class="thumb" src="${ui.fbPhoto}" alt="">`}catch(e){toast(t('photoFail'),'err')}},
- rule(el){const v=+el.value;if(el.value===''||!isFinite(v))return;db.settings[el.dataset.k]=v;saveDb();toast(t('savedOk'))},
- lib(el){const x=item(el.dataset.id);if(!x)return;const f=el.dataset.f;x[f]=f==='w'?Math.max(1,Math.min(20,+el.value||1)):el.value.trim()||x[f];saveDb()},
- cust(el){const c=db.customers.find(x=>x.id===el.dataset.id);if(c&&el.value.trim()){c.name=el.value.trim();saveDb()}},
- importFile(el){const f=el.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{try{const o=JSON.parse(fr.result);if(!o||o.v!==2||!['sites','inspections','issues','items','cleaners','customers'].every(k=>Array.isArray(o[k]))||!o.settings)throw 0;db=o;draft=null;store.del(DKEY);saveDb();toast(t('importOk'));render()}catch(e){toast(t('importBad'),'err')}};fr.readAsText(f)}
+ async rule(el){const v=+el.value;if(el.value===''||!isFinite(v))return;db.settings[el.dataset.k]=v;if(await saveSettings())toast(t('savedOk'))},
+ lib(el){const x=item(el.dataset.id);if(!x)return;const f=el.dataset.f;x[f]=f==='w'?Math.max(1,Math.min(20,+el.value||1)):el.value.trim()||x[f];dbUpdate('items',{id:x.id,[f]:x[f]})},
+ cust(el){const c=db.customers.find(x=>x.id===el.dataset.id);if(c&&el.value.trim()){c.name=el.value.trim();dbUpdate('customers',{id:c.id,name:c.name})}},
+ importFile(el){const f=el.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{try{const o=JSON.parse(fr.result);if(!o||o.v!==2||!['sites','inspections','issues','items','cleaners','customers'].every(k=>Array.isArray(o[k]))||!o.settings)throw 0;db=migrate(o);draft=null;store.del(dkey());saveDb();toast(t('importOk'));render()}catch(e){toast(t('importBad'),'err')}};fr.readAsText(f)}
 };
 const I={
  draftField(el){if(!draft)return;draft[el.dataset.f]=el.value;saveDraft()},
  itemComment(el){if(!draft)return;dItem(el.dataset.id).c=el.value;saveDraft()}
 };
-document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const fn=A[el.dataset.act];if(fn){e.preventDefault();fn(el.dataset.arg,el,e)}});
+// while something is saving, further taps are ignored so nothing is submitted twice
+let busy=false;
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const fn=A[el.dataset.act];if(!fn)return;e.preventDefault();if(busy)return;const res=fn(el.dataset.arg,el,e);if(res?.then){busy=true;document.body.classList.add('busy');res.catch(console.error).finally(()=>{busy=false;document.body.classList.remove('busy')})}});
 document.addEventListener('change',e=>{const el=e.target.closest('[data-ch]');if(el&&C[el.dataset.ch])C[el.dataset.ch](el)});
 document.addEventListener('input',e=>{const el=e.target.closest('[data-in]');if(el&&I[el.dataset.in])I[el.dataset.in](el)});
 document.addEventListener('click',e=>{if(e.target.classList?.contains('modal'))A.closeHelp()});document.addEventListener('keydown',e=>{if(e.key==='Escape')A.closeHelp()});
-window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
-render();
+window.addEventListener('hashchange',()=>{ui.profiles=null;ui.taskOpen=null;render();window.scrollTo(0,0);refreshIfStale()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshIfStale()});
+async function boot(){
+ if(DEMO){if(session)loadDraft();render();return}
+ if(sb){sb.auth.onAuthStateChange(ev=>{if(ev==='PASSWORD_RECOVERY'){ui.recovery=true;setTimeout(render,0)}});
+  $('#app').innerHTML=`<div class="empty" style="padding-top:30vh">${t('loading')}</div>`;
+  try{const {data}=await sb.auth.getSession();if(data.session)await enter(data.session.user)}catch(e){console.error(e);toast(t('setupMissing'),'err')}}
+ render()}
+boot();
 </script>
 </body>
 </html>
