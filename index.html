@@ -1,7 +1,8 @@
 <!doctype html>
-<html lang="fi">
+<html lang="fi" translate="no" class="notranslate">
 <head>
 <meta charset="utf-8">
+<meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b2a45">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -61,6 +62,9 @@ a{color:var(--accent)}
 .chip{background:var(--surface);border:1px solid var(--line);color:var(--text-2);border-radius:var(--r-sm);padding:0 10px;height:34px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;text-decoration:none;letter-spacing:.02em}
 .chip:hover{background:var(--subtle)}
 .m-only{display:none!important}
+.lang-seg{display:inline-flex;background:var(--line-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:2px;gap:1px;height:34px}
+.lang-seg button{border:0;background:none;border-radius:4px;padding:0 7px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted)}
+.lang-seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 2px rgba(16,24,40,.12)}
 .wrap{max-width:1240px;margin:0 auto;padding:28px 28px 40px}
 .foot{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 28px;max-width:720px;margin:0 auto}
 .tabs{display:none}
@@ -71,11 +75,15 @@ a{color:var(--accent)}
  .topbar{padding:0 16px;padding-top:env(safe-area-inset-top);height:calc(56px + env(safe-area-inset-top))}
  .topbar .ctx{display:none}
  .topbar .brand{display:flex}
+ .topbar .brand small{white-space:nowrap}
+ .top-r{gap:4px}
+ .chip{padding:0 7px}
+ .lang-seg button{padding:0 5px}
  .m-only{display:inline-flex!important}
  .wrap{padding:18px 16px 24px}
  .foot{padding-bottom:96px}
  .tabs{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom));z-index:25;box-shadow:0 -4px 16px rgba(16,24,40,.06)}
- .tabs a{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;border-radius:var(--r-sm);color:var(--muted);text-decoration:none;font-size:10.5px;font-weight:600}
+ .tabs a{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0;border-radius:var(--r-sm);color:var(--muted);text-decoration:none;font-size:10px;letter-spacing:-.1px;font-weight:600}
  .tabs a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  .tabs a.on{color:var(--accent)}
  .tabs a.on .ic{stroke-width:2.4}
@@ -583,7 +591,7 @@ const READ_VIEWS=['dashboard','issues','sites','site','cleaners','cleaner','repo
 async function refreshIfStale(){if(!sb||!session||session.role==='pending'||loadingNow||Date.now()-lastLoad<60000)return;loadingNow=true;
  try{await loadCloud();const [r]=route();if(READ_VIEWS.includes(r)&&!ui.taskOpen&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))render()}catch(e){console.error(e)}finally{loadingNow=false}}
 let signed={};
-const photoTag=(p,style='')=>!p?'':String(p).startsWith('data:')?`<img class="thumb" src="${p}" data-act="zoom" alt=""${style?` style="${style}"`:''}>`:`<img class="thumb" data-path="${esc(p)}" data-act="zoom" alt=""${style?` style="${style}"`:''}>`;
+const photoTag=(p,style='')=>!p?'':String(p).startsWith('data:')?`<img class="thumb" src="${p}" data-act="zoom" alt=""${style?` style="${style}"`:''}>`:`<img class="thumb" data-path="${esc(p)}"${signed[p]?` src="${signed[p]}"`:''} data-act="zoom" alt=""${style?` style="${style}"`:''}>`;
 async function hydratePhotos(){if(!sb)return;const els=[...document.querySelectorAll('img[data-path]:not([src])')];if(!els.length)return;
  const need=[...new Set(els.map(e=>e.dataset.path))].filter(p=>!signed[p]);
  if(need.length){const {data}=await sb.storage.from('photos').createSignedUrls(need,3600);(data||[]).forEach(d=>{if(d.signedUrl)signed[d.path]=d.signedUrl})}
@@ -660,7 +668,7 @@ function shell(r,body){const cur={site:'sites',siteEdit:'sites',cleaner:'cleaner
  <nav class="snav" aria-label="${t('menu')}">${navGroups().map(([g,ls])=>(g?`<div class="grp">${t(g)}</div>`:'')+ls.map(lnk).join('')).join('')}</nav>
  <div class="side-foot"><span class="avatar">${esc(ini)}</span><div class="who"><b>${esc(who)}</b><small>${t('role_'+session.role)}</small></div><button class="icon-btn" data-act="logout" title="${t('logout')}" aria-label="${t('logout')}">${ic('logout')}</button></div></aside>
  <div class="content"><header class="topbar"><a class="brand" href="#/dashboard">${logo()}<div><b>Eagle Eye</b><small>${t('forCo')}</small></div></a><div class="ctx"><b>${esc(who)}</b> · ${esc(today)}</div>
- <div class="top-r"><button class="chip" data-act="help" aria-label="${t('helpTitle')}" title="${t('helpTitle')}">${ic('help')}</button><button class="chip" data-act="lang" aria-label="Language / Kieli">${lang==='fi'?'EN':'FI'}</button>${isAdmin()?`<a class="chip m-only" href="#/settings" aria-label="${t('nav_settings')}">${ic('sliders')}</a>`:''}<button class="chip m-only" data-act="logout" aria-label="${t('logout')}">${ic('logout')}</button></div></header>
+ <div class="top-r"><button class="chip" data-act="help" aria-label="${t('helpTitle')}" title="${t('helpTitle')}">${ic('help')}</button>${langSeg()}${isAdmin()?`<a class="chip m-only" href="#/settings" aria-label="${t('nav_settings')}">${ic('sliders')}</a>`:''}<button class="chip m-only" data-act="logout" aria-label="${t('logout')}">${ic('logout')}</button></div></header>
  <main class="wrap">${body}</main><p class="foot">${DEMO?t('demoNote')+` <a href="${location.pathname}">${t('realLogin')}</a>`:''}</p></div>
  <nav class="tabs" aria-label="${t('menu')}">${navGroups().flatMap(g=>g[1]).map(lnk).join('')}</nav></div>`}
 function render(){combos={};document.documentElement.lang=lang;const app=$('#app');
@@ -674,6 +682,7 @@ function render(){combos={};document.documentElement.lang=lang;const app=$('#app
  if(r==='users'&&sb&&!ui.profiles)sb.from('profiles').select('*').order('email').then(({data,error})=>{if(error)toast(t('saveFail'),'err');ui.profiles=data||[];render()});
  let body;try{body=V[r](a)}catch(err){console.error(err);body=`<div class="card">Error: ${esc(err.message)}</div>`}
  app.innerHTML=shell(r,body);mountCombos();if(r==='inspect'&&draft)updateLive();hydratePhotos()}
+const langSeg=()=>`<div class="lang-seg" role="group" aria-label="Language / Kieli">${['fi','en'].map(l=>`<button type="button" class="${lang===l?'on':''}" data-act="setLang" data-arg="${l}" aria-pressed="${lang===l}">${l.toUpperCase()}</button>`).join('')}</div>`;
 const notFound=()=>`<div class="card empty">${t('notFound')}<br><a class="link" href="#/dashboard">${t('back')}</a></div>`;
 function monthSelect(ch,val,withLast30){return `<select class="input sel" data-ch="${ch}" aria-label="${t('month')}">${withLast30?`<option value="last30"${val==='last30'?' selected':''}>${t('last30')}</option>`:''}${last12().reverse().map(m=>`<option value="${m}"${val===m?' selected':''}>${monthLong(m)}</option>`).join('')}</select>`}
 const inspRow=i=>`<a class="list-row" href="#/insp/${i.id}"><div><strong>${esc(siteName(i.siteId))}</strong><div class="muted small">${fmtDate(i.date)} · ${esc(cleanerName(i.cleanerId))}</div></div>${scorePill(i.score)}</a>`;
@@ -898,7 +907,7 @@ function helpHtml(){const S=db.settings;return `<div class="modal" role="dialog"
 
 const hero=()=>`<section class="login-hero"><a class="brand" href="#/">${logo()}<div><b>Eagle Eye</b><small>${t('forCo')}</small></div></a>
  <div><h2>${t('heroTitle')}</h2><p>${t('heroLead')}</p><ul class="vp">${['vp1','vp2','vp3','vp4'].map(k=>`<li>${ic('ok')}<span>${t(k)}</span></li>`).join('')}</ul></div><small>© ${new Date().getFullYear()} Uusi Era Palvelut Oy</small></section>`;
-const langBtn=()=>`<button class="btn sm" data-act="lang">${lang==='fi'?'English':'Suomi'}</button>`;
+const langBtn=()=>langSeg();
 V.login=()=>{
  if(!DEMO)return `<div class="login">${hero()}<section class="login-main"><div class="login-card"><h1>${t('loginTitle')}</h1><p>${t('loginEmailLead')}</p>
  ${sb?`<form id="loginForm" onsubmit="return false"><label class="f" for="liE">${t('email')}</label><input id="liE" class="input" type="email" autocomplete="username" required>
@@ -958,7 +967,7 @@ let tt;function toast(m,k){let el=$('#toast');if(!el){el=document.createElement(
 function download(name,text,type){const b=new Blob([text],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function resizeImage(file,max=900,q=.62){return new Promise((res,rej)=>{const fr=new FileReader();fr.onerror=rej;fr.onload=()=>{const img=new Image();img.onerror=rej;img.onload=()=>{const k=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',q))};img.src=fr.result};fr.readAsDataURL(file)})}
 const A={
- lang(){lang=lang==='fi'?'en':'fi';store.set('ee_lang',lang);render()},
+ setLang(l){if(l===lang||!T[l])return;lang=l;store.set('ee_lang',lang);render()},
  demoLogin(s){session=s;ui.dashSite=ui.issueSite=ui.repSite=ui.fbSite='';store.set(SKEY,session);loadDraft();location.hash='#/';render()},
  loginAdmin(){A.demoLogin({role:'admin'})},
  loginInspector(){A.demoLogin({role:'inspector'})},
