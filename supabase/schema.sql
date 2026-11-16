@@ -35,6 +35,16 @@ create table if not exists public.profiles(
  role text not null default 'pending' check(role in('pending','admin','inspector','cleaner','customer')),
  customer_id text references public.customers on delete set null,
  cleaner_id text references public.cleaners on delete set null);
+-- added in version 2: customer contact details, when the customer was told about a fault and its fix, and cleaner absences
+alter table public.customers add column if not exists email text;
+alter table public.customers add column if not exists contact text;
+alter table public.issues add column if not exists informed_at date;
+alter table public.issues add column if not exists fixed_informed_at date;
+-- while a cleaner is away, inspections of their sites are credited to the substitute
+create table if not exists public.absences(
+ id text primary key, cleaner_id text not null references public.cleaners on delete cascade,
+ substitute_id text references public.cleaners on delete set null,
+ start_date date not null, end_date date not null, reason text, check(end_date>=start_date));
 create index if not exists inspections_site on public.inspections(site_id);
 create index if not exists inspections_cleaner on public.inspections(cleaner_id);
 create index if not exists issues_site on public.issues(site_id);
@@ -114,7 +124,7 @@ end $$;
 
 -- ===== access rules =====
 do $$ declare t text; begin
- foreach t in array array['customers','cleaners','cleaner_contacts','items','site_types','sites','inspections','issues','settings','profiles'] loop
+ foreach t in array array['customers','cleaners','cleaner_contacts','items','site_types','sites','inspections','issues','settings','profiles','absences'] loop
   execute format('alter table public.%I enable row level security',t);
   execute format('revoke all on public.%I from anon',t);
   execute format('grant select,insert,update,delete on public.%I to authenticated',t);
@@ -139,6 +149,8 @@ create policy read on public.cleaners for select to authenticated using(public.c
 create policy admin_write on public.cleaners for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.cleaner_contacts for select to authenticated using(public.is_staff());
 create policy admin_write on public.cleaner_contacts for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
+create policy read on public.absences for select to authenticated using(public.is_staff());
+create policy admin_write on public.absences for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.sites for select to authenticated using(public.can_see_site(id));
 create policy admin_write on public.sites for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 -- inspections: inspectors add, admins change; customers read their sites; cleaners read their own
