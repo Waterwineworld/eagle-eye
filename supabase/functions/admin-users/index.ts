@@ -41,8 +41,9 @@ Deno.serve(async (req) => {
       const email = String(body.email ?? "").trim().toLowerCase();
       const role = String(body.role ?? "");
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply({ error: "invalid email" }, 400);
-      if (!["admin", "inspector", "customer"].includes(role)) return reply({ error: "invalid role" }, 400);
+      if (!["admin", "inspector", "cleaner", "customer"].includes(role)) return reply({ error: "invalid role" }, 400);
       if (role === "customer" && !body.customer_id) return reply({ error: "customer required" }, 400);
+      if (role === "cleaner" && !body.cleaner_id) return reply({ error: "cleaner required" }, 400);
       const password = tempPassword();
       const { data, error } = await db.auth.admin.createUser({
         email, password, email_confirm: true, user_metadata: { must_change: true },
@@ -52,6 +53,7 @@ Deno.serve(async (req) => {
       const { error: pErr } = await db.from("profiles").upsert({
         id: data.user.id, email, name: String(body.name ?? "").trim() || null, role,
         customer_id: role === "customer" ? body.customer_id : null,
+        cleaner_id: role === "cleaner" ? body.cleaner_id : null,
       });
       if (pErr) return reply({ error: pErr.message }, 400);
       return reply({ id: data.user.id, email, password });

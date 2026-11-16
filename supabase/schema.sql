@@ -45,6 +45,23 @@ create table if not exists public.absences(
  id text primary key, cleaner_id text not null references public.cleaners on delete cascade,
  substitute_id text references public.cleaners on delete set null,
  start_date date not null, end_date date not null, reason text, check(end_date>=start_date));
+-- added in version 4: clocking in and out. A site's location comes from its address; positions sent when
+-- clocking in or out are only compared with it and are never stored (no tracking of staff).
+alter table public.sites add column if not exists lat double precision;
+alter table public.sites add column if not exists lng double precision;
+alter table public.sites add column if not exists radius int not null default 200;
+-- the QR code on each site's wall, kept apart so cleaners can't read the codes and clock in from elsewhere
+create table if not exists public.site_qr(id text primary key references public.sites on delete cascade, code text not null unique);
+insert into public.site_qr(id,code) select id,replace(gen_random_uuid()::text,'-','') from public.sites on conflict do nothing;
+create table if not exists public.shifts(
+ id text primary key, cleaner_id text not null references public.cleaners on delete cascade,
+ site_id text not null references public.sites on delete cascade,
+ start_at timestamptz not null default now(), end_at timestamptz,
+ start_method text not null check(start_method in('gps','qr','manual')), end_method text check(end_method in('gps','qr','manual','correction')),
+ note text, request_end_at timestamptz, request_note text, request_status text check(request_status in('pending','approved','rejected')),
+ check(end_at is null or end_at>=start_at));
+create index if not exists shifts_cleaner on public.shifts(cleaner_id,start_at);
+create unique index if not exists shifts_one_open on public.shifts(cleaner_id) where end_at is null;
 create index if not exists inspections_site on public.inspections(site_id);
 create index if not exists inspections_cleaner on public.inspections(cleaner_id);
 create index if not exists issues_site on public.issues(site_id);
@@ -69,6 +86,7 @@ create or replace function public.can_see_site(sid text) returns boolean languag
   when 'admin' then true when 'inspector' then true
   when 'customer' then exists(select 1 from public.sites s where s.id=sid and s.customer_id=public.my_customer())
   when 'cleaner' then exists(select 1 from public.sites s where s.id=sid and s.cleaner_id=public.my_cleaner())
+   or exists(select 1 from public.absences a join public.sites s on s.cleaner_id=a.cleaner_id where s.id=sid and a.substitute_id=public.my_cleaner() and current_date between a.start_date and a.end_date)
    or exists(select 1 from public.issues i where i.site_id=sid and i.cleaner_id=public.my_cleaner())
    or exists(select 1 from public.inspections n where n.site_id=sid and n.cleaner_id=public.my_cleaner())
   else false end $$;
@@ -146,7 +164,7 @@ end $$;
 
 -- ===== access rules =====
 do $$ declare t text; begin
- foreach t in array array['customers','cleaners','cleaner_contacts','items','site_types','sites','inspections','issues','settings','profiles','absences'] loop
+ foreach t in array array['customers','cleaners','cleaner_contacts','items','site_types','sites','inspections','issues','settings','profiles','absences','shifts','site_qr'] loop
   execute format('alter table public.%I enable row level security',t);
   execute format('revoke all on public.%I from anon',t);
   execute format('grant select,insert,update,delete on public.%I to authenticated',t);
@@ -171,6 +189,12 @@ create policy read on public.cleaners for select to authenticated using(public.c
 create policy admin_write on public.cleaners for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.cleaner_contacts for select to authenticated using(public.is_staff());
 create policy admin_write on public.cleaner_contacts for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
+create policy read on public.shifts for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner());
+create policy staff_update on public.shifts for update to authenticated using(public.is_staff()) with check(public.is_staff());
+create policy admin_insert on public.shifts for insert to authenticated with check(public.my_role()='admin');
+create policy admin_delete on public.shifts for delete to authenticated using(public.my_role()='admin');
+create policy read on public.site_qr for select to authenticated using(public.is_staff());
+create policy admin_write on public.site_qr for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.absences for select to authenticated using(public.is_staff());
 create policy admin_write on public.absences for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.sites for select to authenticated using(public.can_see_site(id));
@@ -193,6 +217,75 @@ create policy admin_delete on public.issues for delete to authenticated using(pu
 -- profiles: read your own; only admins see others or change roles
 create policy read_own on public.profiles for select to authenticated using(id=auth.uid() or public.my_role()='admin');
 create policy admin_update on public.profiles for update to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
+
+-- ===== clocking in and out =====
+create or replace function public.dist_m(lat1 float8,lng1 float8,lat2 float8,lng2 float8) returns float8 language sql immutable as
+ $$ select 2*6371000*asin(sqrt(power(sin(radians(lat2-lat1)/2),2)+cos(radians(lat1))*cos(radians(lat2))*power(sin(radians(lng2-lng1)/2),2))) $$;
+-- new sites get their own QR code
+create or replace function public.site_qr_new() returns trigger language plpgsql security definer set search_path=public as $$
+begin insert into public.site_qr(id,code) values(new.id,replace(gen_random_uuid()::text,'-','')) on conflict do nothing; return new; end $$;
+drop trigger if exists site_qr_new on public.sites;
+create trigger site_qr_new after insert on public.sites for each row execute function public.site_qr_new();
+-- is the cleaner at this site right now? Either the phone is within the site's radius, or they scanned its QR code.
+create or replace function public.at_site(p_site text,p_lat float8,p_lng float8,p_acc float8,p_qr text) returns jsonb language plpgsql stable security definer set search_path=public as $$
+declare s record; d float8;
+begin
+ if p_qr is not null then
+  if exists(select 1 from public.site_qr q where q.id=p_site and q.code=p_qr) then return jsonb_build_object('ok',true,'method','qr'); end if;
+  return jsonb_build_object('ok',false,'reason','bad_qr');
+ end if;
+ if p_lat is null or p_lng is null then return jsonb_build_object('ok',false,'reason','no_location'); end if;
+ select * into s from public.sites where id=p_site;
+ if s.lat is null then return jsonb_build_object('ok',false,'reason','no_site_location'); end if;
+ d:=public.dist_m(p_lat,p_lng,s.lat,s.lng);
+ if d<=s.radius+least(coalesce(p_acc,0),100) then return jsonb_build_object('ok',true,'method','gps'); end if;
+ return jsonb_build_object('ok',false,'reason','too_far','distance',round(d));
+end $$;
+create or replace function public.clock_in(p_site text,p_lat float8,p_lng float8,p_acc float8,p_qr text) returns jsonb language plpgsql security definer set search_path=public as $$
+declare c text:=public.my_cleaner(); sid text:=p_site; chk jsonb; nid text;
+begin
+ if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
+ if exists(select 1 from public.shifts where cleaner_id=c and end_at is null) then return jsonb_build_object('ok',false,'reason','already_in'); end if;
+ -- a scanned code names its own site; otherwise use the chosen site, or the nearest of the cleaner's sites
+ if p_qr is not null then select q.id into sid from public.site_qr q where q.code=p_qr; end if;
+ if sid is null and p_lat is not null then
+  select s.id into sid from public.sites s where s.lat is not null and public.can_see_site(s.id) order by public.dist_m(p_lat,p_lng,s.lat,s.lng) limit 1;
+ end if;
+ if sid is null or not public.can_see_site(sid) then return jsonb_build_object('ok',false,'reason',case when p_qr is not null then 'bad_qr' when p_lat is null then 'no_location' else 'no_site' end); end if;
+ chk:=public.at_site(sid,p_lat,p_lng,p_acc,p_qr);
+ if not (chk->>'ok')::boolean then return chk||jsonb_build_object('site',sid); end if;
+ nid:='sh'||replace(gen_random_uuid()::text,'-','');
+ insert into public.shifts(id,cleaner_id,site_id,start_at,start_method) values(nid,c,sid,now(),chk->>'method');
+ return jsonb_build_object('ok',true,'shift',nid,'site',sid,'method',chk->>'method');
+end $$;
+create or replace function public.clock_out(p_lat float8,p_lng float8,p_acc float8,p_qr text) returns jsonb language plpgsql security definer set search_path=public as $$
+declare c text:=public.my_cleaner(); sh record; chk jsonb;
+begin
+ if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
+ select * into sh from public.shifts where cleaner_id=c and end_at is null;
+ if not found then return jsonb_build_object('ok',false,'reason','not_in'); end if;
+ chk:=public.at_site(sh.site_id,p_lat,p_lng,p_acc,p_qr);
+ if not (chk->>'ok')::boolean then return chk||jsonb_build_object('site',sh.site_id); end if;
+ update public.shifts set end_at=now(),end_method=chk->>'method' where id=sh.id;
+ return jsonb_build_object('ok',true,'shift',sh.id,'method',chk->>'method');
+end $$;
+-- forgot to clock out: the cleaner states the real end time and a supervisor approves it
+create or replace function public.request_correction(p_end timestamptz,p_note text) returns jsonb language plpgsql security definer set search_path=public as $$
+declare c text:=public.my_cleaner(); sh record;
+begin
+ if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
+ select * into sh from public.shifts where cleaner_id=c and end_at is null;
+ if not found then return jsonb_build_object('ok',false,'reason','not_in'); end if;
+ if p_end<=sh.start_at or p_end>now() then return jsonb_build_object('ok',false,'reason','bad_time'); end if;
+ update public.shifts set request_end_at=p_end,request_note=nullif(trim(p_note),''),request_status='pending' where id=sh.id;
+ return jsonb_build_object('ok',true,'shift',sh.id);
+end $$;
+revoke all on function public.at_site(text,float8,float8,float8,text) from public,anon,authenticated;
+revoke all on function public.site_qr_new() from public,anon,authenticated;
+do $$ declare f text; begin
+ foreach f in array array['clock_in(text,float8,float8,float8,text)','clock_out(float8,float8,float8,text)','request_correction(timestamptz,text)'] loop
+  execute format('revoke all on function public.%s from public,anon',f); execute format('grant execute on function public.%s to authenticated',f);
+ end loop; end $$;
 
 revoke all on function public.save_inspection(jsonb,jsonb) from public,anon;
 grant execute on function public.save_inspection(jsonb,jsonb) to authenticated;
