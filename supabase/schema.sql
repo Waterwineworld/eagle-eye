@@ -90,6 +90,28 @@ insert into public.profiles(id,email) select id,email from auth.users on conflic
 update public.profiles set role='admin' where not exists(select 1 from public.profiles where role='admin')
  and id=(select id from auth.users order by created_at limit 1);
 
+-- ===== the developer account: always admin, and nobody can change or remove it from the app =====
+-- It is the first login ever created (the one that set the system up). To move the flag to another
+-- account, run here in the SQL Editor:  update public.profiles set is_developer=(email='new@address');
+alter table public.profiles add column if not exists is_developer boolean not null default false;
+update public.profiles set is_developer=true where not exists(select 1 from public.profiles where is_developer)
+ and id=(select id from auth.users order by created_at limit 1);
+update public.profiles set role='admin' where is_developer;
+create or replace function public.profiles_guard() returns trigger language plpgsql security definer set search_path=public as $$
+begin
+ if auth.uid() is null then return coalesce(new,old); end if; -- the SQL Editor stays in full control
+ if tg_op='DELETE' then
+  if old.is_developer then raise exception 'the developer account cannot be removed'; end if;
+  return old;
+ end if;
+ if old.is_developer and (new.role<>'admin' or not new.is_developer) then raise exception 'the developer account cannot be changed'; end if;
+ if new.is_developer and not old.is_developer then raise exception 'only the database owner can mark a developer account'; end if;
+ return new;
+end $$;
+drop trigger if exists profiles_guard on public.profiles;
+create trigger profiles_guard before update or delete on public.profiles for each row execute function public.profiles_guard();
+revoke all on function public.profiles_guard() from public,anon,authenticated;
+
 -- ===== limits on what each role may change in a deviation =====
 create or replace function public.issues_guard() returns trigger language plpgsql security definer set search_path=public as $$
 declare r text:=public.my_role(); days int;
