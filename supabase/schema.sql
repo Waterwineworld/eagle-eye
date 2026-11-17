@@ -50,6 +50,9 @@ create table if not exists public.absences(
 alter table public.sites add column if not exists lat double precision;
 alter table public.sites add column if not exists lng double precision;
 alter table public.sites add column if not exists radius int not null default 200;
+-- version 5: a site can have a team of cleaners besides the responsible one; an inspection records everyone on duty
+alter table public.sites add column if not exists team text[] not null default '{}';
+alter table public.inspections add column if not exists cleaners text[];
 -- the QR code on each site's wall, kept apart so cleaners can't read the codes and clock in from elsewhere
 create table if not exists public.site_qr(id text primary key references public.sites on delete cascade, code text not null unique);
 insert into public.site_qr(id,code) select id,replace(gen_random_uuid()::text,'-','') from public.sites on conflict do nothing;
@@ -81,21 +84,26 @@ create or replace function public.is_staff() returns boolean language sql stable
  $$ select coalesce(public.my_role() in('admin','inspector'),false) $$;
 create or replace function public.is_active() returns boolean language sql stable security definer set search_path=public as
  $$ select coalesce(public.my_role() in('admin','inspector','cleaner','customer'),false) $$;
+-- where the signed-in cleaner works today: responsible, in the site's team, or covering an absent colleague
+create or replace function public.works_at(sid text) returns boolean language sql stable security definer set search_path=public as $$
+ select coalesce(public.my_cleaner() is not null and (
+  exists(select 1 from public.sites s where s.id=sid and (s.cleaner_id=public.my_cleaner() or public.my_cleaner()=any(s.team)))
+  or exists(select 1 from public.absences a join public.sites s on (s.cleaner_id=a.cleaner_id or a.cleaner_id=any(s.team))
+   where s.id=sid and a.substitute_id=public.my_cleaner() and current_date between a.start_date and a.end_date)),false) $$;
 create or replace function public.can_see_site(sid text) returns boolean language sql stable security definer set search_path=public as $$
  select case public.my_role()
   when 'admin' then true when 'inspector' then true
   when 'customer' then exists(select 1 from public.sites s where s.id=sid and s.customer_id=public.my_customer())
-  when 'cleaner' then exists(select 1 from public.sites s where s.id=sid and s.cleaner_id=public.my_cleaner())
-   or exists(select 1 from public.absences a join public.sites s on s.cleaner_id=a.cleaner_id where s.id=sid and a.substitute_id=public.my_cleaner() and current_date between a.start_date and a.end_date)
+  when 'cleaner' then public.works_at(sid)
    or exists(select 1 from public.issues i where i.site_id=sid and i.cleaner_id=public.my_cleaner())
-   or exists(select 1 from public.inspections n where n.site_id=sid and n.cleaner_id=public.my_cleaner())
+   or exists(select 1 from public.inspections n where n.site_id=sid and (n.cleaner_id=public.my_cleaner() or public.my_cleaner()=any(n.cleaners)))
   else false end $$;
 create or replace function public.can_see_cleaner(cid text) returns boolean language sql stable security definer set search_path=public as $$
  select case public.my_role()
   when 'admin' then true when 'inspector' then true
   when 'cleaner' then cid=public.my_cleaner()
-  when 'customer' then exists(select 1 from public.sites s where s.cleaner_id=cid and s.customer_id=public.my_customer())
-   or exists(select 1 from public.inspections n join public.sites s on s.id=n.site_id where n.cleaner_id=cid and s.customer_id=public.my_customer())
+  when 'customer' then exists(select 1 from public.sites s where (s.cleaner_id=cid or cid=any(s.team)) and s.customer_id=public.my_customer())
+   or exists(select 1 from public.inspections n join public.sites s on s.id=n.site_id where (n.cleaner_id=cid or cid=any(n.cleaners)) and s.customer_id=public.my_customer())
    or exists(select 1 from public.issues i join public.sites s on s.id=i.site_id where i.cleaner_id=cid and s.customer_id=public.my_customer())
   else false end $$;
 
@@ -201,7 +209,7 @@ create policy read on public.sites for select to authenticated using(public.can_
 create policy admin_write on public.sites for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 -- inspections: inspectors add, admins change; customers read their sites; cleaners read their own
 create policy read on public.inspections for select to authenticated
- using(public.is_staff() or cleaner_id=public.my_cleaner() or (public.my_role()='customer' and public.can_see_site(site_id)));
+ using(public.is_staff() or cleaner_id=public.my_cleaner() or public.my_cleaner()=any(cleaners) or (public.my_role()='customer' and public.can_see_site(site_id)));
 create policy staff_insert on public.inspections for insert to authenticated with check(public.is_staff());
 create policy admin_update on public.inspections for update to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy admin_delete on public.inspections for delete to authenticated using(public.my_role()='admin');
@@ -249,9 +257,9 @@ begin
  -- a scanned code names its own site; otherwise use the chosen site, or the nearest of the cleaner's sites
  if p_qr is not null then select q.id into sid from public.site_qr q where q.code=p_qr; end if;
  if sid is null and p_lat is not null then
-  select s.id into sid from public.sites s where s.lat is not null and public.can_see_site(s.id) order by public.dist_m(p_lat,p_lng,s.lat,s.lng) limit 1;
+  select s.id into sid from public.sites s where s.lat is not null and public.works_at(s.id) order by public.dist_m(p_lat,p_lng,s.lat,s.lng) limit 1;
  end if;
- if sid is null or not public.can_see_site(sid) then return jsonb_build_object('ok',false,'reason',case when p_qr is not null then 'bad_qr' when p_lat is null then 'no_location' else 'no_site' end); end if;
+ if sid is null or not public.works_at(sid) then return jsonb_build_object('ok',false,'reason',case when p_qr is not null then 'bad_qr' when p_lat is null then 'no_location' else 'no_site' end); end if;
  chk:=public.at_site(sid,p_lat,p_lng,p_acc,p_qr);
  if not (chk->>'ok')::boolean then return chk||jsonb_build_object('site',sid); end if;
  nid:='sh'||replace(gen_random_uuid()::text,'-','');
