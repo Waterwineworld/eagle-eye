@@ -302,6 +302,8 @@ create policy own_update on public.period_acks for update to authenticated using
 create policy admin_delete on public.period_acks for delete to authenticated using(public.my_role()='admin');
 create policy admin_all on public.prices for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy admin_write on public.absences for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
+-- the operations manager (inspector role) chooses substitutes for reported absences
+create policy staff_update on public.absences for update to authenticated using(public.is_staff()) with check(public.is_staff());
 create policy read on public.sites for select to authenticated using(public.can_see_site(id));
 create policy admin_write on public.sites for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 -- inspections: inspectors add, admins change; customers read their sites; cleaners read their own

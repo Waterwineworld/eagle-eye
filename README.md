@@ -26,3 +26,9 @@ After updating the app, run `supabase/schema.sql` again in the Supabase SQL Edit
 - **Cleaner sign-off** of the previous pay period (confirm or ask a question); the admin sees ✓ / ? / ! (changed after confirming).
 - **QR**: a QR clock-in is refused if the phone's position is far from the site; admins can renew a site's QR code. **Tauko** needs a note before it can end.
 - **Privacy notice** (#/privacy) template, and the app can be added to the home screen (manifest + service worker; no push notifications yet).
+
+## Home pages by role
+- **Owner (admin):** Overview — payroll (next pay day, gross, decisions, sign-offs, PDF/CSV), profitability, quality and customers, service delivery, staff, special orders. Groups are folded by default; each title line shows the key figure.
+- **Operations manager (inspector role):** Operations — today's visits, absences and substitutes (set the substitute right there), working hours (corrections, shifts open too long), faults and customers, supply requests, inspections due, special orders.
+- **Developer account:** both, plus the full classic dashboard.
+- Schedule on phones shows one day at a time (day strip, "problems only", "whole week"); temporary changes are folded.
