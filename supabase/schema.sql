@@ -65,6 +65,38 @@ create table if not exists public.shifts(
  check(end_at is null or end_at>=start_at));
 create index if not exists shifts_cleaner on public.shifts(cleaner_id,start_at);
 create unique index if not exists shifts_one_open on public.shifts(cleaner_id) where end_at is null;
+-- version 6: Tauko, planned time per visit, travel kilometres, admin review of hours, pay rates and locked pay periods.
+-- A shift without a site is a Tauko clock-in: allowed anywhere in Finland, e.g. when working at a site that isn't assigned to you.
+alter table public.shifts alter column site_id drop not null;
+alter table public.shifts drop constraint if exists shifts_start_method_check;
+alter table public.shifts add constraint shifts_start_method_check check(start_method in('gps','qr','manual','tauko'));
+alter table public.shifts drop constraint if exists shifts_end_method_check;
+alter table public.shifts add constraint shifts_end_method_check check(end_method in('gps','qr','manual','correction','tauko'));
+alter table public.shifts add column if not exists visit text not null default 'main';
+alter table public.shifts drop constraint if exists shifts_visit_check;
+alter table public.shifts add constraint shifts_visit_check check(visit in('main','midday'));
+alter table public.shifts add column if not exists km real;
+alter table public.shifts drop constraint if exists shifts_km_check;
+alter table public.shifts add constraint shifts_km_check check(km is null or (km>=0 and km<=2000));
+-- the admin's decision on flagged hours; the recorded start and end times are never changed by it
+alter table public.shifts add column if not exists review text;
+alter table public.shifts drop constraint if exists shifts_review_check;
+alter table public.shifts add constraint shifts_review_check check(review in('approved','planned','manual','kept','discarded'));
+alter table public.shifts add column if not exists pay_min int;
+alter table public.shifts drop constraint if exists shifts_pay_min_check;
+alter table public.shifts add constraint shifts_pay_min_check check(pay_min is null or (pay_min>=0 and pay_min<=1440));
+alter table public.shifts add column if not exists review_note text;
+alter table public.shifts add column if not exists reviewed_at timestamptz;
+alter table public.shifts add column if not exists reviewed_by text;
+-- planned minutes for the main visit (empty: no planned time, the cleaner is trusted), an optional mid-day visit,
+-- and whether travel kilometres to the site are paid
+alter table public.sites add column if not exists plan_min int;
+alter table public.sites add column if not exists plan2_min int;
+alter table public.sites add column if not exists km_paid boolean not null default false;
+-- hourly wage per cleaner (admins only); the default rate is in settings
+create table if not exists public.cleaner_pay(id text primary key references public.cleaners on delete cascade, hour_rate numeric(8,2));
+-- an approved pay period: its hours can no longer be changed until an admin unlocks it
+create table if not exists public.pay_locks(id text primary key, locked_at timestamptz not null default now(), locked_by text);
 create index if not exists inspections_site on public.inspections(site_id);
 create index if not exists inspections_cleaner on public.inspections(cleaner_id);
 create index if not exists issues_site on public.issues(site_id);
@@ -172,7 +204,7 @@ end $$;
 
 -- ===== access rules =====
 do $$ declare t text; begin
- foreach t in array array['customers','cleaners','cleaner_contacts','items','site_types','sites','inspections','issues','settings','profiles','absences','shifts','site_qr'] loop
+ foreach t in array array['customers','cleaners','cleaner_contacts','items','site_types','sites','inspections','issues','settings','profiles','absences','shifts','site_qr','cleaner_pay','pay_locks'] loop
   execute format('alter table public.%I enable row level security',t);
   execute format('revoke all on public.%I from anon',t);
   execute format('grant select,insert,update,delete on public.%I to authenticated',t);
@@ -201,6 +233,9 @@ create policy read on public.shifts for select to authenticated using(public.is_
 create policy staff_update on public.shifts for update to authenticated using(public.is_staff()) with check(public.is_staff());
 create policy admin_insert on public.shifts for insert to authenticated with check(public.my_role()='admin');
 create policy admin_delete on public.shifts for delete to authenticated using(public.my_role()='admin');
+create policy admin_all on public.cleaner_pay for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
+create policy read on public.pay_locks for select to authenticated using(public.is_active());
+create policy admin_write on public.pay_locks for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.site_qr for select to authenticated using(public.is_staff());
 create policy admin_write on public.site_qr for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.absences for select to authenticated using(public.is_staff());
@@ -249,11 +284,18 @@ begin
  if d<=s.radius+least(coalesce(p_acc,0),100) then return jsonb_build_object('ok',true,'method','gps'); end if;
  return jsonb_build_object('ok',false,'reason','too_far','distance',round(d));
 end $$;
-create or replace function public.clock_in(p_site text,p_lat float8,p_lng float8,p_acc float8,p_qr text) returns jsonb language plpgsql security definer set search_path=public as $$
-declare c text:=public.my_cleaner(); sid text:=p_site; chk jsonb; nid text;
+drop function if exists public.clock_in(text,float8,float8,float8,text);
+create or replace function public.clock_in(p_site text,p_lat float8,p_lng float8,p_acc float8,p_qr text,p_tauko boolean default false) returns jsonb language plpgsql security definer set search_path=public as $$
+declare c text:=public.my_cleaner(); sid text:=p_site; chk jsonb; nid text; v text:='main';
 begin
  if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
  if exists(select 1 from public.shifts where cleaner_id=c and end_at is null) then return jsonb_build_object('ok',false,'reason','already_in'); end if;
+ -- Tauko works anywhere: no site and no position check
+ if coalesce(p_tauko,false) then
+  nid:='sh'||replace(gen_random_uuid()::text,'-','');
+  insert into public.shifts(id,cleaner_id,site_id,start_at,start_method) values(nid,c,null,now(),'tauko');
+  return jsonb_build_object('ok',true,'shift',nid,'site',null,'method','tauko');
+ end if;
  -- a scanned code names its own site; otherwise use the chosen site, or the nearest of the cleaner's sites
  if p_qr is not null then select q.id into sid from public.site_qr q where q.code=p_qr; end if;
  if sid is null and p_lat is not null then
@@ -263,8 +305,11 @@ begin
  chk:=public.at_site(sid,p_lat,p_lng,p_acc,p_qr);
  if not (chk->>'ok')::boolean then return chk||jsonb_build_object('site',sid); end if;
  nid:='sh'||replace(gen_random_uuid()::text,'-','');
- insert into public.shifts(id,cleaner_id,site_id,start_at,start_method) values(nid,c,sid,now(),chk->>'method');
- return jsonb_build_object('ok',true,'shift',nid,'site',sid,'method',chk->>'method');
+ -- a site with a mid-day visit: the second clock-in of the day there is the mid-day visit (the cleaner can change it)
+ if exists(select 1 from public.sites s where s.id=sid and s.plan2_min is not null) and exists(select 1 from public.shifts x where x.cleaner_id=c and x.site_id=sid and x.visit='main'
+   and (x.start_at at time zone 'Europe/Helsinki')::date=(now() at time zone 'Europe/Helsinki')::date) then v:='midday'; end if;
+ insert into public.shifts(id,cleaner_id,site_id,start_at,start_method,visit) values(nid,c,sid,now(),chk->>'method',v);
+ return jsonb_build_object('ok',true,'shift',nid,'site',sid,'method',chk->>'method','visit',v);
 end $$;
 create or replace function public.clock_out(p_lat float8,p_lng float8,p_acc float8,p_qr text) returns jsonb language plpgsql security definer set search_path=public as $$
 declare c text:=public.my_cleaner(); sh record; chk jsonb;
@@ -272,6 +317,10 @@ begin
  if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
  select * into sh from public.shifts where cleaner_id=c and end_at is null;
  if not found then return jsonb_build_object('ok',false,'reason','not_in'); end if;
+ if sh.site_id is null then
+  update public.shifts set end_at=now(),end_method='tauko' where id=sh.id;
+  return jsonb_build_object('ok',true,'shift',sh.id,'method','tauko');
+ end if;
  chk:=public.at_site(sh.site_id,p_lat,p_lng,p_acc,p_qr);
  if not (chk->>'ok')::boolean then return chk||jsonb_build_object('site',sh.site_id); end if;
  update public.shifts set end_at=now(),end_method=chk->>'method' where id=sh.id;
@@ -288,10 +337,42 @@ begin
  update public.shifts set request_end_at=p_end,request_note=nullif(trim(p_note),''),request_status='pending' where id=sh.id;
  return jsonb_build_object('ok',true,'shift',sh.id);
 end $$;
+-- the cleaner adds which visit it was, kilometres driven to the site (only where they are paid) and a note;
+-- possible while the shift is open and for two days after, until an admin has reviewed it
+create or replace function public.set_shift_info(p_shift text,p_visit text,p_km real,p_note text) returns jsonb language plpgsql security definer set search_path=public as $$
+declare c text:=public.my_cleaner(); sh record; kp boolean;
+begin
+ if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
+ select * into sh from public.shifts where id=p_shift and cleaner_id=c;
+ if not found then return jsonb_build_object('ok',false,'reason','not_found'); end if;
+ if sh.review is not null or (sh.end_at is not null and sh.end_at<now()-interval '2 days') then return jsonb_build_object('ok',false,'reason','too_late'); end if;
+ if p_km is not null and (p_km<0 or p_km>2000) then return jsonb_build_object('ok',false,'reason','bad_km'); end if;
+ select km_paid into kp from public.sites where id=sh.site_id;
+ update public.shifts set visit=case when p_visit in('main','midday') then p_visit else visit end,km=case when coalesce(kp,false) then p_km else null end,
+  note=nullif(left(trim(coalesce(p_note,'')),300),'') where id=sh.id;
+ return jsonb_build_object('ok',true,'shift',sh.id);
+end $$;
+-- pay periods run 1st–15th (key YYYY-MM-1) and 16th–end (YYYY-MM-2), Finnish time
+create or replace function public.pay_key(ts timestamptz) returns text language sql stable as
+ $$ select to_char(ts at time zone 'Europe/Helsinki','YYYY-MM')||'-'||case when extract(day from ts at time zone 'Europe/Helsinki')<=15 then '1' else '2' end $$;
+-- hours in a locked (approved) pay period can't change; only admins decide on flagged hours
+create or replace function public.shifts_guard() returns trigger language plpgsql security definer set search_path=public as $$
+begin
+ if auth.uid() is null then return coalesce(new,old); end if; -- the SQL Editor stays in full control
+ if tg_op in('UPDATE','DELETE') and exists(select 1 from public.pay_locks where id=public.pay_key(old.start_at)) then raise exception 'this pay period is approved and locked'; end if;
+ if tg_op in('INSERT','UPDATE') and exists(select 1 from public.pay_locks where id=public.pay_key(new.start_at)) then raise exception 'this pay period is approved and locked'; end if;
+ if tg_op='UPDATE' and public.my_role() is distinct from 'admin' and (new.review is distinct from old.review or new.pay_min is distinct from old.pay_min
+   or new.review_note is distinct from old.review_note or new.reviewed_at is distinct from old.reviewed_at or new.reviewed_by is distinct from old.reviewed_by) then
+  raise exception 'only an admin can approve working hours'; end if;
+ return coalesce(new,old);
+end $$;
+drop trigger if exists shifts_guard on public.shifts;
+create trigger shifts_guard before insert or update or delete on public.shifts for each row execute function public.shifts_guard();
+revoke all on function public.shifts_guard() from public,anon,authenticated;
 revoke all on function public.at_site(text,float8,float8,float8,text) from public,anon,authenticated;
 revoke all on function public.site_qr_new() from public,anon,authenticated;
 do $$ declare f text; begin
- foreach f in array array['clock_in(text,float8,float8,float8,text)','clock_out(float8,float8,float8,text)','request_correction(timestamptz,text)'] loop
+ foreach f in array array['clock_in(text,float8,float8,float8,text,boolean)','clock_out(float8,float8,float8,text)','request_correction(timestamptz,text)','set_shift_info(text,text,real,text)'] loop
   execute format('revoke all on function public.%s from public,anon',f); execute format('grant execute on function public.%s to authenticated',f);
  end loop; end $$;
 
