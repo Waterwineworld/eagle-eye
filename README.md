@@ -15,3 +15,14 @@ After updating the app, run `supabase/schema.sql` again in the Supabase SQL Edit
 - **Flags**: under 5 min = mistaken clock-in (left out), over 12 h at one site in a day, shift still open 60 min past its planned time. All thresholds are in Settings → Working time and pay. Each flag links to the shift page where the admin approves, pays the planned time, sets hours (with a reason) or discards.
 - **Kilometres**: on sites marked "travel paid" the cleaner enters km to the site; pay = payable hours × hourly rate + km × €/km. Payroll PDF/CSV on the Working hours page.
 - **Approve and lock** a finished pay period; the database refuses changes to locked periods until an admin unlocks.
+
+## Schedule, special orders and more (database version 7)
+- **Schedule**: each site has its responsible cleaner, cleaning days, a latest start time and an optional mid-day time. Temporary changes (another cleaner, closed, extra day) are dated. A sick report from the cleaner waits for the admin to pick a substitute, who gets the whole visit. Site teams were removed.
+- **Missed-visit alerts** (in the app): a visit nobody started 15 min after its latest start time, sites without a cleaner in the coming week, sick reports without a substitute.
+- **Special orders**: deep cleaning / extra work with date(s), place (site or address), planned time, cleaner and price; the cleaner clocks in to the order. Billing CSV of done orders.
+- **Site card** (access, keys, alarm code, instructions, contact) shown to whoever works at the site that day.
+- **Supply requests** from cleaners (Faults page for supervisors).
+- **Pay**: editable supplement rules (evening, night, Saturday, Sunday/holiday — enter your agreement's rates), payroll CSV with supplement columns, travel log CSV (date, start time, from, to, km, purpose), profit per site on the Reports page (contract price + extra work vs labour cost with employer costs %).
+- **Cleaner sign-off** of the previous pay period (confirm or ask a question); the admin sees ✓ / ? / ! (changed after confirming).
+- **QR**: a QR clock-in is refused if the phone's position is far from the site; admins can renew a site's QR code. **Tauko** needs a note before it can end.
+- **Privacy notice** (#/privacy) template, and the app can be added to the home screen (manifest + service worker; no push notifications yet).

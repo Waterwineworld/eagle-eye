@@ -97,6 +97,46 @@ alter table public.sites add column if not exists km_paid boolean not null defau
 create table if not exists public.cleaner_pay(id text primary key references public.cleaners on delete cascade, hour_rate numeric(8,2));
 -- an approved pay period: its hours can no longer be changed until an admin unlocks it
 create table if not exists public.pay_locks(id text primary key, locked_at timestamptz not null default now(), locked_by text);
+-- version 7: work schedule, temporary changes, special orders, site information, sick reports, supplies,
+-- cleaners' sign-off of a pay period and prices for profitability. Site teams are removed: one responsible cleaner per site.
+update public.sites set team='{}' where team<>'{}';
+-- the weekly pattern: ISO weekdays (1=Mon … 7=Sun), the latest start time and the expected time of the mid-day visit
+alter table public.sites add column if not exists days text not null default '12345';
+alter table public.sites add column if not exists start_by text;
+alter table public.sites add column if not exists mid_at text;
+-- a temporary change to a site's schedule: another cleaner, closed (no cleaning) or an extra cleaning day
+create table if not exists public.site_changes(
+ id text primary key, site_id text not null references public.sites on delete cascade,
+ start_date date not null, end_date date not null, kind text not null check(kind in('cleaner','closed','extra')),
+ cleaner_id text references public.cleaners on delete cascade, note text, check(end_date>=start_date));
+-- what a substitute needs to know; the alarm code is visible only to staff and whoever works at the site
+create table if not exists public.site_info(id text primary key references public.sites on delete cascade,
+ access text, keys text, alarm text, instructions text, contact text);
+-- special orders: deep cleaning, extra work for a customer, other special duties
+create table if not exists public.orders(
+ id text primary key, title text not null, details text, site_id text references public.sites on delete set null,
+ address text, lat double precision, lng double precision, date date not null, end_date date, start_time text, plan_min int,
+ cleaner_id text references public.cleaners on delete set null, customer_id text references public.customers on delete set null,
+ status text not null default 'open' check(status in('open','done','cancelled')), created_by text, created_at timestamptz not null default now(), done_at timestamptz);
+alter table public.shifts add column if not exists order_id text references public.orders on delete set null;
+alter table public.shifts add column if not exists km_from text;
+alter table public.shifts drop constraint if exists shifts_start_method_check;
+alter table public.shifts add constraint shifts_start_method_check check(start_method in('gps','qr','qrgps','manual','tauko'));
+alter table public.shifts drop constraint if exists shifts_end_method_check;
+alter table public.shifts add constraint shifts_end_method_check check(end_method in('gps','qr','qrgps','manual','correction','tauko'));
+-- an absence reported by the cleaner waits for the admin to choose a substitute
+alter table public.absences add column if not exists reported_at timestamptz;
+alter table public.absences add column if not exists note text;
+create table if not exists public.supply_requests(
+ id text primary key, site_id text not null references public.sites on delete cascade, cleaner_id text references public.cleaners on delete set null,
+ items text[] not null default '{}', note text, status text not null default 'open' check(status in('open','done')),
+ created_at timestamptz not null default now(), handled_by text);
+-- the cleaner agrees with their hours for a pay period, or asks a question
+create table if not exists public.period_acks(
+ id text primary key, period text not null, cleaner_id text not null references public.cleaners on delete cascade,
+ status text not null check(status in('agreed','question')), note text, pay_min int, at timestamptz not null default now());
+-- contract price per month for a site and the price of a special order (admins only)
+create table if not exists public.prices(id text primary key, price numeric(10,2));
 create index if not exists inspections_site on public.inspections(site_id);
 create index if not exists inspections_cleaner on public.inspections(cleaner_id);
 create index if not exists issues_site on public.issues(site_id);
@@ -117,11 +157,17 @@ create or replace function public.is_staff() returns boolean language sql stable
 create or replace function public.is_active() returns boolean language sql stable security definer set search_path=public as
  $$ select coalesce(public.my_role() in('admin','inspector','cleaner','customer'),false) $$;
 -- where the signed-in cleaner works today: responsible, in the site's team, or covering an absent colleague
+create or replace function public.fi_today() returns date language sql stable as $$ select (now() at time zone 'Europe/Helsinki')::date $$;
+-- where the signed-in cleaner works today: responsible cleaner, temporary cleaner, substitute for either, or a special order there
 create or replace function public.works_at(sid text) returns boolean language sql stable security definer set search_path=public as $$
  select coalesce(public.my_cleaner() is not null and (
-  exists(select 1 from public.sites s where s.id=sid and (s.cleaner_id=public.my_cleaner() or public.my_cleaner()=any(s.team)))
-  or exists(select 1 from public.absences a join public.sites s on (s.cleaner_id=a.cleaner_id or a.cleaner_id=any(s.team))
-   where s.id=sid and a.substitute_id=public.my_cleaner() and current_date between a.start_date and a.end_date)),false) $$;
+  exists(select 1 from public.sites s where s.id=sid and s.cleaner_id=public.my_cleaner())
+  or exists(select 1 from public.site_changes x where x.site_id=sid and x.kind='cleaner' and x.cleaner_id=public.my_cleaner() and public.fi_today() between x.start_date and x.end_date)
+  or exists(select 1 from public.absences a join public.sites s on s.cleaner_id=a.cleaner_id
+   where s.id=sid and a.substitute_id=public.my_cleaner() and public.fi_today() between a.start_date and a.end_date)
+  or exists(select 1 from public.absences a join public.site_changes x on x.cleaner_id=a.cleaner_id and x.kind='cleaner'
+   where x.site_id=sid and a.substitute_id=public.my_cleaner() and public.fi_today() between a.start_date and a.end_date and public.fi_today() between x.start_date and x.end_date)
+  or exists(select 1 from public.orders o where o.site_id=sid and o.cleaner_id=public.my_cleaner() and o.status='open' and public.fi_today() between o.date and coalesce(o.end_date,o.date))),false) $$;
 create or replace function public.can_see_site(sid text) returns boolean language sql stable security definer set search_path=public as $$
  select case public.my_role()
   when 'admin' then true when 'inspector' then true
@@ -204,7 +250,7 @@ end $$;
 
 -- ===== access rules =====
 do $$ declare t text; begin
- foreach t in array array['customers','cleaners','cleaner_contacts','items','site_types','sites','inspections','issues','settings','profiles','absences','shifts','site_qr','cleaner_pay','pay_locks'] loop
+ foreach t in array array['customers','cleaners','cleaner_contacts','items','site_types','sites','inspections','issues','settings','profiles','absences','shifts','site_qr','cleaner_pay','pay_locks','site_changes','site_info','orders','supply_requests','period_acks','prices'] loop
   execute format('alter table public.%I enable row level security',t);
   execute format('revoke all on public.%I from anon',t);
   execute format('grant select,insert,update,delete on public.%I to authenticated',t);
@@ -238,7 +284,23 @@ create policy read on public.pay_locks for select to authenticated using(public.
 create policy admin_write on public.pay_locks for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.site_qr for select to authenticated using(public.is_staff());
 create policy admin_write on public.site_qr for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
-create policy read on public.absences for select to authenticated using(public.is_staff());
+create policy read on public.absences for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner() or substitute_id=public.my_cleaner());
+create policy read on public.site_changes for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner() or exists(select 1 from public.sites s where s.id=site_id and s.cleaner_id=public.my_cleaner()));
+create policy staff_write on public.site_changes for all to authenticated using(public.is_staff()) with check(public.is_staff());
+create policy read on public.site_info for select to authenticated using(public.is_staff() or public.works_at(id));
+create policy admin_write on public.site_info for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
+create policy read on public.orders for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner());
+create policy staff_write on public.orders for all to authenticated using(public.is_staff()) with check(public.is_staff());
+create policy read on public.supply_requests for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner());
+create policy cleaner_insert on public.supply_requests for insert to authenticated with check(public.my_role()='cleaner' and cleaner_id=public.my_cleaner() and status='open' and public.works_at(site_id));
+create policy staff_insert on public.supply_requests for insert to authenticated with check(public.is_staff());
+create policy staff_update on public.supply_requests for update to authenticated using(public.is_staff()) with check(public.is_staff());
+create policy admin_delete on public.supply_requests for delete to authenticated using(public.my_role()='admin');
+create policy read on public.period_acks for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner());
+create policy own_write on public.period_acks for insert to authenticated with check(public.my_role()='cleaner' and cleaner_id=public.my_cleaner());
+create policy own_update on public.period_acks for update to authenticated using(public.my_role()='cleaner' and cleaner_id=public.my_cleaner()) with check(public.my_role()='cleaner' and cleaner_id=public.my_cleaner());
+create policy admin_delete on public.period_acks for delete to authenticated using(public.my_role()='admin');
+create policy admin_all on public.prices for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy admin_write on public.absences for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.sites for select to authenticated using(public.can_see_site(id));
 create policy admin_write on public.sites for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
@@ -274,8 +336,16 @@ create or replace function public.at_site(p_site text,p_lat float8,p_lng float8,
 declare s record; d float8;
 begin
  if p_qr is not null then
-  if exists(select 1 from public.site_qr q where q.id=p_site and q.code=p_qr) then return jsonb_build_object('ok',true,'method','qr'); end if;
-  return jsonb_build_object('ok',false,'reason','bad_qr');
+  if not exists(select 1 from public.site_qr q where q.id=p_site and q.code=p_qr) then return jsonb_build_object('ok',false,'reason','bad_qr'); end if;
+  -- a photographed code is useless from home: if the phone also gives a position, it must be near the site
+  if p_lat is not null and p_lng is not null then
+   select * into s from public.sites where id=p_site;
+   if s.lat is not null then d:=public.dist_m(p_lat,p_lng,s.lat,s.lng);
+    if d>s.radius+least(coalesce(p_acc,0),100)+300 then return jsonb_build_object('ok',false,'reason','too_far','distance',round(d)); end if;
+    return jsonb_build_object('ok',true,'method','qrgps');
+   end if;
+  end if;
+  return jsonb_build_object('ok',true,'method','qr');
  end if;
  if p_lat is null or p_lng is null then return jsonb_build_object('ok',false,'reason','no_location'); end if;
  select * into s from public.sites where id=p_site;
@@ -285,8 +355,9 @@ begin
  return jsonb_build_object('ok',false,'reason','too_far','distance',round(d));
 end $$;
 drop function if exists public.clock_in(text,float8,float8,float8,text);
-create or replace function public.clock_in(p_site text,p_lat float8,p_lng float8,p_acc float8,p_qr text,p_tauko boolean default false) returns jsonb language plpgsql security definer set search_path=public as $$
-declare c text:=public.my_cleaner(); sid text:=p_site; chk jsonb; nid text; v text:='main';
+drop function if exists public.clock_in(text,float8,float8,float8,text,boolean);
+create or replace function public.clock_in(p_site text,p_lat float8,p_lng float8,p_acc float8,p_qr text,p_tauko boolean default false,p_order text default null) returns jsonb language plpgsql security definer set search_path=public as $$
+declare c text:=public.my_cleaner(); sid text:=p_site; chk jsonb; nid text; v text:='main'; o record;
 begin
  if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
  if exists(select 1 from public.shifts where cleaner_id=c and end_at is null) then return jsonb_build_object('ok',false,'reason','already_in'); end if;
@@ -295,6 +366,17 @@ begin
   nid:='sh'||replace(gen_random_uuid()::text,'-','');
   insert into public.shifts(id,cleaner_id,site_id,start_at,start_method) values(nid,c,null,now(),'tauko');
   return jsonb_build_object('ok',true,'shift',nid,'site',null,'method','tauko');
+ end if;
+ -- a special order: at its site (position or QR) or at its own address
+ if p_order is not null then
+  select * into o from public.orders where id=p_order and cleaner_id=c and status='open' and public.fi_today() between date and coalesce(end_date,date);
+  if not found then return jsonb_build_object('ok',false,'reason','no_order'); end if;
+  if o.site_id is not null then chk:=public.at_site(o.site_id,p_lat,p_lng,p_acc,p_qr);
+  else chk:=public.at_point(o.lat,o.lng,p_lat,p_lng,p_acc); end if;
+  if not (chk->>'ok')::boolean then return chk; end if;
+  nid:='sh'||replace(gen_random_uuid()::text,'-','');
+  insert into public.shifts(id,cleaner_id,site_id,order_id,start_at,start_method) values(nid,c,o.site_id,o.id,now(),chk->>'method');
+  return jsonb_build_object('ok',true,'shift',nid,'site',o.site_id,'order',o.id,'method',chk->>'method');
  end if;
  -- a scanned code names its own site; otherwise use the chosen site, or the nearest of the cleaner's sites
  if p_qr is not null then select q.id into sid from public.site_qr q where q.code=p_qr; end if;
@@ -311,13 +393,32 @@ begin
  insert into public.shifts(id,cleaner_id,site_id,start_at,start_method,visit) values(nid,c,sid,now(),chk->>'method',v);
  return jsonb_build_object('ok',true,'shift',nid,'site',sid,'method',chk->>'method','visit',v);
 end $$;
+-- is the phone at a place given by coordinates (a special order away from any site)?
+create or replace function public.at_point(lat0 float8,lng0 float8,p_lat float8,p_lng float8,p_acc float8) returns jsonb language plpgsql stable as $$
+declare d float8;
+begin
+ if lat0 is null then return jsonb_build_object('ok',false,'reason','no_site_location'); end if;
+ if p_lat is null or p_lng is null then return jsonb_build_object('ok',false,'reason','no_location'); end if;
+ d:=public.dist_m(p_lat,p_lng,lat0,lng0);
+ if d<=300+least(coalesce(p_acc,0),100) then return jsonb_build_object('ok',true,'method','gps'); end if;
+ return jsonb_build_object('ok',false,'reason','too_far','distance',round(d));
+end $$;
 create or replace function public.clock_out(p_lat float8,p_lng float8,p_acc float8,p_qr text) returns jsonb language plpgsql security definer set search_path=public as $$
-declare c text:=public.my_cleaner(); sh record; chk jsonb;
+declare c text:=public.my_cleaner(); sh record; chk jsonb; lat0 float8; lng0 float8;
 begin
  if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
  select * into sh from public.shifts where cleaner_id=c and end_at is null;
  if not found then return jsonb_build_object('ok',false,'reason','not_in'); end if;
+ if sh.site_id is null and sh.order_id is not null then
+  select o.lat,o.lng into lat0,lng0 from public.orders o where o.id=sh.order_id;
+  chk:=public.at_point(lat0,lng0,p_lat,p_lng,p_acc);
+  if not (chk->>'ok')::boolean then return chk; end if;
+  update public.shifts set end_at=now(),end_method=chk->>'method' where id=sh.id;
+  return jsonb_build_object('ok',true,'shift',sh.id,'method',chk->>'method');
+ end if;
  if sh.site_id is null then
+  -- Tauko works anywhere, but the cleaner must say where they worked
+  if coalesce(trim(sh.note),'')='' then return jsonb_build_object('ok',false,'reason','need_note','shift',sh.id); end if;
   update public.shifts set end_at=now(),end_method='tauko' where id=sh.id;
   return jsonb_build_object('ok',true,'shift',sh.id,'method','tauko');
  end if;
@@ -339,7 +440,8 @@ begin
 end $$;
 -- the cleaner adds which visit it was, kilometres driven to the site (only where they are paid) and a note;
 -- possible while the shift is open and for two days after, until an admin has reviewed it
-create or replace function public.set_shift_info(p_shift text,p_visit text,p_km real,p_note text) returns jsonb language plpgsql security definer set search_path=public as $$
+drop function if exists public.set_shift_info(text,text,real,text);
+create or replace function public.set_shift_info(p_shift text,p_visit text,p_km real,p_note text,p_km_from text default null) returns jsonb language plpgsql security definer set search_path=public as $$
 declare c text:=public.my_cleaner(); sh record; kp boolean;
 begin
  if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
@@ -349,8 +451,20 @@ begin
  if p_km is not null and (p_km<0 or p_km>2000) then return jsonb_build_object('ok',false,'reason','bad_km'); end if;
  select km_paid into kp from public.sites where id=sh.site_id;
  update public.shifts set visit=case when p_visit in('main','midday') then p_visit else visit end,km=case when coalesce(kp,false) then p_km else null end,
+  km_from=case when coalesce(kp,false) and p_km is not null then nullif(left(trim(coalesce(p_km_from,'')),120),'') else null end,
   note=nullif(left(trim(coalesce(p_note,'')),300),'') where id=sh.id;
  return jsonb_build_object('ok',true,'shift',sh.id);
+end $$;
+-- the cleaner reports being sick or away; the admin then chooses a substitute
+create or replace function public.report_absence(p_from date,p_to date,p_reason text,p_note text) returns jsonb language plpgsql security definer set search_path=public as $$
+declare c text:=public.my_cleaner(); nid text;
+begin
+ if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
+ if p_from is null or p_to is null or p_to<p_from or p_from<public.fi_today()-1 or p_to>p_from+60 then return jsonb_build_object('ok',false,'reason','bad_dates'); end if;
+ nid:='a'||replace(gen_random_uuid()::text,'-','');
+ insert into public.absences(id,cleaner_id,substitute_id,start_date,end_date,reason,note,reported_at)
+  values(nid,c,null,p_from,p_to,case when p_reason in('sick','child','holiday','other') then p_reason else 'other' end,nullif(left(trim(coalesce(p_note,'')),300),''),now());
+ return jsonb_build_object('ok',true,'id',nid);
 end $$;
 -- pay periods run 1st–15th (key YYYY-MM-1) and 16th–end (YYYY-MM-2), Finnish time
 create or replace function public.pay_key(ts timestamptz) returns text language sql stable as
@@ -372,7 +486,7 @@ revoke all on function public.shifts_guard() from public,anon,authenticated;
 revoke all on function public.at_site(text,float8,float8,float8,text) from public,anon,authenticated;
 revoke all on function public.site_qr_new() from public,anon,authenticated;
 do $$ declare f text; begin
- foreach f in array array['clock_in(text,float8,float8,float8,text,boolean)','clock_out(float8,float8,float8,text)','request_correction(timestamptz,text)','set_shift_info(text,text,real,text)'] loop
+ foreach f in array array['clock_in(text,float8,float8,float8,text,boolean,text)','clock_out(float8,float8,float8,text)','request_correction(timestamptz,text)','set_shift_info(text,text,real,text,text)','report_absence(date,date,text,text)'] loop
   execute format('revoke all on function public.%s from public,anon',f); execute format('grant execute on function public.%s to authenticated',f);
  end loop; end $$;
 
