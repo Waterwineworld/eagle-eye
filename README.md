@@ -41,3 +41,8 @@ After updating the app, run `supabase/schema.sql` again in the Supabase SQL Edit
 - Every card that starts with a heading is folded by default, on every page and for every role (the inspection form, site and template editors stay open). Cards that need action stay open: today's visits on the clock screen and hours still to confirm. An opened card stays open while the app is open.
 - Charts were replaced with plain figures: monthly scores as a row of numbers (below target in red), averages as a list, inspection scores as a number.
 - Demo mode shows a yellow banner on every page with a "Sign in with a real account" button, and the demo login page starts with the same button. The demo is at `?demo=1` on the live address.
+
+## Cleaner arranges the substitute
+- When reporting an absence, the cleaner picks the colleague who takes the shifts (or "Not arranged yet – supervisor arranges"). The colleague can then clock in at the absent cleaner's sites, only on the absence days. The cleaner can change or clear the substitute later on My hours; the OPM can still override it.
+- Database: `report_absence` takes `p_sub`; new `set_my_substitute(p_abs,p_sub)` and `colleagues()` (names only, no phone numbers). A colleague who is away on the same days, inactive, or the cleaner themself is refused. **Re-run schema.sql.**
+- My hours is compact on phones: pay periods as two short rows, smaller cards.

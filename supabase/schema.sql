@@ -457,17 +457,36 @@ begin
   note=nullif(left(trim(coalesce(p_note,'')),300),'') where id=sh.id;
  return jsonb_build_object('ok',true,'shift',sh.id);
 end $$;
--- the cleaner reports being sick or away; the admin then chooses a substitute
-create or replace function public.report_absence(p_from date,p_to date,p_reason text,p_note text) returns jsonb language plpgsql security definer set search_path=public as $$
-declare c text:=public.my_cleaner(); nid text;
+-- the cleaner reports being sick or away and names the colleague who takes the shifts (or leaves it to the manager)
+drop function if exists public.report_absence(date,date,text,text);
+create or replace function public.sub_ok(p_sub text,c text,p_from date,p_to date) returns boolean language sql stable security definer set search_path=public as $$
+ select p_sub is null or (p_sub<>c and exists(select 1 from public.cleaners k where k.id=p_sub and k.active)
+  and not exists(select 1 from public.absences a where a.cleaner_id=p_sub and a.start_date<=p_to and a.end_date>=p_from)) $$;
+create or replace function public.report_absence(p_from date,p_to date,p_reason text,p_note text,p_sub text default null) returns jsonb language plpgsql security definer set search_path=public as $$
+declare c text:=public.my_cleaner(); nid text; s text:=nullif(trim(coalesce(p_sub,'')),'');
 begin
  if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
  if p_from is null or p_to is null or p_to<p_from or p_from<public.fi_today()-1 or p_to>p_from+60 then return jsonb_build_object('ok',false,'reason','bad_dates'); end if;
+ if not public.sub_ok(s,c,p_from,p_to) then return jsonb_build_object('ok',false,'reason','bad_sub'); end if;
  nid:='a'||replace(gen_random_uuid()::text,'-','');
  insert into public.absences(id,cleaner_id,substitute_id,start_date,end_date,reason,note,reported_at)
-  values(nid,c,null,p_from,p_to,case when p_reason in('sick','child','holiday','other') then p_reason else 'other' end,nullif(left(trim(coalesce(p_note,'')),300),''),now());
+  values(nid,c,s,p_from,p_to,case when p_reason in('sick','child','holiday','other') then p_reason else 'other' end,nullif(left(trim(coalesce(p_note,'')),300),''),now());
  return jsonb_build_object('ok',true,'id',nid);
 end $$;
+-- the cleaner changes the substitute of their own current or coming absence
+create or replace function public.set_my_substitute(p_abs text,p_sub text) returns jsonb language plpgsql security definer set search_path=public as $$
+declare c text:=public.my_cleaner(); a public.absences; s text:=nullif(trim(coalesce(p_sub,'')),'');
+begin
+ if public.my_role() is distinct from 'cleaner' or c is null then return jsonb_build_object('ok',false,'reason','not_cleaner'); end if;
+ select * into a from public.absences where id=p_abs and cleaner_id=c;
+ if not found or a.end_date<public.fi_today() then return jsonb_build_object('ok',false,'reason','not_found'); end if;
+ if not public.sub_ok(s,c,a.start_date,a.end_date) then return jsonb_build_object('ok',false,'reason','bad_sub'); end if;
+ update public.absences set substitute_id=s where id=a.id;
+ return jsonb_build_object('ok',true);
+end $$;
+-- colleagues' names (no phone numbers) so a cleaner can choose a substitute
+create or replace function public.colleagues() returns table(id text,name text) language sql stable security definer set search_path=public as $$
+ select k.id,k.name from public.cleaners k where k.active and public.my_role()='cleaner' and public.my_cleaner() is not null order by k.name $$;
 -- pay periods run 1st–15th (key YYYY-MM-1) and 16th–end (YYYY-MM-2), Finnish time
 create or replace function public.pay_key(ts timestamptz) returns text language sql stable as
  $$ select to_char(ts at time zone 'Europe/Helsinki','YYYY-MM')||'-'||case when extract(day from ts at time zone 'Europe/Helsinki')<=15 then '1' else '2' end $$;
@@ -485,10 +504,11 @@ end $$;
 drop trigger if exists shifts_guard on public.shifts;
 create trigger shifts_guard before insert or update or delete on public.shifts for each row execute function public.shifts_guard();
 revoke all on function public.shifts_guard() from public,anon,authenticated;
+revoke all on function public.sub_ok(text,text,date,date) from public,anon,authenticated;
 revoke all on function public.at_site(text,float8,float8,float8,text) from public,anon,authenticated;
 revoke all on function public.site_qr_new() from public,anon,authenticated;
 do $$ declare f text; begin
- foreach f in array array['clock_in(text,float8,float8,float8,text,boolean,text)','clock_out(float8,float8,float8,text)','request_correction(timestamptz,text)','set_shift_info(text,text,real,text,text)','report_absence(date,date,text,text)'] loop
+ foreach f in array array['clock_in(text,float8,float8,float8,text,boolean,text)','clock_out(float8,float8,float8,text)','request_correction(timestamptz,text)','set_shift_info(text,text,real,text,text)','report_absence(date,date,text,text,text)','set_my_substitute(text,text)','colleagues()'] loop
   execute format('revoke all on function public.%s from public,anon',f); execute format('grant execute on function public.%s to authenticated',f);
  end loop; end $$;
 
