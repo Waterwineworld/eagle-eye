@@ -131,6 +131,11 @@ create table if not exists public.supply_requests(
  id text primary key, site_id text not null references public.sites on delete cascade, cleaner_id text references public.cleaners on delete set null,
  items text[] not null default '{}', note text, status text not null default 'open' check(status in('open','done')),
  created_at timestamptz not null default now(), handled_by text);
+-- the cleaner's comments and reports about a task (equipment fault, keys, damage...), handled by the OPM or admin
+create table if not exists public.cleaner_reports(
+ id text primary key, cleaner_id text not null references public.cleaners on delete cascade, site_id text references public.sites on delete set null, shift_id text,
+ kind text not null default 'comment' check(kind in('comment','equipment','access','damage','other')), body text not null check(char_length(body) between 1 and 1000),
+ status text not null default 'open' check(status in('open','seen','done')), reply text, created_at timestamptz not null default now(), handled_by text, handled_at timestamptz);
 -- the cleaner agrees with their hours for a pay period, or asks a question
 create table if not exists public.period_acks(
  id text primary key, period text not null, cleaner_id text not null references public.cleaners on delete cascade,
@@ -256,7 +261,7 @@ end $$;
 
 -- ===== access rules =====
 do $$ declare t text; begin
- foreach t in array array['customers','cleaners','cleaner_contacts','items','site_types','sites','inspections','issues','settings','profiles','absences','shifts','site_qr','cleaner_pay','pay_locks','site_changes','site_info','orders','supply_requests','period_acks','prices'] loop
+ foreach t in array array['customers','cleaners','cleaner_contacts','items','site_types','sites','inspections','issues','settings','profiles','absences','shifts','site_qr','cleaner_pay','pay_locks','site_changes','site_info','orders','supply_requests','period_acks','prices','cleaner_reports'] loop
   execute format('alter table public.%I enable row level security',t);
   execute format('revoke all on public.%I from anon',t);
   execute format('grant select,insert,update,delete on public.%I to authenticated',t);
@@ -302,6 +307,11 @@ create policy cleaner_insert on public.supply_requests for insert to authenticat
 create policy staff_insert on public.supply_requests for insert to authenticated with check(public.can('supplies'));
 create policy staff_update on public.supply_requests for update to authenticated using(public.can('supplies')) with check(public.can('supplies'));
 create policy admin_delete on public.supply_requests for delete to authenticated using(public.my_role()='admin');
+create policy read on public.cleaner_reports for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner());
+create policy cleaner_insert on public.cleaner_reports for insert to authenticated with check(public.my_role()='cleaner' and cleaner_id=public.my_cleaner() and status='open' and reply is null and handled_by is null
+ and (site_id is null or public.works_at(site_id) or exists(select 1 from public.shifts h where h.cleaner_id=public.my_cleaner() and h.site_id=cleaner_reports.site_id and h.start_at>now()-interval '2 days')));
+create policy staff_update on public.cleaner_reports for update to authenticated using(public.can('issues')) with check(public.can('issues'));
+create policy admin_delete on public.cleaner_reports for delete to authenticated using(public.my_role()='admin');
 create policy read on public.period_acks for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner());
 create policy own_write on public.period_acks for insert to authenticated with check(public.my_role()='cleaner' and cleaner_id=public.my_cleaner());
 create policy own_update on public.period_acks for update to authenticated using(public.my_role()='cleaner' and cleaner_id=public.my_cleaner()) with check(public.my_role()='cleaner' and cleaner_id=public.my_cleaner());

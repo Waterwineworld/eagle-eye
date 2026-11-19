@@ -51,3 +51,9 @@ After updating the app, run `supabase/schema.sql` again in the Supabase SQL Edit
 The admin switches what the operations manager (inspector role) may do. Defaults: inspections, faults, forgotten clock-outs, absences and substitutes, schedule changes, special orders, supply requests, reports = on; approving working hours, pay/prices/profitability, editing sites, managing cleaners = off. "Restore defaults" returns to these.
 Always admin only: logins, settings and hourly rates, locking pay periods, deleting inspections and sites.
 Enforced in the database too (`public.can(p)` reads `settings.data.perms`), so hiding a button is not the only protection. **Re-run schema.sql.**
+
+## Cleaner comments and reports
+- While clocked in (button in the clock card) or after (button under the clock page), a cleaner sends a comment or report: comment on the task, machine/equipment broken, keys/access, damage, other (supplies go to the supply form). Site is preselected; the shift is linked.
+- The OPM sees "Reports from cleaners" on Operations (count badge, "during the shift"), marks it Seen or Handled with an optional reply; the admin sees the same card on the Faults page. Handling needs the "Faults and customer reports" permission.
+- The cleaner sees status (Waiting / Seen / Handled) and the reply under My hours → My reports.
+- Database: new table `cleaner_reports`. **Re-run schema.sql.**
