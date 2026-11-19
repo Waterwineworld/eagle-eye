@@ -36,3 +36,8 @@ After updating the app, run `supabase/schema.sql` again in the Supabase SQL Edit
 ## Cleaner screens (compact)
 - **Clock in:** fits on one phone screen. A status card (not clocked in / clocked in at site, since, running timer), Clock out and **Change site** (closes the shift and opens the next one with one location check), today's planned visits and finished shifts with a total, and a pay-period bar (done / planned hours, pay day). Help and the privacy note are folded under "How does clocking work?".
 - **My hours:** both pay periods, confirming the last period's hours, reporting an absence, supply requests and the shift list (add note / km).
+
+## Folded cards, plain figures, demo banner
+- Every card that starts with a heading is folded by default, on every page and for every role (the inspection form, site and template editors stay open). Cards that need action stay open: today's visits on the clock screen and hours still to confirm. An opened card stays open while the app is open.
+- Charts were replaced with plain figures: monthly scores as a row of numbers (below target in red), averages as a list, inspection scores as a number.
+- Demo mode shows a yellow banner on every page with a "Sign in with a real account" button, and the demo login page starts with the same button. The demo is at `?demo=1` on the live address.
