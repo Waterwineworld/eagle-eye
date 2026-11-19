@@ -32,3 +32,7 @@ After updating the app, run `supabase/schema.sql` again in the Supabase SQL Edit
 - **Operations manager (inspector role):** Operations — today's visits, absences and substitutes (set the substitute right there), working hours (corrections, shifts open too long), faults and customers, supply requests, inspections due, special orders.
 - **Developer account:** both, plus the full classic dashboard.
 - Schedule on phones shows one day at a time (day strip, "problems only", "whole week"); temporary changes are folded.
+
+## Cleaner screens (compact)
+- **Clock in:** fits on one phone screen. A status card (not clocked in / clocked in at site, since, running timer), Clock out and **Change site** (closes the shift and opens the next one with one location check), today's planned visits and finished shifts with a total, and a pay-period bar (done / planned hours, pay day). Help and the privacy note are folded under "How does clocking work?".
+- **My hours:** both pay periods, confirming the last period's hours, reporting an absence, supply requests and the shift list (add note / km).
