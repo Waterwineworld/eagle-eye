@@ -46,3 +46,8 @@ After updating the app, run `supabase/schema.sql` again in the Supabase SQL Edit
 - When reporting an absence, the cleaner picks the colleague who takes the shifts (or "Not arranged yet – supervisor arranges"). The colleague can then clock in at the absent cleaner's sites, only on the absence days. The cleaner can change or clear the substitute later on My hours; the OPM can still override it.
 - Database: `report_absence` takes `p_sub`; new `set_my_substitute(p_abs,p_sub)` and `colleagues()` (names only, no phone numbers). A colleague who is away on the same days, inactive, or the cleaner themself is refused. **Re-run schema.sql.**
 - My hours is compact on phones: pay periods as two short rows, smaller cards.
+
+## OPM permissions (Settings → Operations manager permissions)
+The admin switches what the operations manager (inspector role) may do. Defaults: inspections, faults, forgotten clock-outs, absences and substitutes, schedule changes, special orders, supply requests, reports = on; approving working hours, pay/prices/profitability, editing sites, managing cleaners = off. "Restore defaults" returns to these.
+Always admin only: logins, settings and hourly rates, locking pay periods, deleting inspections and sites.
+Enforced in the database too (`public.can(p)` reads `settings.data.perms`), so hiding a button is not the only protection. **Re-run schema.sql.**

@@ -168,6 +168,12 @@ create or replace function public.works_at(sid text) returns boolean language sq
   or exists(select 1 from public.absences a join public.site_changes x on x.cleaner_id=a.cleaner_id and x.kind='cleaner'
    where x.site_id=sid and a.substitute_id=public.my_cleaner() and public.fi_today() between a.start_date and a.end_date and public.fi_today() between x.start_date and x.end_date)
   or exists(select 1 from public.orders o where o.site_id=sid and o.cleaner_id=public.my_cleaner() and o.status='open' and public.fi_today() between o.date and coalesce(o.end_date,o.date))),false) $$;
+-- what the operations manager (inspector role) may do: Settings → Permissions, stored in settings.data.perms; missing keys use the defaults below
+create or replace function public.can(p text) returns boolean language sql stable security definer set search_path=public as $$
+ select case public.my_role() when 'admin' then true
+  when 'inspector' then coalesce((select (st.data->'perms'->>p)::boolean from public.settings st where st.id=1),
+   p = any(array['inspect','issues','corrections','substitutes','schedule','orders','supplies','reports']))
+  else false end $$;
 create or replace function public.can_see_site(sid text) returns boolean language sql stable security definer set search_path=public as $$
  select case public.my_role()
   when 'admin' then true when 'inspector' then true
@@ -276,7 +282,7 @@ create policy admin_write on public.cleaners for all to authenticated using(publ
 create policy read on public.cleaner_contacts for select to authenticated using(public.is_staff());
 create policy admin_write on public.cleaner_contacts for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.shifts for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner());
-create policy staff_update on public.shifts for update to authenticated using(public.is_staff()) with check(public.is_staff());
+create policy staff_update on public.shifts for update to authenticated using(public.can('corrections') or public.can('hoursReview')) with check(public.can('corrections') or public.can('hoursReview'));
 create policy admin_insert on public.shifts for insert to authenticated with check(public.my_role()='admin');
 create policy admin_delete on public.shifts for delete to authenticated using(public.my_role()='admin');
 create policy admin_all on public.cleaner_pay for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
@@ -286,15 +292,15 @@ create policy read on public.site_qr for select to authenticated using(public.is
 create policy admin_write on public.site_qr for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.absences for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner() or substitute_id=public.my_cleaner());
 create policy read on public.site_changes for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner() or exists(select 1 from public.sites s where s.id=site_id and s.cleaner_id=public.my_cleaner()));
-create policy staff_write on public.site_changes for all to authenticated using(public.is_staff()) with check(public.is_staff());
+create policy staff_write on public.site_changes for all to authenticated using(public.can('schedule')) with check(public.can('schedule'));
 create policy read on public.site_info for select to authenticated using(public.is_staff() or public.works_at(id));
 create policy admin_write on public.site_info for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy read on public.orders for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner());
-create policy staff_write on public.orders for all to authenticated using(public.is_staff()) with check(public.is_staff());
+create policy staff_write on public.orders for all to authenticated using(public.can('orders')) with check(public.can('orders'));
 create policy read on public.supply_requests for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner());
 create policy cleaner_insert on public.supply_requests for insert to authenticated with check(public.my_role()='cleaner' and cleaner_id=public.my_cleaner() and status='open' and public.works_at(site_id));
-create policy staff_insert on public.supply_requests for insert to authenticated with check(public.is_staff());
-create policy staff_update on public.supply_requests for update to authenticated using(public.is_staff()) with check(public.is_staff());
+create policy staff_insert on public.supply_requests for insert to authenticated with check(public.can('supplies'));
+create policy staff_update on public.supply_requests for update to authenticated using(public.can('supplies')) with check(public.can('supplies'));
 create policy admin_delete on public.supply_requests for delete to authenticated using(public.my_role()='admin');
 create policy read on public.period_acks for select to authenticated using(public.is_staff() or cleaner_id=public.my_cleaner());
 create policy own_write on public.period_acks for insert to authenticated with check(public.my_role()='cleaner' and cleaner_id=public.my_cleaner());
@@ -303,21 +309,35 @@ create policy admin_delete on public.period_acks for delete to authenticated usi
 create policy admin_all on public.prices for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy admin_write on public.absences for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 -- the operations manager (inspector role) chooses substitutes for reported absences
-create policy staff_update on public.absences for update to authenticated using(public.is_staff()) with check(public.is_staff());
+create policy staff_update on public.absences for update to authenticated using(public.can('substitutes')) with check(public.can('substitutes'));
+create policy staff_insert on public.absences for insert to authenticated with check(public.can('substitutes'));
 create policy read on public.sites for select to authenticated using(public.can_see_site(id));
 create policy admin_write on public.sites for all to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
+-- granted permissions: editing sites, managing cleaners, euro amounts (deleting stays with the admin)
+create policy perm_ins on public.sites for insert to authenticated with check(public.can('sites'));
+create policy perm_upd on public.sites for update to authenticated using(public.can('sites')) with check(public.can('sites'));
+create policy perm_ins on public.site_info for insert to authenticated with check(public.can('sites'));
+create policy perm_upd on public.site_info for update to authenticated using(public.can('sites')) with check(public.can('sites'));
+create policy perm_ins on public.site_qr for insert to authenticated with check(public.can('sites'));
+create policy perm_upd on public.site_qr for update to authenticated using(public.can('sites')) with check(public.can('sites'));
+create policy perm_ins on public.cleaners for insert to authenticated with check(public.can('cleaners'));
+create policy perm_upd on public.cleaners for update to authenticated using(public.can('cleaners')) with check(public.can('cleaners'));
+create policy perm_ins on public.cleaner_contacts for insert to authenticated with check(public.can('cleaners'));
+create policy perm_upd on public.cleaner_contacts for update to authenticated using(public.can('cleaners')) with check(public.can('cleaners'));
+create policy perm_read on public.cleaner_pay for select to authenticated using(public.can('money'));
+create policy perm_all on public.prices for all to authenticated using(public.can('money')) with check(public.can('money'));
 -- inspections: inspectors add, admins change; customers read their sites; cleaners read their own
 create policy read on public.inspections for select to authenticated
  using(public.is_staff() or cleaner_id=public.my_cleaner() or public.my_cleaner()=any(cleaners) or (public.my_role()='customer' and public.can_see_site(site_id)));
-create policy staff_insert on public.inspections for insert to authenticated with check(public.is_staff());
+create policy staff_insert on public.inspections for insert to authenticated with check(public.can('inspect'));
 create policy admin_update on public.inspections for update to authenticated using(public.my_role()='admin') with check(public.my_role()='admin');
 create policy admin_delete on public.inspections for delete to authenticated using(public.my_role()='admin');
 -- deviations: see issues_guard above for which fields each role may touch
 create policy read on public.issues for select to authenticated
  using(public.is_staff() or cleaner_id=public.my_cleaner() or (public.my_role()='customer' and public.can_see_site(site_id)));
-create policy staff_insert on public.issues for insert to authenticated with check(public.is_staff());
+create policy staff_insert on public.issues for insert to authenticated with check(public.can('inspect') or public.can('issues'));
 create policy customer_insert on public.issues for insert to authenticated with check(public.my_role()='customer' and source='customer' and public.can_see_site(site_id));
-create policy staff_update on public.issues for update to authenticated using(public.is_staff()) with check(public.is_staff());
+create policy staff_update on public.issues for update to authenticated using(public.can('issues')) with check(public.can('issues'));
 create policy cleaner_update on public.issues for update to authenticated
  using(public.my_role()='cleaner' and cleaner_id=public.my_cleaner()) with check(public.my_role()='cleaner' and cleaner_id=public.my_cleaner());
 create policy admin_delete on public.issues for delete to authenticated using(public.my_role()='admin');
@@ -496,7 +516,7 @@ begin
  if auth.uid() is null then return coalesce(new,old); end if; -- the SQL Editor stays in full control
  if tg_op in('UPDATE','DELETE') and exists(select 1 from public.pay_locks where id=public.pay_key(old.start_at)) then raise exception 'this pay period is approved and locked'; end if;
  if tg_op in('INSERT','UPDATE') and exists(select 1 from public.pay_locks where id=public.pay_key(new.start_at)) then raise exception 'this pay period is approved and locked'; end if;
- if tg_op='UPDATE' and public.my_role() is distinct from 'admin' and (new.review is distinct from old.review or new.pay_min is distinct from old.pay_min
+ if tg_op='UPDATE' and not public.can('hoursReview') and (new.review is distinct from old.review or new.pay_min is distinct from old.pay_min
    or new.review_note is distinct from old.review_note or new.reviewed_at is distinct from old.reviewed_at or new.reviewed_by is distinct from old.reviewed_by) then
   raise exception 'only an admin can approve working hours'; end if;
  return coalesce(new,old);
